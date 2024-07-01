@@ -5,7 +5,7 @@ cdkScrollable>
  class="relative inline-block mt-10 sm:p-10 text-left print:p-0 flex flex-col flex-auto items-center p-6 rounded-2xl shadow bg-card"
 >
  <div class="w-full max-w-3xl">
-     <form class="flex items-center flex-col" >
+     <form [formGroup]="form" class="flex items-center flex-col" (ngSubmit)="onSave()">
          <div class="flex flex-col w-full">
              <span
                  class="text-gray-600 text-lg font-semibold w-full text-left"
@@ -24,7 +24,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'invoiceNumber'"
+                         formControlName="invoiceNumber"
                          placeholder="Invoice number"
                      />
                  </mat-form-field>
@@ -393,69 +393,64 @@ cdkScrollable>
                  class="col-span-5  ss:col-span-12"
                  [subscriptSizing]="'dynamic'"
              >
-                 <input
+                    <input
                      matInput
                      [formControlName]="'enterservice'"
                      placeholder="Enter service"
                  />
-             </mat-form-field>
-             <mat-form-field
+                  </mat-form-field>
+                  <mat-form-field
                  class="col-span-2 ss:col-span-7"
                  [subscriptSizing]="'dynamic'"
              >
-                 <input
+                    <input
                      matInput
                      [formControlName]="'rate'"
                      placeholder="Rate"
                  />
-             </mat-form-field>
-             <mat-form-field
+                  </mat-form-field>
+                  <mat-form-field
                  class="col-span-2 self-center ss:col-span-5"
                  [subscriptSizing]="'dynamic'"
              >
-                 <input
+                    <input
                      matInput
                      [formControlName]="'qty'"
                      placeholder="Qty"
                      type="number"
                      min="1"
                  />
-             </mat-form-field>
-             <mat-form-field
+                  </mat-form-field>
+                  <mat-form-field
                  class="col-span-2 self-center ss:col-span-11"
                  [subscriptSizing]="'dynamic'"
              >
-                 <input
+                    <input
                      matInput
                      [formControlName]="'total'"
                      placeholder="Total"
                  />
-             </mat-form-field>
-             <div class="col-span-1 self-center">
-                 <button
+                  </mat-form-field>
+                  <div class="col-span-1 self-center">
+                    <button
                      class="p-1 w-8 ss:w-6 rounded-md bg-red-600 self-center"
                  >
-                     <img
+                      <img
                          class="w-6 h-6 ss:w-5 ss:h-5"
                          src="/assets/images/logo/delete.svg"
                      />
-                 </button>
-             </div>
-
-             <!-- Divider -->
-             <div class="col-span-12 my-4 border-b"></div>
-
-             <!-- Add Item Button -->
-             <div class="col-span-12 flex justify-end items-end">
-                 <button
-                     class="p-1 w-8 h-8 flex items-center justify-center rounded-md bg-blue-600"
-                 >
-                     <img
-                         class="w-5 h-5"
-                         src="/assets/images/logo/cross.svg"
-                     />
-                 </button>
-             </div>
+                    </button>
+                  </div>
+            
+                  <!-- Divider -->
+                  <div class="col-span-12 my-4 border-b"></div>
+                            
+              <!-- Add Item Button -->
+              <div class="col-span-12 flex justify-end items-end mt-5">
+                <button  type="button" class="p-1 w-8 h-8 flex items-center justify-center rounded-md bg-blue-600">
+                  <img class="w-5 h-5" src="/assets/images/logo/cross.svg" />
+                </button>
+              </div>
 
              <!-- Spacer -->
              <div class="col-span-12 mt-16"></div>
@@ -547,7 +542,7 @@ cdkScrollable>
                  Cancel
              </button>
              <!-- Save -->
-             <button class="ml-auto" mat-button [matTooltip]="'Save'">
+             <button type="submit" class="ml-auto" mat-button [matTooltip]="'Save'">
                  Save
              </button>
              <!-- Print -->
@@ -556,6 +551,7 @@ cdkScrollable>
                  mat-flat-button
                  [color]="'primary'"
                  [matTooltip]="'Print'"
+                 (click)="onPrint()"
              >
                  Print
              </button>

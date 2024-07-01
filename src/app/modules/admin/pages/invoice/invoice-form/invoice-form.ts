@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule, MatRippleModule } from '@angular/material/core';
@@ -24,10 +24,55 @@ import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 })
 export class InvoiceFormComponent
 {
-    /**
-     * Constructor
-     */
-    constructor()
-    {
+    form: FormGroup;
+
+    constructor(private fb: FormBuilder) {
+      this.form = this.fb.group({
+        invoiceNumber: ['', Validators.required],
+        Date: ['', Validators.required],
+        dueDate: ['', Validators.required],
+        Name: ['', Validators.required],
+        phone: ['', Validators.required],
+        Addressline1: ['', Validators.required],
+        Addressline2: ['', Validators.required],
+        'Town/city': ['', Validators.required],
+        country: ['', Validators.required],
+        Postcode: ['', Validators.required],
+        regno: ['', Validators.required],
+        make: ['', Validators.required],
+        model: ['', Validators.required],
+        color: [''],
+        fueltype: [''],
+        vin: [''],
+        regyear: [''],
+        enginetype: [''],
+        transmission: [''],
+        mileage: [''],
+        nextservicedate: [''],
+        enterservice: ['', Validators.required],
+        rate: ['', Validators.required],
+        qty: ['', Validators.required],
+        subtotal: ['', Validators.required],
+        tax: ['', Validators.required],
+        discount: ['', Validators.required],
+        total: ['', Validators.required],
+       
+      });
     }
+  
+   
+    onSave() {
+        if (this.form.valid) {
+          const formData = this.form.value;
+          localStorage.setItem('invoiceData', JSON.stringify(formData));
+          console.log('Form data saved:', formData);
+          alert('Data saved to local storage');
+        } else {
+          console.log('Form is invalid:', this.form);
+          alert('Please fill in all required fields');
+        }
+      }
+      onPrint() {
+        window.print();
+      }
 }
