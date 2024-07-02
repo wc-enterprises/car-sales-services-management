@@ -14,6 +14,20 @@ import { HttpClient } from "@angular/common/http";
 
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
+  private invoiceDataSubject = new BehaviorSubject<any>(null);
+  invoiceData$ = this.invoiceDataSubject.asObservable();
+
+  setInvoiceData(data: any) {
+    this.invoiceDataSubject.next(data);
+    localStorage.setItem('invoiceData', JSON.stringify(data));
+  }
+
+  getInvoiceData() {
+    const data = localStorage.getItem('invoiceData');
+    if (data) {
+      this.invoiceDataSubject.next(JSON.parse(data));
+    }
+  }
   // Private
   private _invoices: BehaviorSubject<Invoice[] | null> = new BehaviorSubject(
     null

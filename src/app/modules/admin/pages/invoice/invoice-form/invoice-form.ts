@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
+import { InvoicesService } from '../invoice.service';
 @Component({
     selector       : 'invoice',
     templateUrl    : './invoice-form.html',
@@ -26,21 +27,21 @@ export class InvoiceFormComponent
 {
     form: FormGroup;
 
-    constructor(private fb: FormBuilder) {
+    constructor(private fb: FormBuilder, private invoiceService: InvoicesService) {
       this.form = this.fb.group({
-        invoiceNumber: ['', Validators.required],
-        Date: ['', Validators.required],
-        dueDate: ['', Validators.required],
-        Name: ['', Validators.required],
-        phone: ['', Validators.required],
-        Addressline1: ['', Validators.required],
-        Addressline2: ['', Validators.required],
-        'Town/city': ['', Validators.required],
-        country: ['', Validators.required],
-        Postcode: ['', Validators.required],
-        regno: ['', Validators.required],
-        make: ['', Validators.required],
-        model: ['', Validators.required],
+        invoiceNumber: ['', ],
+        Date: ['', ],
+        dueDate: ['', ],
+        Name: ['', ],
+        phone: ['', ],
+        Addressline1: ['', ],
+        Addressline2: ['', ],
+        'Town/city': ['', ],
+        country: ['', ],
+        Postcode: ['', ],
+        regno: ['', ],
+        make: ['', ],
+        model: ['', ],
         color: [''],
         fueltype: [''],
         vin: [''],
@@ -49,29 +50,42 @@ export class InvoiceFormComponent
         transmission: [''],
         mileage: [''],
         nextservicedate: [''],
-        enterservice: ['', Validators.required],
-        rate: ['', Validators.required],
-        qty: ['', Validators.required],
-        subtotal: ['', Validators.required],
-        tax: ['', Validators.required],
-        discount: ['', Validators.required],
-        total: ['', Validators.required],
-       
+        enterservice: ['', ],
+        rate: ['', ],
+        qty: ['', ],
+        subtotal: ['', ],
+        tax: ['', ],
+        discount: ['', ],
+        total: ['', ],
       });
     }
   
-   
+    // Utility method to format the date to "YYYY-MM-DD"
+    formatDate(date: Date): string {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = ('0' + (d.getMonth() + 1)).slice(-2);
+      const day = ('0' + d.getDate()).slice(-2);
+      return `${year}-${month}-${day}`;
+    }
+  
     onSave() {
-        if (this.form.valid) {
-          const formData = this.form.value;
-          localStorage.setItem('invoiceData', JSON.stringify(formData));
-          console.log('Form data saved:', formData);
-          alert('Data saved to local storage');
-        } else {
-          console.log('Form is invalid:', this.form);
-          alert('Please fill in all required fields');
-        }
+      if (this.form.valid) {
+        const formData = this.form.value;
+  
+        // Format the date fields to remove the timestamp
+        formData.Date = this.formatDate(formData.Date);
+        formData.dueDate = this.formatDate(formData.dueDate);
+        formData.nextservicedate = this.formatDate(formData.nextservicedate);
+  
+        this.invoiceService.setInvoiceData(formData);
+        console.log('Form data saved:', formData);
+        alert('Data saved to local storage and shared service');
+      } else {
+        console.log('Form is invalid:', this.form);
+        alert('Please fill in all required fields');
       }
+    }
       onPrint() {
         window.print();
       }

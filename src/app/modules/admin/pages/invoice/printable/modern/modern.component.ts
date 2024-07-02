@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
+import { InvoicesService } from '../../invoice.service';
 @Component({
     selector       : 'modern',
     templateUrl    : './modern.component.html',
@@ -24,10 +25,17 @@ import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 })
 export class ModernComponent
 {
-    /**
-     * Constructor
-     */
-    constructor()
-    {
+    invoiceData: any;
+
+    constructor(private invoiceService: InvoicesService) {}
+  
+    ngOnInit() {
+      this.invoiceService.invoiceData$.subscribe(data => {
+        this.invoiceData = data;
+        console.log('Received invoice data:', this.invoiceData);
+      });
+  
+      // Load data from localStorage if available
+      this.invoiceService.getInvoiceData();
     }
 }

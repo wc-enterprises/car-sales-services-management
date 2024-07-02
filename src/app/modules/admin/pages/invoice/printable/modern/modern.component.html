@@ -21,7 +21,7 @@
     </div>
 
     <!-- View mode -->
-    <ng-container>
+    <ng-container *ngIf="invoiceData">
         <div class="inline-block p-6 sm:p-10 text-left print:p-0">
             <!-- Invoice -->
             <div
@@ -52,10 +52,13 @@
                                 Bill To
                             </div>
                             <div class="pl-10 border-l text-md">
-                                <div class="font-medium">Jobin Ebenezer</div>
-                                <div>9301 Wood Street</div>
-                                <div>Philadelphia, PA 19111</div>
-                                <div>+55 552 455 87</div>
+                                <div class="font-medium">{{invoiceData.Name}}</div>
+                                <div>{{ invoiceData.Addressline1 }}</div>
+                                <div>{{ invoiceData.Addressline2 }}</div>
+                                <div>{{ invoiceData['Town/city'] }}</div>
+                                <div> {{ invoiceData.country }}</div>
+                                <div>{{ invoiceData.Postcode }}</div>
+                                <div>{{ invoiceData.phone }}</div>
                                 <div>jobin.ebenezer&#64;company.com</div>
                             </div>
                         </div>
@@ -70,19 +73,19 @@
                             >
                                 INVOICE
                             </div>
-                            <div class="text-4xl">#9-0004</div>
+                            <div class="text-4xl"> {{ invoiceData.invoiceNumber }}</div>
                             <div
                                 class="justify-self-end font-medium tracking-tight text-secondary"
                             >
                                 INVOICE DATE
                             </div>
-                            <div class="font-medium">Jul 19, 2022</div>
+                            <div class="font-medium"> {{ invoiceData.Date }}</div>
                             <div
                                 class="justify-self-end font-medium tracking-tight text-secondary"
                             >
                                 DUE DATE
                             </div>
-                            <div class="font-medium">Aug 19, 2022</div>
+                            <div class="font-medium"> {{ invoiceData.dueDate }}</div>
                             <div
                                 class="justify-self-end font-medium tracking-tight text-secondary"
                             >
@@ -97,9 +100,9 @@
                                 Car Info
                             </div>
                             <div class="pl-10 border-l text-md">
-                                <div class="font-medium">DL43 USS2</div>
-                                <div>Scoda</div>
-                                <div>Rapid</div>
+                                <div class="font-medium">{{ invoiceData.regno }}</div>
+                                <div>{{ invoiceData.make }}</div>
+                                <div>{{ invoiceData.model }}</div>
                             </div>
                         </div>
                     </div>
