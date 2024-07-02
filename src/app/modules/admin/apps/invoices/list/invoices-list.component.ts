@@ -50,18 +50,18 @@ import { InvoicesService } from "../invoices.service";
     /* language=SCSS */
     `
       .inventory-grid {
-        grid-template-columns: 48px auto 40px;
+        grid-template-columns: 36px auto 52px 50px;
 
         @screen sm {
           grid-template-columns: 48px 112px 112px auto 72px;
         }
 
         @screen md {
-          grid-template-columns: 48px 112px 112px auto 72px;
+          grid-template-columns: 48px 112px 112px 112px auto 72px;
         }
 
         @screen lg {
-          grid-template-columns: 48px 112px 112px auto 96px;
+          grid-template-columns: 48px 112px 112px 112px auto 80px 80px 72px;
         }
       }
     `,
@@ -185,9 +185,6 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Get the products
     this.invoices$ = this._invoicesService.invoices$;
-    this.invoices$.subscribe((cars) => {
-      console.log("cars", cars);
-    });
 
     // Subscribe to search input field value changes
     // this.searchInputControl.valueChanges
