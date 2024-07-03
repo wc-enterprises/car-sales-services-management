@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from '../../invoice.service';
 @Component({
@@ -25,17 +25,28 @@ import { InvoicesService } from '../../invoice.service';
 })
 export class ModernComponent
 {
-    invoiceData: any;
+  invoiceData: any;
+  @ViewChild('invoice') invoiceElement: ElementRef;
 
-    constructor(private invoiceService: InvoicesService) {}
+  constructor(private invoiceService: InvoicesService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.invoiceData = this.invoiceService.getInvoiceData();
+    setTimeout(() => {
+      window.print();
+    }, 1000); 
+  }
+  onPrint(): void {
   
-    ngOnInit() {
-      this.invoiceService.invoiceData$.subscribe(data => {
-        this.invoiceData = data;
-        console.log('Received invoice data:', this.invoiceData);
-      });
+    setTimeout(() => {
+      window.print();
+    }, 1000);
+  }
+  onEdit(): void {
+    this.router.navigate(['pages/invoice/form'], { state: { data: this.invoiceData } });
+  }
+
   
-      // Load data from localStorage if available
-      this.invoiceService.getInvoiceData();
-    }
+
+
 }

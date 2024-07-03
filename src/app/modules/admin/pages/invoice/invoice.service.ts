@@ -7,7 +7,8 @@ import {
   map,
   switchMap,
   throwError,
-  of
+  of,
+  Subject
 } from "rxjs";
 import { Invoice } from "./invoice.type";
 import { HttpClient } from "@angular/common/http";
@@ -16,10 +17,14 @@ import { HttpClient } from "@angular/common/http";
 export class InvoicesService {
   private invoiceDataSubject = new BehaviorSubject<any>(null);
   invoiceData$ = this.invoiceDataSubject.asObservable();
+  private invoiceData: any;
+
+
 
   setInvoiceData(data: any) {
     this.invoiceDataSubject.next(data);
     localStorage.setItem('invoiceData', JSON.stringify(data));
+    this.invoiceData = data;
   }
 
   getInvoiceData() {
@@ -27,6 +32,11 @@ export class InvoicesService {
     if (data) {
       this.invoiceDataSubject.next(JSON.parse(data));
     }
+    return this.invoiceData;
+  }
+
+  triggerPrint() {
+    window.open('/print-invoice', '_blank');
   }
   // Private
   private _invoices: BehaviorSubject<Invoice[] | null> = new BehaviorSubject(

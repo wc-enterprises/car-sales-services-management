@@ -8,12 +8,12 @@
         <button
             class="p-[5px] w-[34px] h-[34px] rounded-md bg-[#464646] self-center"
         >
-            <img class="w-[24px] h-[24px]" src="/assets/images/logo/edit.svg" />
+            <img   (click)="onEdit()" class="w-[24px] h-[24px]" src="/assets/images/logo/edit.svg" />
         </button>
         <button
             class="p-[5px] w-[34px] h-[34px] rounded-md bg-[#3F51B5] self-center"
         >
-            <img
+            <img (click)="onPrint()"
                 class="w-[24px] h-[24px]"
                 src="/assets/images/logo/print.svg"
             />
@@ -21,8 +21,8 @@
     </div>
 
     <!-- View mode -->
-    <ng-container *ngIf="invoiceData">
-        <div class="inline-block p-6 sm:p-10 text-left print:p-0">
+    <ng-container *ngIf="invoiceData; else emptyScreen">
+        <div id="invoice" #invoice class="inline-block p-6 sm:p-10 text-left print:p-0">
             <!-- Invoice -->
             <div
                 class="w-240 min-w-240 p-16 rounded-2xl shadow bg-card print:w-auto print:p-0 print:rounded-none print:shadow-none print:bg-transparent"
@@ -275,6 +275,10 @@
             </div>
         </div>
     </ng-container>
-
+    <ng-template #emptyScreen>
+        <div class="flex items-center justify-center h-screen">
+          <img src="assets/images/empty-screen.svg" alt="No Invoice Data Available" />
+        </div>
+      </ng-template>
 
 </div>

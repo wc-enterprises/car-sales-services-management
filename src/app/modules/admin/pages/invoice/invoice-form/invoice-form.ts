@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from '../invoice.service';
 @Component({
@@ -25,9 +25,10 @@ import { InvoicesService } from '../invoice.service';
 })
 export class InvoiceFormComponent
 {
+
     form: FormGroup;
 
-    constructor(private fb: FormBuilder, private invoiceService: InvoicesService) {
+    constructor(private fb: FormBuilder, private invoiceService: InvoicesService,private router: Router,) {
       this.form = this.fb.group({
         invoiceNumber: ['', ],
         Date: ['', ],
@@ -59,6 +60,11 @@ export class InvoiceFormComponent
         total: ['', ],
       });
     }
+
+  ngOnInit(): void {
+    
+  }
+
   
     // Utility method to format the date to "YYYY-MM-DD"
     formatDate(date: Date): string {
@@ -86,7 +92,10 @@ export class InvoiceFormComponent
         alert('Please fill in all required fields');
       }
     }
-      onPrint() {
-        window.print();
-      }
+
+  onPrint() {
+     this.onSave();
+  
+    this.router.navigate(['pages/invoice/printable/modern']);
+  }
 }
