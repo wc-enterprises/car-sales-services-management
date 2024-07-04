@@ -1,4 +1,8 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ViewEncapsulation,
+} from '@angular/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,14 +18,36 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from '../invoice.service';
-@Component({
-    selector       : 'invoice',
-    templateUrl    : './invoice-form.html',
-    encapsulation  : ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone     : true,
-    imports        : [NgIf, MatButtonModule, MatTooltipModule, RouterLink, MatIconModule, NgFor, FormsModule, ReactiveFormsModule, MatRippleModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, NgClass, MatSelectModule, MatOptionModule, MatDatepickerModule, TextFieldModule, FuseFindByKeyPipe, DatePipe],
 
+
+
+@Component({
+    selector: 'invoice',
+    templateUrl: './invoice-form.html',
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        MatButtonModule,
+        MatTooltipModule,
+        RouterLink,
+        MatIconModule,
+        NgFor,
+        FormsModule,
+        ReactiveFormsModule,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatCheckboxModule,
+        NgClass,
+        MatSelectModule,
+        MatOptionModule,
+        MatDatepickerModule,
+        TextFieldModule,
+        FuseFindByKeyPipe,
+        DatePipe,
+    ],
 })
 export class InvoiceFormComponent
 {
@@ -98,4 +124,11 @@ export class InvoiceFormComponent
   
     this.router.navigate(['pages/invoice/printable/modern']);
   }
+  backToInvoices() {
+    this.router.navigate(['inventory-and-invoice/invoices']);
 }
+}
+
+
+ 
+

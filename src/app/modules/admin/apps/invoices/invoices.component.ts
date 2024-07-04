@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-    selector       : 'cars',
+    selector       : 'invoices',
     templateUrl    : './invoices.component.html',
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
