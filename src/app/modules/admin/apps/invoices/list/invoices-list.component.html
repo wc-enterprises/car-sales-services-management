@@ -31,7 +31,7 @@
                 />
             </mat-form-field>
             <!-- Add product button -->
-            <button class="ml-4" mat-flat-button [color]="'primary'">
+            <button class="ml-4" mat-flat-button [color]="'primary'" (click)="navigateToForm()">
                 <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                 <span class="ml-2 mr-1">Add</span>
             </button>
@@ -153,11 +153,11 @@
 
                                     <!-- Action -->
                                     <div class="truncate">
-                                        <mat-icon>edit</mat-icon>
-                                        <mat-icon>delete</mat-icon>
+                                        <mat-icon class="cursor-pointer p-2 rounded-full hover:bg-gray-200">edit</mat-icon>
+                                        <mat-icon class="cursor-pointer p-2 rounded-full hover:bg-gray-200" (click)="deleteSelectedProduct()">delete</mat-icon>
                                     </div>
                                 </div>
-                                <div class="grid">
+                                <!-- <div class="grid">
                                     <ng-container
                                         *ngIf="
                                             selectedInvoice?.id === product.id
@@ -170,7 +170,7 @@
                                             "
                                         ></ng-container>
                                     </ng-container>
-                                </div>
+                                </div> -->
                             </ng-container>
                         </ng-container>
                     </div>

@@ -3,7 +3,7 @@
     "rules": "database.rules.json"
   },
   "hosting": {
-    "public": "dist/fuse",
+    "public": "dist/invoice-erp",
     "ignore": [
       "firebase.json",
       "**/.*",

@@ -42,6 +42,7 @@ import { ContactsService } from "../../contacts/contacts.service";
 import { Contact } from "../../contacts/contacts.types";
 import { IInvoice } from "../invoices.types";
 import { InvoicesService } from "../invoices.service";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "inventory-list",
@@ -116,8 +117,15 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     private _fuseConfirmationService: FuseConfirmationService,
     private _formBuilder: UntypedFormBuilder,
     private _invoicesService: InvoicesService,
-    private _contactsService: ContactsService
+    private _contactsService: ContactsService,
+    private router:Router
   ) {}
+
+  navigateToForm() {
+    this.router.navigate(['pages/invoice/form']).then(() => {
+      window.location.reload();
+    });
+  }
 
   // -----------------------------------------------------------------------------------------------------
   // @ Lifecycle hooks
@@ -128,27 +136,29 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   ngOnInit(): void {
     // Create the selected product form
-    this.selectedProductForm = this._formBuilder.group({
-      id: [""],
-      regNo: ["", [Validators.required]],
-      make: ["", [Validators.required]],
-      model: ["", [Validators.required]],
-      customer: this._formBuilder.group({
-        id: [""],
-        name: [""],
-        phoneNumber: [""],
-      }),
-      color: [""],
-      fuelType: [""],
-      vinNumber: [""],
-      regYear: [""],
-      transmission: [""],
-      mileage: [""],
-      nextServiceDate: [""],
-      motValidTill: [""],
-      insuranceValidTill: [""],
-      roadTaxValidTill: [""],
-    });
+    // this.selectedProductForm = this._formBuilder.group({
+    //   id: [""],
+    //   regNo: ["", [Validators.required]],
+    //   make: ["", [Validators.required]],
+    //   model: ["", [Validators.required]],
+    //   customer: this._formBuilder.group({
+    //     id: [""],
+    //     name: [""],
+    //     phoneNumber: [""],
+    //   }),
+    //   color: [""],
+    //   fuelType: [""],
+    //   vinNumber: [""],
+    //   regYear: [""],
+    //   transmission: [""],
+    //   mileage: [""],
+    //   nextServiceDate: [""],
+    //   motValidTill: [""],
+    //   insuranceValidTill: [""],
+    //   roadTaxValidTill: [""],
+    // });
+
+   
 
     // // Get the brands
     // this._invoicesService.brands$
@@ -351,9 +361,9 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   deleteSelectedProduct(): void {
     // Open the confirmation dialog
     const confirmation = this._fuseConfirmationService.open({
-      title: "Delete product",
+      title: "Delete details",
       message:
-        "Are you sure you want to remove this product? This action cannot be undone!",
+        "Are you sure you want to remove this details? This action cannot be undone!",
       actions: {
         confirm: {
           label: "Delete",

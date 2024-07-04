@@ -2,10 +2,23 @@
 cdkScrollable>
  <!-- Contact form -->
  <div
- class="relative inline-block mt-10 sm:p-10 text-left print:p-0 flex flex-col flex-auto items-center p-6 rounded-2xl shadow bg-card"
+ class="relative inline-block gap-0 mb-10 px-5 sm:px-5 ss:px-3 text-left flex flex-col flex-auto items-start"
 >
- <div class="w-full max-w-3xl">
-     <form class="flex items-center flex-col" >
+ <!-- Header -->
+ <div
+ class="relative w-full flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-0 md:px-0"
+>
+ <!-- Title -->
+ <div class="text-4xl ss:text-[26px] font-extrabold tracking-tight">Invoice-form</div>
+ <!-- Actions -->
+ <div class="flex gap-2 shrink-0 items-center mt-2 sm:mt-0 sm:ml-4">
+    <span class="text-gray-600 ss:text-[16px] hover:text-gray-800 text-lg font-semibold cursor-pointer" (click)="backToInvoices()">Invoices</span>
+    <span class="text-gray-400 ss:text-[16px] text-lg font-semibold">></span>
+    <span class="text-gray-400 ss:text-[16px] text-lg font-semibold">Invoice-form</span>
+ </div>
+</div>
+ <div class="w-full max-w-4xl relative inline-block sm:p-10 flex flex-col flex-auto items-center p-6 rounded-2xl shadow bg-card">
+     <form class="flex items-center flex-col" [formGroup]="form">
          <div class="flex flex-col w-full">
              <span
                  class="text-gray-600 text-lg font-semibold w-full text-left"

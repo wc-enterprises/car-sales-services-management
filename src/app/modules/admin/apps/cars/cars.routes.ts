@@ -1,4 +1,3 @@
-import { inject } from "@angular/core";
 import { Routes } from "@angular/router";
 import { CarsComponent } from "./cars.component";
 import { CarsListComponent } from "./list/cars.component";
