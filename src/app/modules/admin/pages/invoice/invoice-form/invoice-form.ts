@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
-import { InvoicesService } from '../invoice.service';
+import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 
 
 
@@ -56,41 +56,66 @@ export class InvoiceFormComponent
 
     constructor(private fb: FormBuilder, private invoiceService: InvoicesService,private router: Router,) {
       this.form = this.fb.group({
-        invoiceNumber: ['', ],
-        Date: ['', ],
-        dueDate: ['', ],
-        Name: ['', ],
-        phone: ['', ],
-        Addressline1: ['', ],
-        Addressline2: ['', ],
-        'Town/city': ['', ],
-        country: ['', ],
-        Postcode: ['', ],
-        regno: ['', ],
-        make: ['', ],
-        model: ['', ],
-        color: [''],
-        fueltype: [''],
-        vin: [''],
-        regyear: [''],
-        enginetype: [''],
-        transmission: [''],
-        mileage: [''],
-        nextservicedate: [''],
-        enterservice: ['', ],
-        rate: ['', ],
-        qty: ['', ],
-        subtotal: ['', ],
-        tax: ['', ],
-        discount: ['', ],
-        total: ['', ],
+        id: [''],
+        date: ['', ],
+        dueDate: [''],
+        billTo: this.fb.group({
+          id: [''],
+          name: ['', ],
+          phoneNumber: this.fb.group({
+            code: [''],
+            number: [''],
+          }),
+          email: [''],
+          address: ['']
+        }),
+        carInfo: this.fb.group({
+          id: [''],
+          regNo: ['', ],
+          make: [''],
+          model: [''],
+          nextServiceDate: [''],
+          motValidTill: [''],
+          insuranceValidTill: [''],
+          roadTaxValidTill: ['']
+        }),
+        services: this.fb.array([
+          this.fb.group({
+            id: [''],
+            item: [''],
+            quantity: [0],
+            price: [0],
+            total: [0]
+          })
+        ]),
+        tax: this.fb.group({
+          unit: [''],
+          value: [0]
+        }),
+        discount: this.fb.group({
+          unit: [''],
+          value: [0]
+        })
       });
     }
+    
 
   ngOnInit(): void {
     
   }
+  get services(): FormArray {
+    return this.form.get('services') as FormArray;
+  }
 
+  addService() {
+    this.services.push(this.fb.group({
+      id: [''],
+      item: [''],
+      quantity: [0],
+      price: [0],
+      total: [0]
+    }));
+  }
   
     // Utility method to format the date to "YYYY-MM-DD"
     formatDate(date: Date): string {
@@ -110,7 +135,7 @@ export class InvoiceFormComponent
         formData.dueDate = this.formatDate(formData.dueDate);
         formData.nextservicedate = this.formatDate(formData.nextservicedate);
   
-        this.invoiceService.setInvoiceData(formData);
+        this.invoiceService.createInvoice(formData);
         console.log('Form data saved:', formData);
         alert('Data saved to local storage and shared service');
       } else {

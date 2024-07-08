@@ -87,7 +87,8 @@ export class InvoicesService {
     const invoicesRef = ref(this.db, "invoices");
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
-
+console.log(data)
+console.log(invoicesRef)
       // Frame cars for component
       const invoices = [];
       Object.keys(data).forEach((key) => {
