@@ -36,6 +36,7 @@ export class InvoicesService {
    */
   constructor(private db: Database) {
     this.getInvoices();
+ 
   }
   destructor() {
     this._unsubscribers.forEach((item) => {
@@ -87,7 +88,8 @@ export class InvoicesService {
     const invoicesRef = ref(this.db, "invoices");
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
-
+console.log(data)
+console.log(invoicesRef)
       // Frame cars for component
       const invoices = [];
       Object.keys(data).forEach((key) => {
@@ -167,6 +169,15 @@ export class InvoicesService {
       console.log("An error occured while deleting the invoice", err.message);
       return false;
     }
+  }
+  private invoiceDataSubject = new BehaviorSubject<any>(null);
+
+  setInvoiceData(data: any): void {
+    this.invoiceDataSubject.next(data);
+  }
+
+  getInvoiceData(): any {
+    return this.invoiceDataSubject.value;
   }
 
   searchInvoices(query: string) {

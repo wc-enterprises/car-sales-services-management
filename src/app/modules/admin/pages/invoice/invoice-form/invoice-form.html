@@ -4,6 +4,8 @@ cdkScrollable>
  <div
  class="relative inline-block gap-0 mb-10 px-5 sm:px-5 ss:px-3 text-left flex flex-col flex-auto items-start"
 >
+
+    
  <!-- Header -->
  <div
  class="relative w-full flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-0 md:px-0"
@@ -18,7 +20,7 @@ cdkScrollable>
  </div>
 </div>
  <div class="w-full max-w-4xl relative inline-block sm:p-10 flex flex-col flex-auto items-center p-6 rounded-2xl shadow bg-card">
-     <form class="flex items-center flex-col" [formGroup]="form">
+    <form [formGroup]="form" class="flex items-center flex-col" (ngSubmit)="onSave()">
          <div class="flex flex-col w-full">
              <span
                  class="text-gray-600 text-lg font-semibold w-full text-left"
@@ -37,7 +39,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'invoiceNumber'"
+                         formControlName="id"
                          placeholder="Invoice number"
                      />
                  </mat-form-field>
@@ -54,15 +56,15 @@ cdkScrollable>
                      <mat-label class="text-gray-500">Date</mat-label>
                      <input
                          matInput
-                         [matDatepicker]="Datepicker"
-                         [formControlName]="'Date'"
+                         [matDatepicker]="datepicker"
+                         [formControlName]="'date'"
                          placeholder="Date"
                      />
                      <mat-datepicker-toggle
                          matSuffix
-                         [for]="Datepicker"
+                         [for]="datepicker"
                      ></mat-datepicker-toggle>
-                     <mat-datepicker #Datepicker></mat-datepicker>
+                     <mat-datepicker #datepicker></mat-datepicker>
                  </mat-form-field>
 
                  <!-- Due Date -->
@@ -87,7 +89,10 @@ cdkScrollable>
                  </mat-form-field>
              </div>
          </div>
-         <div class="flex flex-col mt-8 w-full">
+
+         <!-- Bill section -->
+
+         <div formGroupName="billTo"  class="flex flex-col mt-8 w-full">
              <span
                  class="text-gray-600 text-lg font-semibold w-full text-left"
              >
@@ -105,12 +110,13 @@ cdkScrollable>
                      <mat-label class="text-gray-500">Name*</mat-label>
                      <input
                          matInput
-                         [formControlName]="'Name'"
+                         [formControlName]="'name'"
                          placeholder="Name"
                      />
                  </mat-form-field>
 
                  <mat-form-field
+                    formGroupName="phoneNumber"
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
                  >
@@ -119,7 +125,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'phone'"
+                         [formControlName]="'number'"
                          placeholder="Phone"
                      />
                  </mat-form-field>
@@ -133,7 +139,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'Addressline1'"
+                         [formControlName]="'address1'"
                          placeholder="Address line1"
                      />
                  </mat-form-field>
@@ -152,7 +158,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'Addressline2'"
+                         [formControlName]="'address2'"
                          placeholder="Address line2"
                      />
                  </mat-form-field>
@@ -166,7 +172,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'Town/city'"
+                         [formControlName]="'city'"
                          placeholder="Town/city"
                      />
                  </mat-form-field>
@@ -197,14 +203,14 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'Postcode'"
+                         [formControlName]="'postCode'"
                          placeholder="Postcode"
                      />
                  </mat-form-field>
              </div>
          </div>
 
-         <div class="flex flex-col mt-8 w-full">
+         <div formGroupName="carInfo" class="flex flex-col mt-8 w-full">
              <span
                  class="text-gray-600 text-lg font-semibold w-full text-left"
              >
@@ -222,7 +228,7 @@ cdkScrollable>
                      <mat-label class="text-gray-500">Reg no*</mat-label>
                      <input
                          matInput
-                         [formControlName]="'regno'"
+                         [formControlName]="'regNo'"
                          placeholder="Reg no"
                      />
                  </mat-form-field>
@@ -274,7 +280,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'fueltype'"
+                         [formControlName]="'fuelType'"
                          placeholder="Fuel type"
                      />
                  </mat-form-field>
@@ -306,7 +312,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'regyear'"
+                         [formControlName]="'regYear'"
                          placeholder="Reg year"
                      />
                  </mat-form-field>
@@ -319,7 +325,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'enginetype'"
+                         [formControlName]="'engineType'"
                          placeholder="Engine type"
                      />
                  </mat-form-field>
@@ -353,6 +359,7 @@ cdkScrollable>
                          placeholder="Mileage"
                      />
                  </mat-form-field>
+                 
                  <mat-form-field
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
@@ -362,20 +369,20 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [matDatepicker]="serviceDatepicker"
-                         [formControlName]="'nextservicedate'"
+                         [matDatepicker]="nextServiceDatepicker"
+                         [formControlName]="'nextServiceDate'"
                          placeholder="Next service date"
                      />
                      <mat-datepicker-toggle
                          matSuffix
-                         [for]="serviceDatepicker"
+                         [for]="nextServiceDatepicker"
                      ></mat-datepicker-toggle>
-                     <mat-datepicker #serviceDatepicker></mat-datepicker>
+                     <mat-datepicker #nextServiceDatepicker></mat-datepicker>
                  </mat-form-field>
              </div>
          </div>
 
-         <div class="grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-10">
+         <div  formArrayName="services" class="grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-10">
              <!-- Column Headers -->
              <div
                  class="col-span-5 font-medium text-md text-left text-secondary"
@@ -398,81 +405,45 @@ cdkScrollable>
                  TOTAL
              </div>
 
-             <!-- Divider -->
-             <div class="col-span-12 my-4 border-b"></div>
 
+             <!-- Divider -->
+             <div  class="col-span-12 my-4 border-b"></div>
+        
              <!-- Item Row -->
-             <mat-form-field
-                 class="col-span-5  ss:col-span-12"
-                 [subscriptSizing]="'dynamic'"
-             >
-                 <input
-                     matInput
-                     [formControlName]="'enterservice'"
-                     placeholder="Enter service"
-                 />
-             </mat-form-field>
-             <mat-form-field
-                 class="col-span-2 ss:col-span-7"
-                 [subscriptSizing]="'dynamic'"
-             >
-                 <input
-                     matInput
-                     [formControlName]="'rate'"
-                     placeholder="Rate"
-                 />
-             </mat-form-field>
-             <mat-form-field
-                 class="col-span-2 self-center ss:col-span-5"
-                 [subscriptSizing]="'dynamic'"
-             >
-                 <input
-                     matInput
-                     [formControlName]="'qty'"
-                     placeholder="Qty"
-                     type="number"
-                     min="1"
-                 />
-             </mat-form-field>
-             <mat-form-field
-                 class="col-span-2 self-center ss:col-span-11"
-                 [subscriptSizing]="'dynamic'"
-             >
-                 <input
-                     matInput
-                     [formControlName]="'total'"
-                     placeholder="Total"
-                 />
-             </mat-form-field>
-             <div class="col-span-1 self-center">
-                 <button
-                     class="p-1 w-8 ss:w-6 rounded-md bg-red-600 self-center"
-                 >
-                     <img
-                         class="w-6 h-6 ss:w-5 ss:h-5"
-                         src="/assets/images/logo/delete.svg"
-                     />
-                 </button>
-             </div>
-
-             <!-- Divider -->
-             <div class="col-span-12 my-4 border-b"></div>
-
-             <!-- Add Item Button -->
-             <div class="col-span-12 flex justify-end items-end">
-                 <button
-                     class="p-1 w-8 h-8 flex items-center justify-center rounded-md bg-blue-600"
-                 >
-                     <img
-                         class="w-5 h-5"
-                         src="/assets/images/logo/cross.svg"
-                     />
-                 </button>
-             </div>
+             <div *ngFor="let service of services.controls; let i = index" [formGroupName]="i" class="col-span-12 grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-4">
+                <mat-form-field class="col-span-5 ss:col-span-12" [subscriptSizing]="'dynamic'">
+                    <input matInput formControlName="item" placeholder="Enter service" />
+                </mat-form-field>
+                <mat-form-field class="col-span-2 ss:col-span-7" [subscriptSizing]="'dynamic'">
+                    <input matInput formControlName="price" placeholder="Price" />
+                </mat-form-field>
+                <mat-form-field class="col-span-2 self-center ss:col-span-5" [subscriptSizing]="'dynamic'">
+                    <input matInput formControlName="quantity" placeholder="Qty" type="number" min="1" />
+                </mat-form-field>
+                <mat-form-field class="col-span-2 self-center ss:col-span-11" [subscriptSizing]="'dynamic'">
+                    <input matInput formControlName="total" placeholder="Total"  [value]="service.get('price').value * service.get('quantity').value" disabled/>
+                </mat-form-field>
+                <div class="col-span-1 self-center">
+                    <button (click)="removeService(i)" class="p-1 w-8 ss:w-6 rounded-md bg-red-600 self-center">
+                        <img class="w-6 h-6 ss:w-5 ss:h-5" src="/assets/images/logo/delete.svg" />
+                    </button>
+                </div>
+            </div>
+                
+                  <!-- Divider -->
+                  <div class="col-span-12 my-4 border-b"></div>
+                            
+              <!-- Add Item Button -->
+              <div class="col-span-12 flex justify-end items-end mt-5">
+                <button (click)="addService()"  type="button" class="p-1 w-8 h-8 flex items-center justify-center rounded-md bg-blue-600">
+                  <img class="w-5 h-5" src="/assets/images/logo/cross.svg" />
+                </button>
+              </div>
 
              <!-- Spacer -->
              <div class="col-span-12 mt-16"></div>
-
+            </div>
+            <div class="grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-10 w-full">
              <!-- Subtotal -->
              <div
                  class="col-span-7 self-center font-medium text-left tracking-tight text-secondary"
@@ -494,18 +465,19 @@ cdkScrollable>
              <div class="col-span-12 my-3 border-b"></div>
 
              <!-- Tax -->
-             <div
+             <div 
                  class="col-span-7 self-center font-medium text-left tracking-tight text-secondary"
              >
                  TAX
              </div>
              <mat-form-field
+                 formGroupName="tax"
                  class="col-span-5 text-right text-lg"
                  [subscriptSizing]="'dynamic'"
              >
                  <input
                      matInput
-                     [formControlName]="'tax'"
+                     [formControlName]="'value'"
                      placeholder="Tax"
                  />
              </mat-form-field>
@@ -514,18 +486,19 @@ cdkScrollable>
              <div class="col-span-12 my-3 border-b"></div>
 
              <!-- Discount -->
-             <div
+             <div 
                  class="col-span-7 self-center font-medium text-left tracking-tight text-secondary"
              >
                  DISCOUNT
              </div>
              <mat-form-field
+                 formGroupName="discount"
                  class="col-span-5 text-right text-lg"
                  [subscriptSizing]="'dynamic'"
              >
                  <input
                      matInput
-                     [formControlName]="'discount'"
+                     [formControlName]="'value'"
                      placeholder="Discount"
                  />
              </mat-form-field>
@@ -547,33 +520,38 @@ cdkScrollable>
                      matInput
                      [formControlName]="'total'"
                      placeholder="Total"
+                     
                  />
              </mat-form-field>
-         </div>
+            </div>
 
          <!-- Actions -->
          <div
-             class="flex items-center w-full mt-10 -mx-6 sm:-mx-12 py-4 pr-4 pl-1 sm:pr-12 sm:pl-7 border-t bg-gray-50 dark:bg-transparent"
+             class="flex items-center justify-between w-full mt-10 -mx-6 sm:-mx-12 py-4 pr-4 pl-1 sm:pr-12 sm:pl-7 border-t bg-gray-50 dark:bg-transparent"
          >
              <!-- Cancel -->
              <button mat-button [color]="'warn'" [matTooltip]="'Cancel'">
                  Cancel
              </button>
              <!-- Save -->
-             <button class="ml-auto" mat-button [matTooltip]="'Save'">
-                 Save
-             </button>
+             <!-- <button type="submit" class="ml-auto" mat-button [matTooltip]="'Save'">
+            Save   
+             </button> -->
              <!-- Print -->
              <button
                  class="ml-2"
                  mat-flat-button
                  [color]="'primary'"
                  [matTooltip]="'Print'"
+                 (click)="onPrint()"
              >
-                 Print
+                 Save & Print
              </button>
          </div>
      </form>
+ 
+ 
  </div>
+ 
 </div>
 </div>

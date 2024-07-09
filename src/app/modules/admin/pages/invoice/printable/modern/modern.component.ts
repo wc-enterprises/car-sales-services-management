@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -11,8 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
+import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 @Component({
     selector       : 'modern',
     templateUrl    : './modern.component.html',
@@ -24,10 +25,37 @@ import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 })
 export class ModernComponent
 {
-    /**
-     * Constructor
-     */
-    constructor()
-    {
+  invoiceData: any;
+  @ViewChild('invoice') invoiceElement: ElementRef;
+
+  constructor(private invoiceService: InvoicesService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.invoiceData = this.invoiceService.getInvoiceData();
+    if (!this.invoiceData) {
+      // Handle the case where invoiceData is not available
+      console.error('No invoice data available');
+      return;
     }
+
+    setTimeout(() => {
+      window.print();
+    }, 1000); 
+  }
+  onPrint(){
+  
+    setTimeout(() => {
+      window.print();
+    }, 1000);
+  }
+  onEdit(): void {
+    this.router.navigate(['pages/invoice/form'], { state: { data: this.invoiceData } }).then(() => {
+window.location.reload();
+});
 }
+}
+
+  
+
+
+

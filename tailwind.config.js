@@ -17,6 +17,7 @@ const customPalettes = {
  * Themes
  */
 const themes = {
+    
     // Default theme is required for theming system to work correctly!
     'default': {
         primary  : {

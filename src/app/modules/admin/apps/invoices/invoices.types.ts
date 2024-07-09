@@ -12,13 +12,22 @@ export interface IInvoice {
     };
     email?: string;
     address?: string;
+    postCode?:string;
+    city?:string;
   };
 
   carInfo: {
     id?: string;
     regNo: string;
+    regYear:string;
     make: string;
     model: string;
+    engineType:string;
+    transmission:string;
+    fuelType:string;
+    mileage:string;
+    color:string;
+    vin:string;
     nextServiceDate?: string;
     motValidTill?: string;
     insuranceValidTill?: string;
