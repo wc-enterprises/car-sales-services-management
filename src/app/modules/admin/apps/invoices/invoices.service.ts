@@ -36,6 +36,7 @@ export class InvoicesService {
    */
   constructor(private db: Database) {
     this.getInvoices();
+ 
   }
   destructor() {
     this._unsubscribers.forEach((item) => {
@@ -168,6 +169,15 @@ console.log(invoicesRef)
       console.log("An error occured while deleting the invoice", err.message);
       return false;
     }
+  }
+  private invoiceDataSubject = new BehaviorSubject<any>(null);
+
+  setInvoiceData(data: any): void {
+    this.invoiceDataSubject.next(data);
+  }
+
+  getInvoiceData(): any {
+    return this.invoiceDataSubject.value;
   }
 
   searchInvoices(query: string) {

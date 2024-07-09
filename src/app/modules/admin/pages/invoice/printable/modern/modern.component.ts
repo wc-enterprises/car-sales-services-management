@@ -11,9 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
-import { InvoicesService } from '../../invoice.service';
+import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 @Component({
     selector       : 'modern',
     templateUrl    : './modern.component.html',
@@ -32,11 +32,17 @@ export class ModernComponent
 
   ngOnInit(): void {
     this.invoiceData = this.invoiceService.getInvoiceData();
+    if (!this.invoiceData) {
+      // Handle the case where invoiceData is not available
+      console.error('No invoice data available');
+      return;
+    }
+
     setTimeout(() => {
       window.print();
     }, 1000); 
   }
-  onPrint(): void {
+  onPrint(){
   
     setTimeout(() => {
       window.print();

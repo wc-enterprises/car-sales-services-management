@@ -229,8 +229,8 @@ export class InvoiceFormComponent {
 
     onPrint() {
         this.onSave();
-
         this.router.navigate(['pages/invoice/printable/modern']);
+        window.print();
     }
     backToInvoices() {
         this.router.navigate(['inventory-and-invoice/invoices']);
