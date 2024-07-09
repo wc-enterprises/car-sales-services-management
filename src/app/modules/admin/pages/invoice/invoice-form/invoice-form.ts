@@ -25,6 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
+import { map, startWith } from 'rxjs';
 
 @Component({
     selector: 'invoice',
@@ -78,6 +79,7 @@ export class InvoiceFormComponent {
                 address2: [''],
                 postCode: [''],
                 country: [''],
+                city: [''],
             }),
             carInfo: this.fb.group({
                 id: [''],
@@ -97,18 +99,21 @@ export class InvoiceFormComponent {
                 roadTaxValidTill: [''],
             }),
             services: this.fb.array([this.createServiceGroup()]),
+            subtotal: [0],
             tax: this.fb.group({
-                unit: [''],
-                value: [],
+                value: [0],
             }),
             discount: this.fb.group({
-                unit: [''],
-                value: [],
+                value: [0],
             }),
+            total: [0],
         });
     }
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.calculateSubtotal();
+        this.setupTotalCalculation();
+    }
     get services(): FormArray {
         return this.form.get('services') as FormArray;
     }
@@ -118,13 +123,14 @@ export class InvoiceFormComponent {
             item: ['', Validators.required],
             price: [, Validators.required],
             quantity: [, Validators.required],
-            total: [, Validators.required],
+            total: [,],
         });
     }
     addService(): void {
         for (let i = 0; i < 3; i++) {
             this.services.push(this.createServiceGroup());
         }
+        this.calculateSubtotal();
     }
 
     removeService(index: number): void {
@@ -133,6 +139,60 @@ export class InvoiceFormComponent {
         } else {
             alert('At least one service is required.');
         }
+        this.calculateSubtotal();
+    }
+
+    calculateSubtotal(): void {
+        this.services.valueChanges
+            .pipe(
+                startWith(this.services.value),
+                map((services) => {
+                    return services.reduce(
+                        (acc, service) =>
+                            acc + service.price * service.quantity,
+                        0
+                    );
+                })
+            )
+            .subscribe((subtotal) => {
+                this.form
+                    .get('subtotal')
+                    .setValue(subtotal, { emitEvent: false });
+                this.calculateTotal();
+            });
+    }
+
+    setupTotalCalculation(): void {
+        const taxControl = this.form.get('tax.value');
+        const discountControl = this.form.get('discount.value');
+
+        taxControl.valueChanges.subscribe(() => this.calculateTotal());
+        discountControl.valueChanges.subscribe(() => this.calculateTotal());
+
+        this.form.valueChanges
+            .pipe(
+                startWith(this.form.value),
+                map((formValue) => {
+                    const subtotal = formValue.subtotal;
+                    const taxPercentage = formValue.tax.value;
+                    const discount = formValue.discount.value;
+                    const taxAmount = subtotal * (taxPercentage / 100);
+                    const total = subtotal + taxAmount - discount;
+                    return total;
+                })
+            )
+            .subscribe((total) => {
+                this.form.get('total').setValue(total, { emitEvent: false });
+            });
+    }
+
+    calculateTotal(): void {
+        const subtotal = this.form.get('subtotal').value;
+        const taxPercentage = this.form.get('tax').get('value').value;
+        const discount = this.form.get('discount').get('value').value;
+        const taxAmount = subtotal * (taxPercentage / 100);
+        const total = subtotal + taxAmount - discount;
+        this.form.get('total').setValue(total, { emitEvent: false });
     }
 
     // Utility method to format the date to "YYYY-MM-DD"
@@ -147,13 +207,16 @@ export class InvoiceFormComponent {
     onSave() {
         if (this.form.valid) {
             const formData = this.form.value;
+            console.log('dates before formatting', formData);
 
             // Format the date fields to remove the timestamp
-            formData.Date = this.formatDate(formData.date);
+            formData.date = this.formatDate(formData.date);
             formData.dueDate = this.formatDate(formData.dueDate);
-            formData.nextservicedate = this.formatDate(
-                formData.nextservicedate
+            formData.carInfo.nextServiceDate = this.formatDate(
+                formData.carInfo.nextServiceDate
             );
+
+            console.log('dates', formData);
 
             this.invoiceService.createInvoice(formData);
             console.log('Form data saved:', formData);

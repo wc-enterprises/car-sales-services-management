@@ -13,6 +13,7 @@ export interface IInvoice {
     email?: string;
     address?: string;
     postCode?:string;
+    city?:string;
   };
 
   carInfo: {

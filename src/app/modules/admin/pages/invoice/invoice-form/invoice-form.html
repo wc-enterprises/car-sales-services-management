@@ -172,7 +172,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'town/city'"
+                         [formControlName]="'city'"
                          placeholder="Town/city"
                      />
                  </mat-form-field>
@@ -203,7 +203,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'PostCode'"
+                         [formControlName]="'postCode'"
                          placeholder="Postcode"
                      />
                  </mat-form-field>
@@ -359,6 +359,7 @@ cdkScrollable>
                          placeholder="Mileage"
                      />
                  </mat-form-field>
+                 
                  <mat-form-field
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
@@ -368,15 +369,15 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [matDatepicker]="serviceDatepicker"
+                         [matDatepicker]="nextServiceDatepicker"
                          [formControlName]="'nextServiceDate'"
                          placeholder="Next service date"
                      />
                      <mat-datepicker-toggle
                          matSuffix
-                         [for]="serviceDatepicker"
+                         [for]="nextServiceDatepicker"
                      ></mat-datepicker-toggle>
-                     <mat-datepicker #serviceDatepicker></mat-datepicker>
+                     <mat-datepicker #nextServiceDatepicker></mat-datepicker>
                  </mat-form-field>
              </div>
          </div>
@@ -420,7 +421,7 @@ cdkScrollable>
                     <input matInput formControlName="quantity" placeholder="Qty" type="number" min="1" />
                 </mat-form-field>
                 <mat-form-field class="col-span-2 self-center ss:col-span-11" [subscriptSizing]="'dynamic'">
-                    <input matInput formControlName="total" placeholder="Total" />
+                    <input matInput formControlName="total" placeholder="Total"  [value]="service.get('price').value * service.get('quantity').value" disabled/>
                 </mat-form-field>
                 <div class="col-span-1 self-center">
                     <button (click)="removeService(i)" class="p-1 w-8 ss:w-6 rounded-md bg-red-600 self-center">
@@ -519,6 +520,7 @@ cdkScrollable>
                      matInput
                      [formControlName]="'total'"
                      placeholder="Total"
+                     
                  />
              </mat-form-field>
             </div>
