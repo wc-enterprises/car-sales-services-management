@@ -10,36 +10,44 @@
       <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
     </div>
     <!-- Title -->
-    <div class="text-4xl font-extrabold tracking-tight">Spares & Services</div>
+    <div class="text-4xl ss:text-3xl font-extrabold tracking-tight">Spares & Services</div>
     <!-- Actions -->
-    <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+    <div class=" items-center mt-6 sm:mt-0 sm:ml-4">
+      
       <!-- Search -->
-      <mat-form-field
-        class="fuse-mat-dense fuse-mat-rounded min-w-64"
-        [subscriptSizing]="'dynamic'"
-      >
-        <mat-icon
-          class="icon-size-5"
-          matPrefix
-          [svgIcon]="'heroicons_solid:magnifying-glass'"
-        ></mat-icon>
-        <input
-          matInput
-          [formControl]="searchInputControl"
-          [autocomplete]="'off'"
-          [placeholder]="'Search items'"
-        />
-      </mat-form-field>
-      <!-- Add product button -->
-      <button
-        class="ml-4"
-        mat-flat-button
-        [color]="'primary'"
-        (click)="createProduct()"
-      >
-        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-        <span class="ml-2 mr-1">Add</span>
-      </button>
+      <div class="flex flex-col sm:flex-row items-center mt-4 sm:mt-0 md:mt-4">
+         <div class="w-full  sm:flex-auto mb-4 sm:mb-0">
+            <mat-form-field
+                class="fuse-mat-dense fuse-mat-rounded min-w-64 w-full"
+                [subscriptSizing]="'dynamic'"
+            >
+                <mat-icon
+                    class="icon-size-5"
+                    matPrefix
+                    [svgIcon]="'heroicons_solid:magnifying-glass'"
+                ></mat-icon>
+                <input
+                    matInput
+                    [formControl]="searchInputControl"
+                    [autocomplete]="'off'"
+                    [placeholder]="'Search items'"
+                />
+            </mat-form-field>
+        </div>
+        <!-- Add product button -->
+        <div class="w-full sm:w-auto">
+            <button
+                class="w-auto sm:w-auto ml-0 sm:ml-4"
+                mat-flat-button
+                [color]="'primary'"
+                (click)="createProduct()"
+            >
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">Add</span>
+            </button>
+        </div>
+    </div>
+    
 
       <!-- Product Dialog Template -->
       <ng-template #productDialog>
