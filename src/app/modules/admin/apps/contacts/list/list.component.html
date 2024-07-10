@@ -46,11 +46,11 @@
                     </div>
 
                     <!-- Main actions -->
-                    <div class="flex items-center mt-4 sm:mt-0 md:mt-4">
+                    <div class="flex flex-col sm:flex-row items-center mt-4 sm:mt-0 md:mt-4">
                         <!-- Search -->
-                        <div class="flex-auto">
+                        <div class="w-full sm:w-50 sm:flex-auto mb-4 sm:mb-0">
                             <mat-form-field
-                                class="fuse-mat-dense fuse-mat-rounded w-full min-w-50"
+                                class="fuse-mat-dense fuse-mat-rounded w-full"
                                 subscriptSizing="dynamic"
                             >
                                 <mat-icon
@@ -69,18 +69,21 @@
                             </mat-form-field>
                         </div>
                         <!-- Add contact button -->
-                        <button
-                            class="ml-4"
-                            mat-flat-button
-                            [color]="'primary'"
-                            (click)="createContact()"
-                        >
-                            <mat-icon
-                                [svgIcon]="'heroicons_outline:plus'"
-                            ></mat-icon>
-                            <span class="ml-2 mr-1">Add</span>
-                        </button>
+                        <div class="w-full sm:w-auto">
+                            <button
+                                class="w-auto sm:w-auto ml-0 sm:ml-4"
+                                mat-flat-button
+                                [color]="'primary'"
+                                (click)="createContact()"
+                            >
+                                <mat-icon
+                                    [svgIcon]="'heroicons_outline:plus'"
+                                ></mat-icon>
+                                <span class="ml-2 mr-1">Add</span>
+                            </button>
+                        </div>
                     </div>
+                    
                 </div>
 
                 <!-- Contacts list -->
