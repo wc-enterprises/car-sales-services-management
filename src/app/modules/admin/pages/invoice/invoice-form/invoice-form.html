@@ -412,8 +412,26 @@ cdkScrollable>
              <!-- Item Row -->
              <div *ngFor="let service of services.controls; let i = index" [formGroupName]="i" class="col-span-12 grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-4">
                 <mat-form-field class="col-span-5 ss:col-span-12" [subscriptSizing]="'dynamic'">
-                    <input matInput formControlName="item" placeholder="Enter service" />
-                </mat-form-field>
+                    <input matInput formControlName="item" placeholder="Enter service"
+                           class="w-full p-2 border rounded"
+                           (input)="onInputChange($event.target.value, i)"
+                           (focus)="openDropdown(i)"
+                           (blur)="closeDropdown(i)">
+                  </mat-form-field>
+                  
+                  <!-- Dropdown with z-index -->
+                  
+                  <ul #dropdown *ngIf="filteredSuggestions[i]?.length > 0 && isDropdownOpen[i]" 
+                      class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 mt-12  z-10  bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+                      (mousedown)="preventClose($event)">
+                    <li *ngFor="let suggestion of filteredSuggestions[i]" 
+                        (click)="selectSuggestion(suggestion, i)" 
+                        class="p-2 cursor-pointer hover:bg-gray-200">
+                      {{ suggestion }}
+                    </li>
+                  </ul>
+                
+                
                 <mat-form-field class="col-span-2 ss:col-span-7" [subscriptSizing]="'dynamic'">
                     <input matInput formControlName="price" placeholder="Price" />
                 </mat-form-field>

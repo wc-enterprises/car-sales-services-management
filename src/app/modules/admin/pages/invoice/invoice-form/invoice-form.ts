@@ -1,6 +1,11 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    ElementRef,
+    HostListener,
+    QueryList,
+    ViewChild,
+    ViewChildren,
     ViewEncapsulation,
 } from '@angular/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
@@ -26,6 +31,9 @@ import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 import { map, startWith } from 'rxjs';
+import { products } from 'app/services/apps/ecommerce/inventory/data';
+import { List } from 'lodash';
+
 
 @Component({
     selector: 'invoice',
@@ -57,7 +65,17 @@ import { map, startWith } from 'rxjs';
 })
 export class InvoiceFormComponent {
     form: FormGroup;
-
+    filteredSuggestions: { [key: number]: string[] } = {};
+    isDropdownOpen: { [key: number]: boolean } = {};
+    @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
+    @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
+  
+    serviceNames: string[] = products.map(product => product.name);
+    
+    filteredServiceNames: string[];
+      
+    eRef: any;
+    
     constructor(
         private fb: FormBuilder,
         private invoiceService: InvoicesService,
@@ -110,10 +128,57 @@ export class InvoiceFormComponent {
         });
     }
 
+    
+
     ngOnInit(): void {
         this.calculateSubtotal();
         this.setupTotalCalculation();
-    }
+
+        this.filteredServiceNames = this.serviceNames;
+
+    // Subscribe to the input changes
+    this.form.get('item').valueChanges.subscribe(value => {
+      this.filterServiceNames(value);
+    });
+  }
+
+  onInputChange(value: string, index: number): void {
+    this.filteredSuggestions[index] = this.filterServiceNames(value);
+    this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;
+  }
+
+  filterServiceNames(value: string): string[] {
+    return this.serviceNames.filter(name => name.toLowerCase().includes(value.toLowerCase()));
+  }
+
+  selectSuggestion(suggestion: string, index: number): void {
+    (this.services.at(index) as FormGroup).get('item').setValue(suggestion);
+    this.isDropdownOpen[index] = false;
+  }
+
+  openDropdown(index: number): void {
+    this.isDropdownOpen[index] = true;
+  }
+
+  closeDropdown(index: number): void {
+    this.isDropdownOpen[index] = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: Event): void {
+    setTimeout(() => {
+      this.dropdowns.forEach((dropdown, index) => {
+        if (!this.eRef.nativeElement.contains(event.target)) {
+          this.closeDropdown(index);
+        }
+      });
+    }, 100);
+  }
+
+  preventClose(event: Event): void {
+    event.preventDefault();
+  }
+    
     get services(): FormArray {
         return this.form.get('services') as FormArray;
     }
