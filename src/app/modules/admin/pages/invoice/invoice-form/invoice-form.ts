@@ -231,16 +231,20 @@ export class InvoiceFormComponent {
             this.invoiceService.createInvoice(formData);
             console.log('Form data saved:', formData);
             alert('Data saved to local storage and shared service');
-        } else {
-            console.log('Form is invalid:', this.form);
-            alert('Please fill in all required fields');
-        }
+        } 
+      
+        
     }
+ 
 
     onPrint() {
-        this.onSave();
-        this.router.navigate(['pages/invoice/printable/modern']);
-        window.print();
+        if (this.form.valid) {
+            this.onSave();
+            this.router.navigate(['pages/invoice/printable/modern']);
+            window.print();
+          } else {
+            alert('Please fill in all required fields before printing');
+          }
     }
     backToInvoices() {
         this.router.navigate(['inventory-and-invoice/invoices']);
