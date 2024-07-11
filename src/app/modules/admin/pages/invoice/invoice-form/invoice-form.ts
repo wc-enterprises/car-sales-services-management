@@ -122,14 +122,14 @@ export class InvoiceFormComponent {
                 roadTaxValidTill: [''],
             }),
             services: this.fb.array([this.createServiceGroup()]),
-            subtotal: [0],
+            subtotal: [''],
             tax: this.fb.group({
-                value: [0],
+                value: [],
             }),
             discount: this.fb.group({
-                value: [0],
+                value: [],
             }),
-            total: [0],
+            total: [''],
         });
     }
 
@@ -159,9 +159,11 @@ export class InvoiceFormComponent {
     selectSuggestion(suggestion: string, index: number): void {
         const serviceGroup = this.services.at(index) as FormGroup;
         serviceGroup.get('item').setValue(suggestion);
-        const price = (this.Nameandprice[suggestion][0]) || 0;
-        const tax = (this.Nameandprice[suggestion][1]) || 0;
+        const price = (this.Nameandprice[suggestion][0]) || '';
+        const tax = (this.Nameandprice[suggestion][1]) || '';
         serviceGroup.get('price').setValue(price);
+        serviceGroup.get('quantity').setValue('1');
+        serviceGroup.get('total').setValue('');
         const existingTaxValue = this.form.get('tax.value').value;
         this.form.get('tax.value').setValue(existingTaxValue + tax);
     
@@ -195,11 +197,12 @@ export class InvoiceFormComponent {
     }
 
     createServiceGroup(suggestion: string = ''): FormGroup {
-        const price = this.Nameandprice[suggestion] || 0;
+        const price = this.Nameandprice[suggestion] || '';
+        const quantity = this.Nameandprice[suggestion] || '' ; 
         return this.fb.group({
             item: [suggestion, Validators.required],
             price: [price, Validators.required],
-            quantity: ['1', Validators.required],
+            quantity: [quantity, Validators.required],
             total: [''],
         });
     }
@@ -232,7 +235,7 @@ export class InvoiceFormComponent {
             .subscribe((subtotal) => {
                 this.form
                     .get('subtotal')
-                    .setValue(subtotal, { emitEvent: false });
+                    .setValue(subtotal || '', { emitEvent: false });
                 this.calculateTotal();
             });
     }
@@ -257,7 +260,7 @@ export class InvoiceFormComponent {
                 })
             )
             .subscribe((total) => {
-                this.form.get('total').setValue(total, { emitEvent: false });
+                this.form.get('total').setValue(total === 0 ? '' : total, { emitEvent: false });
             });
     }
 
