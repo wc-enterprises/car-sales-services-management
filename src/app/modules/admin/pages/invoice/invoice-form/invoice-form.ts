@@ -22,7 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 import { map, startWith } from 'rxjs';
@@ -57,9 +57,10 @@ import { map, startWith } from 'rxjs';
 })
 export class InvoiceFormComponent {
     form: FormGroup;
-
+    invoiceData: any;
     constructor(
         private fb: FormBuilder,
+        private route: ActivatedRoute,
         private invoiceService: InvoicesService,
         private router: Router
     ) {
@@ -111,6 +112,10 @@ export class InvoiceFormComponent {
     }
 
     ngOnInit(): void {
+        if (history.state.data) {
+            this.invoiceData = history.state.data;
+            this.form.patchValue(this.invoiceData);
+          }
         this.calculateSubtotal();
         this.setupTotalCalculation();
     }
@@ -205,6 +210,11 @@ export class InvoiceFormComponent {
     }
 
     onSave() {
+        if (this.form.valid) {
+            const updatedData = this.form.value;
+            this.invoiceService.saveInvoiceData(updatedData);
+        
+          }
         if (this.form.valid) {
             const formData = this.form.value;
             console.log('dates before formatting', formData);
