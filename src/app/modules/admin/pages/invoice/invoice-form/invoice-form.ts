@@ -33,7 +33,7 @@ import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.servic
 import { map, startWith } from 'rxjs';
 import { products } from 'app/services/apps/ecommerce/inventory/data';
 import { List } from 'lodash';
-
+import { getGlobal } from '@firebase/util';
 
 @Component({
     selector: 'invoice',
@@ -69,13 +69,18 @@ export class InvoiceFormComponent {
     isDropdownOpen: { [key: number]: boolean } = {};
     @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
-  
-    serviceNames: string[] = products.map(product => product.name);
-    
+
+    serviceNames: string[] = products.map((product) => product.name);
+
+    Nameandprice = products.reduce((acc, product) => {
+        acc[product.name] = [product.basePrice, product.taxPercent];
+        return acc;
+    }, {});
+
     filteredServiceNames: string[];
-      
+
     eRef: any;
-    
+
     constructor(
         private fb: FormBuilder,
         private invoiceService: InvoicesService,
@@ -128,73 +133,78 @@ export class InvoiceFormComponent {
         });
     }
 
-    
-
     ngOnInit(): void {
         this.calculateSubtotal();
         this.setupTotalCalculation();
 
         this.filteredServiceNames = this.serviceNames;
 
-    // Subscribe to the input changes
-    this.form.get('item').valueChanges.subscribe(value => {
-      this.filterServiceNames(value);
-    });
-  }
+        // Subscribe to the input changes
+        this.form.get('item').valueChanges.subscribe((value) => {
+            this.filterServiceNames(value);
+        });
+    }
 
-  onInputChange(value: string, index: number): void {
-    this.filteredSuggestions[index] = this.filterServiceNames(value);
-    this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;
-  }
+    onInputChange(value: string, index: number): void {
+        this.filteredSuggestions[index] = this.filterServiceNames(value);
+        this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;
+    }
 
-  filterServiceNames(value: string): string[] {
-    return this.serviceNames.filter(name => name.toLowerCase().includes(value.toLowerCase()));
-  }
+    filterServiceNames(value: string): string[] {
+        return this.serviceNames.filter((name) =>
+            name.toLowerCase().includes(value.toLowerCase())
+        );
+    }
 
-  selectSuggestion(suggestion: string, index: number): void {
-    (this.services.at(index) as FormGroup).get('item').setValue(suggestion);
-    this.isDropdownOpen[index] = false;
-  }
-
-  openDropdown(index: number): void {
-    this.isDropdownOpen[index] = true;
-  }
-
-  closeDropdown(index: number): void {
-    this.isDropdownOpen[index] = false;
-  }
-
-  @HostListener('document:click', ['$event'])
-  clickout(event: Event): void {
-    setTimeout(() => {
-      this.dropdowns.forEach((dropdown, index) => {
-        if (!this.eRef.nativeElement.contains(event.target)) {
-          this.closeDropdown(index);
-        }
-      });
-    }, 100);
-  }
-
-  preventClose(event: Event): void {
-    event.preventDefault();
-  }
+    selectSuggestion(suggestion: string, index: number): void {
+        const serviceGroup = this.services.at(index) as FormGroup;
+        serviceGroup.get('item').setValue(suggestion);
+        const price = (this.Nameandprice[suggestion][0]) || 0;
+        const tax = (this.Nameandprice[suggestion][1]) || 0;
+        serviceGroup.get('price').setValue(price);
+        const existingTaxValue = this.form.get('tax.value').value;
+        this.form.get('tax.value').setValue(existingTaxValue + tax);
     
+        this.isDropdownOpen[index] = false;
+    }
+    openDropdown(index: number): void {
+        this.isDropdownOpen[index] = true;
+    }
+
+    closeDropdown(index: number): void {
+        this.isDropdownOpen[index] = false;
+    }
+
+    @HostListener('document:click', ['$event'])
+    clickout(event: Event): void {
+        setTimeout(() => {
+            this.dropdowns.forEach((dropdown, index) => {
+                if (!this.eRef.nativeElement.contains(event.target)) {
+                    this.closeDropdown(index);
+                }
+            });
+        }, 100);
+    }
+
+    preventClose(event: Event): void {
+        event.preventDefault();
+    }
+
     get services(): FormArray {
         return this.form.get('services') as FormArray;
     }
 
-    createServiceGroup(): FormGroup {
+    createServiceGroup(suggestion: string = ''): FormGroup {
+        const price = this.Nameandprice[suggestion] || 0;
         return this.fb.group({
-            item: ['', Validators.required],
-            price: [, Validators.required],
-            quantity: [, Validators.required],
-            total: [,],
+            item: [suggestion, Validators.required],
+            price: [price, Validators.required],
+            quantity: ['1', Validators.required],
+            total: [''],
         });
     }
-    addService(): void {
-        for (let i = 0; i < 3; i++) {
-            this.services.push(this.createServiceGroup());
-        }
+    addService(suggestion: string = ''): void {
+        this.services.push(this.createServiceGroup(suggestion));
         this.calculateSubtotal();
     }
 
