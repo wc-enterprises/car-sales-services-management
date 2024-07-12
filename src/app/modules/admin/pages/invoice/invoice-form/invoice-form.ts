@@ -31,7 +31,6 @@ import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 import { map, startWith } from 'rxjs';
-import { result } from 'lodash';
 import { products } from 'app/services/apps/ecommerce/inventory/data';
 import { List } from 'lodash';
 import { getGlobal } from '@firebase/util';
