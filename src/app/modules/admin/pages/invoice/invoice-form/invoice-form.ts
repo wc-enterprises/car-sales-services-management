@@ -26,6 +26,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 import { map, startWith } from 'rxjs';
+import { result } from 'lodash';
 
 @Component({
     selector: 'invoice',
@@ -63,8 +64,9 @@ export class InvoiceFormComponent {
         private invoiceService: InvoicesService,
         private router: Router
     ) {
+        const id = this.anyformatDate(new Date());
         this.form = this.fb.group({
-            id: [''],
+            id: [id],
             date: [''],
             dueDate: [''],
             billTo: this.fb.group({
@@ -235,4 +237,24 @@ export class InvoiceFormComponent {
     backToInvoices() {
         this.router.navigate(['inventory-and-invoice/invoices']);
     }
+     padTo2Digits(num: number) {
+        return num.toString().padStart(2, '0');
+      }
+      anyformatDate(date: Date) {
+        return (
+          [
+            date.getFullYear(),
+            this.padTo2Digits(date.getMonth() + 1),
+            this.padTo2Digits(date.getDate()),
+          ].join('') +
+          '-'+
+          [
+            this.padTo2Digits(date.getHours()),
+            this.padTo2Digits(date.getMinutes()),
+            this.padTo2Digits(date.getSeconds()),
+          ].join('')
+        );
+      }
+      result = this.formatDate(new Date());
+      
 }
