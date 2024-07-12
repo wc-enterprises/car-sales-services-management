@@ -52,13 +52,13 @@
                                 Bill To
                             </div>
                             <div class="pl-10 border-l text-md">
-                                <div class="font-medium">{{invoiceData.name}}</div>
-                                <div>{{ invoiceData.Addressline1 }}</div>
-                                <div>{{ invoiceData.Addressline2 }}</div>
-                                <div>{{ invoiceData['Town/city'] }}</div>
-                                <div> {{ invoiceData.country }}</div>
-                                <div>{{ invoiceData.Postcode }}</div>
-                                <div>{{ invoiceData.phone }}</div>
+                                <div class="font-medium">{{invoiceData.billTo.name}}</div>
+                                <div>{{ invoiceData.billTo.address1 }}</div>
+                                <div>{{ invoiceData.billTo.address2 }}</div>
+                                <div>{{ invoiceData.billTo.city }}</div>
+                                <div> {{ invoiceData.billTo.country }}</div>
+                                <div>{{ invoiceData.billTo.PostCode }}</div>
+                                <div>{{ invoiceData.billTo.phoneNumber.number }}</div>
                                 <div>jobin.ebenezer&#64;company.com</div>
                             </div>
                         </div>
