@@ -107,7 +107,7 @@ cdkScrollable>
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
                  >
-                     <mat-label class="text-gray-500">Name*</mat-label>
+                     <mat-label class="text-gray-500">Name</mat-label>
                      <input
                          matInput
                          [formControlName]="'name'"
@@ -121,7 +121,7 @@ cdkScrollable>
                      [subscriptSizing]="'dynamic'"
                  >
                      <mat-label class="text-gray-500"
-                         >Phone number*</mat-label
+                         >Phone number</mat-label
                      >
                      <input
                          matInput
@@ -135,7 +135,7 @@ cdkScrollable>
                      [subscriptSizing]="'dynamic'"
                  >
                      <mat-label class="text-gray-500"
-                         >Address line1*</mat-label
+                         >Address line1</mat-label
                      >
                      <input
                          matInput
@@ -154,7 +154,7 @@ cdkScrollable>
                      [subscriptSizing]="'dynamic'"
                  >
                      <mat-label class="text-gray-500"
-                         >Address line2*</mat-label
+                         >Address line2</mat-label
                      >
                      <input
                          matInput
@@ -168,7 +168,7 @@ cdkScrollable>
                      [subscriptSizing]="'dynamic'"
                  >
                      <mat-label class="text-gray-500"
-                         >Town/city*</mat-label
+                         >Town/city</mat-label
                      >
                      <input
                          matInput
@@ -182,7 +182,7 @@ cdkScrollable>
                      [subscriptSizing]="'dynamic'"
                  >
                      <mat-label class="text-gray-500"
-                         >Country*</mat-label
+                         >Country</mat-label
                      >
                      <input
                          matInput
@@ -199,7 +199,7 @@ cdkScrollable>
                      [subscriptSizing]="'dynamic'"
                  >
                      <mat-label class="text-gray-500"
-                         >Postcode*</mat-label
+                         >Postcode</mat-label
                      >
                      <input
                          matInput
@@ -225,7 +225,7 @@ cdkScrollable>
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
                  >
-                     <mat-label class="text-gray-500">Reg no*</mat-label>
+                     <mat-label class="text-gray-500">Reg no</mat-label>
                      <input
                          matInput
                          [formControlName]="'regNo'"
@@ -236,7 +236,7 @@ cdkScrollable>
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
                  >
-                     <mat-label class="text-gray-500">Make*</mat-label>
+                     <mat-label class="text-gray-500">Make</mat-label>
                      <input
                          matInput
                          [formControlName]="'make'"
@@ -247,7 +247,7 @@ cdkScrollable>
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
                  >
-                     <mat-label class="text-gray-500">Model*</mat-label>
+                     <mat-label class="text-gray-500">Model</mat-label>
                      <input
                          matInput
                          [formControlName]="'model'"
@@ -530,7 +530,7 @@ cdkScrollable>
              class="flex items-center justify-between w-full mt-10 -mx-6 sm:-mx-12 py-4 pr-4 pl-1 sm:pr-12 sm:pl-7 border-t bg-gray-50 dark:bg-transparent"
          >
              <!-- Cancel -->
-             <button mat-button [color]="'warn'" [matTooltip]="'Cancel'">
+             <button mat-button [color]="'warn'"  (click)="onCancel()" [matTooltip]="'Cancel'">
                  Cancel
              </button>
              <!-- Save -->

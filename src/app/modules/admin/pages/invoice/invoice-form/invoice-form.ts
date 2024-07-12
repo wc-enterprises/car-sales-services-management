@@ -70,27 +70,27 @@ export class InvoiceFormComponent {
             dueDate: [''],
             billTo: this.fb.group({
                 id: [''],
-                name: [''],
+                name: ['',Validators.required],
                 phoneNumber: this.fb.group({
                     code: [''],
-                    number: [''],
+                    number: ['',Validators.required],
                 }),
-                email: [''],
-                address1: [''],
+                email: ['',Validators.required],
+                address1: ['',Validators.required],
                 address2: [''],
-                postCode: [''],
-                country: [''],
-                city: [''],
+                postCode: ['',Validators.required],
+                country: ['',Validators.required],
+                city: ['',Validators.required],
             }),
             carInfo: this.fb.group({
                 id: [''],
-                regNo: [''],
+                regNo: ['',Validators.required],
                 regYear: [''],
-                make: [''],
-                model: [''],
+                make: ['',Validators.required],
+                model: ['',Validators.required],
                 engineType: [''],
                 transmission: [''],
-                fuelType: [''],
+                fuelType: ['',],
                 mileage: [''],
                 color: [''],
                 vin: [''],
@@ -128,7 +128,7 @@ export class InvoiceFormComponent {
             item: ['', Validators.required],
             price: [, Validators.required],
             quantity: [, Validators.required],
-            total: [,],
+            total: [,Validators.required],
         });
     }
     addService(): void {
@@ -247,6 +247,10 @@ export class InvoiceFormComponent {
           }
     }
     backToInvoices() {
+        this.router.navigate(['inventory-and-invoice/invoices']);
+    }
+
+    onCancel(){
         this.router.navigate(['inventory-and-invoice/invoices']);
     }
 }
