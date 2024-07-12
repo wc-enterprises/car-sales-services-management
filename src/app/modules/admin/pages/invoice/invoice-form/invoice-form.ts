@@ -81,6 +81,7 @@ export class InvoiceFormComponent {
     filteredServiceNames: string[];
 
     eRef: any;
+    invoiceForm: any;
 
     constructor(
         private fb: FormBuilder,
@@ -90,35 +91,35 @@ export class InvoiceFormComponent {
     ) {
         this.form = this.fb.group({
             id: [''],
-            date: [''],
-            dueDate: [''],
+            date: ['', Validators.required],
+            dueDate: ['', Validators.required],
             billTo: this.fb.group({
                 id: [''],
-                name: ['',Validators.required],
+                name: ['', Validators.required],
                 phoneNumber: this.fb.group({
                     code: [''],
-                    number: ['',Validators.required],
+                    number: ['', Validators.required],
                 }),
-                email: ['',Validators.required],
-                address1: ['',Validators.required],
+                email: [''],
+                address1: ['', Validators.required],
                 address2: [''],
-                postCode: ['',Validators.required],
-                country: ['',Validators.required],
-                city: ['',Validators.required],
+                postCode: ['', Validators.required],
+                country: ['', Validators.required],
+                city: ['', Validators.required],
             }),
             carInfo: this.fb.group({
                 id: [''],
-                regNo: ['',Validators.required],
+                regNo: ['', Validators.required],
                 regYear: [''],
-                make: ['',Validators.required],
-                model: ['',Validators.required],
+                make: ['', Validators.required],
+                model: ['', Validators.required],
                 engineType: [''],
                 transmission: [''],
-                fuelType: ['',],
+                fuelType: [''],
                 mileage: [''],
                 color: [''],
                 vin: [''],
-                nextServiceDate: [''],
+                nextServiceDate: ['',Validators.required],
                 motValidTill: [''],
                 insuranceValidTill: [''],
                 roadTaxValidTill: [''],
@@ -136,10 +137,11 @@ export class InvoiceFormComponent {
     }
 
     ngOnInit(): void {
+      
         if (history.state.data) {
             this.invoiceData = history.state.data;
             this.form.patchValue(this.invoiceData);
-          }
+        }
         this.calculateSubtotal();
         this.setupTotalCalculation();
 
@@ -165,14 +167,14 @@ export class InvoiceFormComponent {
     selectSuggestion(suggestion: string, index: number): void {
         const serviceGroup = this.services.at(index) as FormGroup;
         serviceGroup.get('item').setValue(suggestion);
-        const price = (this.Nameandprice[suggestion][0]) || '';
-        const tax = (this.Nameandprice[suggestion][1]) || '';
+        const price = this.Nameandprice[suggestion][0] || '';
+        const tax = this.Nameandprice[suggestion][1] || '';
         serviceGroup.get('price').setValue(price);
         serviceGroup.get('quantity').setValue('1');
         serviceGroup.get('total').setValue('');
         const existingTaxValue = this.form.get('tax.value').value;
         this.form.get('tax.value').setValue(existingTaxValue + tax);
-    
+
         this.isDropdownOpen[index] = false;
     }
     openDropdown(index: number): void {
@@ -204,16 +206,19 @@ export class InvoiceFormComponent {
 
     createServiceGroup(suggestion: string = ''): FormGroup {
         const price = this.Nameandprice[suggestion] || '';
-        const quantity = this.Nameandprice[suggestion] || '' ; 
+        const quantity = this.Nameandprice[suggestion] || '';
         return this.fb.group({
-            item: [suggestion, Validators.required],
-            price: [price, Validators.required],
-            quantity: [quantity, Validators.required],
-            total: ['',Validators.required],
+            item: [suggestion,Validators.required],
+            price: [price],
+            quantity: [quantity],
+            total: [''],
         });
     }
+ 
     addService(suggestion: string = ''): void {
-        this.services.push(this.createServiceGroup(suggestion));
+         for(let i = 0;i < 5; i++){
+            this.services.push(this.createServiceGroup(suggestion));
+         }
         this.calculateSubtotal();
     }
 
@@ -292,8 +297,8 @@ export class InvoiceFormComponent {
         if (this.form.valid) {
             const updatedData = this.form.value;
             this.invoiceService.saveInvoiceData(updatedData);
-        
-          }
+          
+        }
         if (this.form.valid) {
             const formData = this.form.value;
             console.log('dates before formatting', formData);
@@ -310,26 +315,23 @@ export class InvoiceFormComponent {
             this.invoiceService.createInvoice(formData);
             console.log('Form data saved:', formData);
             alert('Data saved to local storage and shared service');
-        } 
-      
-        
+        }
     }
- 
 
     onPrint() {
         if (this.form.valid) {
             this.onSave();
             this.router.navigate(['pages/invoice/printable/modern']);
-            window.print();
-          } else {
+          
+        } else {
             alert('Please fill in all required fields before printing');
-          }
+        }
     }
     backToInvoices() {
         this.router.navigate(['inventory-and-invoice/invoices']);
     }
 
-    onCancel(){
+    onCancel() {
         this.router.navigate(['inventory-and-invoice/invoices']);
     }
 }
