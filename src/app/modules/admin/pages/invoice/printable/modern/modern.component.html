@@ -223,7 +223,7 @@
                     >
                         SUBTOTAL
                     </div>
-                    <div class="col-span-2 text-right text-lg">$227,315.00</div>
+                    <div class="col-span-2 text-right text-lg">${{invoiceData.subtotal}}</div>
 
                     <!-- Divider -->
                     <div class="col-span-12 my-3 border-b"></div>
@@ -234,7 +234,7 @@
                     >
                         TAX
                     </div>
-                    <div class="col-span-2 text-right text-lg">$11,365.75</div>
+                    <div class="col-span-2 text-right text-lg">${{invoiceData.tax.value}}</div>
 
                     <!-- Divider -->
                     <div class="col-span-12 my-3 border-b"></div>
@@ -245,7 +245,7 @@
                     >
                         DISCOUNT
                     </div>
-                    <div class="col-span-2 text-right text-lg">$3,680.75</div>
+                    <div class="col-span-2 text-right text-lg">${{invoiceData.discount.value}}</div>
 
                     <!-- Divider -->
                     <div class="col-span-12 my-3 border-b"></div>
@@ -257,7 +257,7 @@
                         TOTAL
                     </div>
                     <div class="col-span-2 text-right text-2xl font-medium">
-                        $235,000.00
+                        ${{invoiceData.total}}
                     </div>
                 </div>
 
