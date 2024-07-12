@@ -35,6 +35,7 @@ import { products } from 'app/services/apps/ecommerce/inventory/data';
 import { List } from 'lodash';
 import { getGlobal } from '@firebase/util';
 
+
 @Component({
     selector: 'invoice',
     templateUrl: './invoice-form.html',
@@ -86,9 +87,8 @@ export class InvoiceFormComponent {
         private invoiceService: InvoicesService,
         private router: Router
     ) {
-        const id = this.anyformatDate(new Date());
         this.form = this.fb.group({
-            id: [id],
+            id: [''],
             date: [''],
             dueDate: [''],
             billTo: this.fb.group({
@@ -131,6 +131,9 @@ export class InvoiceFormComponent {
                 value: [],
             }),
             total: [''],
+        });
+        this.invoiceService.countInvoices().then((count) => {
+            this.form.get('id').setValue("#0000"+(count+1));
         });
     }
 
