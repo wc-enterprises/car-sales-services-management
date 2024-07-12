@@ -52,13 +52,13 @@
                                 Bill To
                             </div>
                             <div class="pl-10 border-l text-md">
-                                <div class="font-medium">{{invoiceData.Name}}</div>
-                                <div>{{ invoiceData.Addressline1 }}</div>
-                                <div>{{ invoiceData.Addressline2 }}</div>
-                                <div>{{ invoiceData['Town/city'] }}</div>
-                                <div> {{ invoiceData.country }}</div>
-                                <div>{{ invoiceData.Postcode }}</div>
-                                <div>{{ invoiceData.phone }}</div>
+                                <div class="font-medium">{{invoiceData.billTo.name}}</div>
+                                <div>{{ invoiceData.billTo.address1 }}</div>
+                                <div>{{ invoiceData.billTo.address2 }}</div>
+                                <div>{{ invoiceData.billTo.city }}</div>
+                                <div> {{ invoiceData.billTo.country }}</div>
+                                <div>{{ invoiceData.billTo.PostCode }}</div>
+                                <div>{{ invoiceData.billTo.phoneNumber.number }}</div>
                                 <div>jobin.ebenezer&#64;company.com</div>
                             </div>
                         </div>
@@ -73,13 +73,13 @@
                             >
                                 INVOICE
                             </div>
-                            <div class="text-4xl"> {{ invoiceData.invoiceNumber }}</div>
+                            <div class="text-4xl"> {{ invoiceData.id }}</div>
                             <div
                                 class="justify-self-end font-medium tracking-tight text-secondary"
                             >
                                 INVOICE DATE
                             </div>
-                            <div class="font-medium"> {{ invoiceData.Date }}</div>
+                            <div class="font-medium"> {{ invoiceData.date }}</div>
                             <div
                                 class="justify-self-end font-medium tracking-tight text-secondary"
                             >
@@ -100,9 +100,9 @@
                                 Car Info
                             </div>
                             <div class="pl-10 border-l text-md">
-                                <div class="font-medium">{{ invoiceData.regno }}</div>
-                                <div>{{ invoiceData.make }}</div>
-                                <div>{{ invoiceData.model }}</div>
+                                <div class="font-medium">{{ invoiceData.carInfo.regNo }}</div>
+                                <div>{{ invoiceData.carInfo.make }}</div>
+                                <div>{{ invoiceData.carInfo.model }}</div>
                             </div>
                         </div>
                     </div>
@@ -223,7 +223,7 @@
                     >
                         SUBTOTAL
                     </div>
-                    <div class="col-span-2 text-right text-lg">$227,315.00</div>
+                    <div class="col-span-2 text-right text-lg">${{invoiceData.subtotal}}</div>
 
                     <!-- Divider -->
                     <div class="col-span-12 my-3 border-b"></div>
@@ -234,7 +234,7 @@
                     >
                         TAX
                     </div>
-                    <div class="col-span-2 text-right text-lg">$11,365.75</div>
+                    <div class="col-span-2 text-right text-lg">${{invoiceData.tax.value}}</div>
 
                     <!-- Divider -->
                     <div class="col-span-12 my-3 border-b"></div>
@@ -245,7 +245,7 @@
                     >
                         DISCOUNT
                     </div>
-                    <div class="col-span-2 text-right text-lg">$3,680.75</div>
+                    <div class="col-span-2 text-right text-lg">${{invoiceData.discount.value}}</div>
 
                     <!-- Divider -->
                     <div class="col-span-12 my-3 border-b"></div>
@@ -257,7 +257,7 @@
                         TOTAL
                     </div>
                     <div class="col-span-2 text-right text-2xl font-medium">
-                        $235,000.00
+                        ${{invoiceData.total}}
                     </div>
                 </div>
 

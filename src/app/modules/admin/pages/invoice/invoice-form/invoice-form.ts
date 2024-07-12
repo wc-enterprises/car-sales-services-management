@@ -27,7 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 import { map, startWith } from 'rxjs';
@@ -65,6 +65,7 @@ import { getGlobal } from '@firebase/util';
 })
 export class InvoiceFormComponent {
     form: FormGroup;
+    invoiceData: any;
     filteredSuggestions: { [key: number]: string[] } = {};
     isDropdownOpen: { [key: number]: boolean } = {};
     @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
@@ -80,43 +81,45 @@ export class InvoiceFormComponent {
     filteredServiceNames: string[];
 
     eRef: any;
+    invoiceForm: any;
 
     constructor(
         private fb: FormBuilder,
+        private route: ActivatedRoute,
         private invoiceService: InvoicesService,
         private router: Router
     ) {
         this.form = this.fb.group({
             id: [''],
-            date: [''],
-            dueDate: [''],
+            date: ['', Validators.required],
+            dueDate: ['', Validators.required],
             billTo: this.fb.group({
                 id: [''],
-                name: [''],
+                name: ['', Validators.required],
                 phoneNumber: this.fb.group({
                     code: [''],
-                    number: [''],
+                    number: ['', Validators.required],
                 }),
                 email: [''],
-                address1: [''],
+                address1: ['', Validators.required],
                 address2: [''],
-                postCode: [''],
-                country: [''],
-                city: [''],
+                postCode: ['', Validators.required],
+                country: ['', Validators.required],
+                city: ['', Validators.required],
             }),
             carInfo: this.fb.group({
                 id: [''],
-                regNo: [''],
+                regNo: ['', Validators.required],
                 regYear: [''],
-                make: [''],
-                model: [''],
+                make: ['', Validators.required],
+                model: ['', Validators.required],
                 engineType: [''],
                 transmission: [''],
                 fuelType: [''],
                 mileage: [''],
                 color: [''],
                 vin: [''],
-                nextServiceDate: [''],
+                nextServiceDate: ['',Validators.required],
                 motValidTill: [''],
                 insuranceValidTill: [''],
                 roadTaxValidTill: [''],
@@ -134,6 +137,11 @@ export class InvoiceFormComponent {
     }
 
     ngOnInit(): void {
+      
+        if (history.state.data) {
+            this.invoiceData = history.state.data;
+            this.form.patchValue(this.invoiceData);
+        }
         this.calculateSubtotal();
         this.setupTotalCalculation();
 
@@ -159,14 +167,14 @@ export class InvoiceFormComponent {
     selectSuggestion(suggestion: string, index: number): void {
         const serviceGroup = this.services.at(index) as FormGroup;
         serviceGroup.get('item').setValue(suggestion);
-        const price = (this.Nameandprice[suggestion][0]) || '';
-        const tax = (this.Nameandprice[suggestion][1]) || '';
+        const price = this.Nameandprice[suggestion][0] || '';
+        const tax = this.Nameandprice[suggestion][1] || '';
         serviceGroup.get('price').setValue(price);
         serviceGroup.get('quantity').setValue('1');
         serviceGroup.get('total').setValue('');
         const existingTaxValue = this.form.get('tax.value').value;
         this.form.get('tax.value').setValue(existingTaxValue + tax);
-    
+
         this.isDropdownOpen[index] = false;
     }
     openDropdown(index: number): void {
@@ -198,16 +206,19 @@ export class InvoiceFormComponent {
 
     createServiceGroup(suggestion: string = ''): FormGroup {
         const price = this.Nameandprice[suggestion] || '';
-        const quantity = this.Nameandprice[suggestion] || '' ; 
+        const quantity = this.Nameandprice[suggestion] || '';
         return this.fb.group({
-            item: [suggestion, Validators.required],
-            price: [price, Validators.required],
-            quantity: [quantity, Validators.required],
+            item: [suggestion,Validators.required],
+            price: [price],
+            quantity: [quantity],
             total: [''],
         });
     }
+ 
     addService(suggestion: string = ''): void {
-        this.services.push(this.createServiceGroup(suggestion));
+         for(let i = 0;i < 5; i++){
+            this.services.push(this.createServiceGroup(suggestion));
+         }
         this.calculateSubtotal();
     }
 
@@ -284,6 +295,11 @@ export class InvoiceFormComponent {
 
     onSave() {
         if (this.form.valid) {
+            const updatedData = this.form.value;
+            this.invoiceService.saveInvoiceData(updatedData);
+          
+        }
+        if (this.form.valid) {
             const formData = this.form.value;
             console.log('dates before formatting', formData);
 
@@ -299,18 +315,23 @@ export class InvoiceFormComponent {
             this.invoiceService.createInvoice(formData);
             console.log('Form data saved:', formData);
             alert('Data saved to local storage and shared service');
-        } else {
-            console.log('Form is invalid:', this.form);
-            alert('Please fill in all required fields');
         }
     }
 
     onPrint() {
-        this.onSave();
-        this.router.navigate(['pages/invoice/printable/modern']);
-        window.print();
+        if (this.form.valid) {
+            this.onSave();
+            this.router.navigate(['pages/invoice/printable/modern']);
+          
+        } else {
+            alert('Please fill in all required fields before printing');
+        }
     }
     backToInvoices() {
+        this.router.navigate(['inventory-and-invoice/invoices']);
+    }
+
+    onCancel() {
         this.router.navigate(['inventory-and-invoice/invoices']);
     }
 }
