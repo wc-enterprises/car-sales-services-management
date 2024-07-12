@@ -1,6 +1,11 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    ElementRef,
+    HostListener,
+    QueryList,
+    ViewChild,
+    ViewChildren,
     ViewEncapsulation,
 } from '@angular/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
@@ -26,6 +31,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FuseFindByKeyPipe } from '@fuse/pipes/find-by-key/find-by-key.pipe';
 import { InvoicesService } from 'app/modules/admin/apps/invoices/invoices.service';
 import { map, startWith } from 'rxjs';
+import { products } from 'app/services/apps/ecommerce/inventory/data';
+import { List } from 'lodash';
+import { getGlobal } from '@firebase/util';
 
 @Component({
     selector: 'invoice',
@@ -58,6 +66,22 @@ import { map, startWith } from 'rxjs';
 export class InvoiceFormComponent {
     form: FormGroup;
     invoiceData: any;
+    filteredSuggestions: { [key: number]: string[] } = {};
+    isDropdownOpen: { [key: number]: boolean } = {};
+    @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
+    @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
+
+    serviceNames: string[] = products.map((product) => product.name);
+
+    Nameandprice = products.reduce((acc, product) => {
+        acc[product.name] = [product.basePrice, product.taxPercent];
+        return acc;
+    }, {});
+
+    filteredServiceNames: string[];
+
+    eRef: any;
+
     constructor(
         private fb: FormBuilder,
         private route: ActivatedRoute,
@@ -100,14 +124,14 @@ export class InvoiceFormComponent {
                 roadTaxValidTill: [''],
             }),
             services: this.fb.array([this.createServiceGroup()]),
-            subtotal: [0],
+            subtotal: [''],
             tax: this.fb.group({
-                value: [0],
+                value: [],
             }),
             discount: this.fb.group({
-                value: [0],
+                value: [],
             }),
-            total: [0],
+            total: [''],
         });
     }
 
@@ -118,23 +142,78 @@ export class InvoiceFormComponent {
           }
         this.calculateSubtotal();
         this.setupTotalCalculation();
+
+        this.filteredServiceNames = this.serviceNames;
+
+        // Subscribe to the input changes
+        this.form.get('item').valueChanges.subscribe((value) => {
+            this.filterServiceNames(value);
+        });
     }
+
+    onInputChange(value: string, index: number): void {
+        this.filteredSuggestions[index] = this.filterServiceNames(value);
+        this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;
+    }
+
+    filterServiceNames(value: string): string[] {
+        return this.serviceNames.filter((name) =>
+            name.toLowerCase().includes(value.toLowerCase())
+        );
+    }
+
+    selectSuggestion(suggestion: string, index: number): void {
+        const serviceGroup = this.services.at(index) as FormGroup;
+        serviceGroup.get('item').setValue(suggestion);
+        const price = (this.Nameandprice[suggestion][0]) || '';
+        const tax = (this.Nameandprice[suggestion][1]) || '';
+        serviceGroup.get('price').setValue(price);
+        serviceGroup.get('quantity').setValue('1');
+        serviceGroup.get('total').setValue('');
+        const existingTaxValue = this.form.get('tax.value').value;
+        this.form.get('tax.value').setValue(existingTaxValue + tax);
+    
+        this.isDropdownOpen[index] = false;
+    }
+    openDropdown(index: number): void {
+        this.isDropdownOpen[index] = true;
+    }
+
+    closeDropdown(index: number): void {
+        this.isDropdownOpen[index] = false;
+    }
+
+    @HostListener('document:click', ['$event'])
+    clickout(event: Event): void {
+        setTimeout(() => {
+            this.dropdowns.forEach((dropdown, index) => {
+                if (!this.eRef.nativeElement.contains(event.target)) {
+                    this.closeDropdown(index);
+                }
+            });
+        }, 100);
+    }
+
+    preventClose(event: Event): void {
+        event.preventDefault();
+    }
+
     get services(): FormArray {
         return this.form.get('services') as FormArray;
     }
 
-    createServiceGroup(): FormGroup {
+    createServiceGroup(suggestion: string = ''): FormGroup {
+        const price = this.Nameandprice[suggestion] || '';
+        const quantity = this.Nameandprice[suggestion] || '' ; 
         return this.fb.group({
-            item: ['', Validators.required],
-            price: [, Validators.required],
-            quantity: [, Validators.required],
-            total: [,Validators.required],
+            item: [suggestion, Validators.required],
+            price: [price, Validators.required],
+            quantity: [quantity, Validators.required],
+            total: ['',Validators.required],
         });
     }
-    addService(): void {
-        for (let i = 0; i < 3; i++) {
-            this.services.push(this.createServiceGroup());
-        }
+    addService(suggestion: string = ''): void {
+        this.services.push(this.createServiceGroup(suggestion));
         this.calculateSubtotal();
     }
 
@@ -162,7 +241,7 @@ export class InvoiceFormComponent {
             .subscribe((subtotal) => {
                 this.form
                     .get('subtotal')
-                    .setValue(subtotal, { emitEvent: false });
+                    .setValue(subtotal || '', { emitEvent: false });
                 this.calculateTotal();
             });
     }
@@ -187,7 +266,7 @@ export class InvoiceFormComponent {
                 })
             )
             .subscribe((total) => {
-                this.form.get('total').setValue(total, { emitEvent: false });
+                this.form.get('total').setValue(total === 0 ? '' : total, { emitEvent: false });
             });
     }
 
