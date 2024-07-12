@@ -39,7 +39,8 @@ export interface IInvoice {
     item: string;
     quantity: number;
     price: number;
-    total: number;
+    total: string;
+  
   }[];
   tax: {
     unit: string;
