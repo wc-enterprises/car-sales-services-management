@@ -227,14 +227,20 @@ export class InvoiceFormComponent {
         this.calculateSubtotal();
     }
 
-    removeService(index: number): void {
-        if (this.services.length > 1) {
-            this.services.removeAt(index);
-        } else {
-            alert('At least one service is required.');
-        }
-        this.calculateSubtotal();
+   removeService(index: number): void {
+    if (this.services.length > 1) {
+        var a=0
+        const removedService = this.services.at(index).value;
+        const removedTax = this.Nameandprice[removedService.item][1] || 0;
+        const currentTax = this.form.get('tax.value').value;
+        this.form.get('tax.value').setValue(currentTax - removedTax);
+
+        this.services.removeAt(index);
+    } else {
+        alert('At least one service is required.');
     }
+    this.calculateSubtotal();
+}
 
     calculateSubtotal(): void {
         this.services.valueChanges
