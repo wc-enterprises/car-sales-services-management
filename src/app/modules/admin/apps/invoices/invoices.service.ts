@@ -31,7 +31,19 @@ export class InvoicesService {
   );
 
   private _unsubscribers: Unsubscribe[] = [];
+  private invoiceData: any;
+  getInvoiceData(): any {
+    return this.invoiceData;
+  }
 
+  setInvoiceData(data: any): void {
+    this.invoiceData = data;
+  }
+
+  saveInvoiceData(data: any): void {
+    // Save the data to your backend or local storage
+    this.invoiceData = data;
+  }
   /**
    * Constructor
    */
@@ -188,14 +200,21 @@ console.log(invoicesRef)
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
 
-  setInvoiceData(data: any): void {
-    this.invoiceDataSubject.next(data);
-  }
+  // setInvoiceData(data: any): void {
+  //   this.invoiceDataSubject.next(data);
+  // }
 
+<<<<<<< HEAD
   getInvoiceData(): any {
     return this.invoiceDataSubject.value;
   }
   
+=======
+  // getInvoiceData(): any {
+  //   return this.invoiceDataSubject.value;
+  // }
+
+>>>>>>> dc8c2c93a433ea6a6eff5794afb5e19eafcd2d28
   searchInvoices(query: string) {
   //TODO: Implement search invoices
 
