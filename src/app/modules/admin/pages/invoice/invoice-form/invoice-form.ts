@@ -136,8 +136,9 @@ export class InvoiceFormComponent {
             total: [''],
         });
         this.invoiceService.countInvoices().then((count) => {
-            this.form.get('id').setValue("#0000"+(count+1));
+            this.form.get('id').setValue("#0000"+(count+1));    
         });
+        
     }
 
     ngOnInit(): void {
@@ -334,6 +335,7 @@ export class InvoiceFormComponent {
     backToInvoices() {
         this.router.navigate(['inventory-and-invoice/invoices']);
     }
+
     onCancel() {
         this.router.navigate(['inventory-and-invoice/invoices']);
     }

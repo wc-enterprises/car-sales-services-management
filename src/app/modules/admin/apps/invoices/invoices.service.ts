@@ -199,10 +199,6 @@ console.log(invoicesRef)
     }
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
-
-  // setInvoiceData(data: any): void {
-  //   this.invoiceDataSubject.next(data);
-  // }
   searchInvoices(query: string) {
   //TODO: Implement search invoices
 
@@ -250,5 +246,4 @@ console.log(invoicesRef)
   //       console.error(error);
   //     });
   1}
-  
 }
