@@ -11,6 +11,7 @@ import {
 import { IInvoice } from "./invoices.types";
 import {
   Database,
+  get,
   onValue,
   ref,
   set,
@@ -119,7 +120,22 @@ console.log(invoicesRef)
 
     this._unsubscribers.push(unsubsriber);
   }
-
+  async countInvoices(): Promise<number> {
+    const invoicesRef = ref(this.db, "invoices");
+    const snapshot = await get(invoicesRef);
+    const data = snapshot.val();
+  
+    let count = 0;
+    if (data) {
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          count++;
+        }
+      }
+    }
+  
+    return count;
+  }
   /**
    * Get product by id
    */
@@ -183,15 +199,6 @@ console.log(invoicesRef)
     }
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
-
-  // setInvoiceData(data: any): void {
-  //   this.invoiceDataSubject.next(data);
-  // }
-
-  // getInvoiceData(): any {
-  //   return this.invoiceDataSubject.value;
-  // }
-
   searchInvoices(query: string) {
   //TODO: Implement search invoices
 

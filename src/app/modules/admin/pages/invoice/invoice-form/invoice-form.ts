@@ -35,6 +35,7 @@ import { products } from 'app/services/apps/ecommerce/inventory/data';
 import { List } from 'lodash';
 import { getGlobal } from '@firebase/util';
 
+
 @Component({
     selector: 'invoice',
     templateUrl: './invoice-form.html',
@@ -134,6 +135,10 @@ export class InvoiceFormComponent {
             }),
             total: [''],
         });
+        this.invoiceService.countInvoices().then((count) => {
+            this.form.get('id').setValue("#0000"+(count+1));    
+        });
+        
     }
 
     ngOnInit(): void {
