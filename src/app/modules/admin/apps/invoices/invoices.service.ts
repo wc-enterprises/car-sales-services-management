@@ -203,18 +203,6 @@ console.log(invoicesRef)
   // setInvoiceData(data: any): void {
   //   this.invoiceDataSubject.next(data);
   // }
-
-<<<<<<< HEAD
-  getInvoiceData(): any {
-    return this.invoiceDataSubject.value;
-  }
-  
-=======
-  // getInvoiceData(): any {
-  //   return this.invoiceDataSubject.value;
-  // }
-
->>>>>>> dc8c2c93a433ea6a6eff5794afb5e19eafcd2d28
   searchInvoices(query: string) {
   //TODO: Implement search invoices
 
