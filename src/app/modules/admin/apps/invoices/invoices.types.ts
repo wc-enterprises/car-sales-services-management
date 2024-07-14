@@ -5,6 +5,7 @@ export interface IInvoice {
 
   billTo: {
     id?: string;
+    invoiceNumber: string;
     name: string;
     phoneNumber: {
       code: string;

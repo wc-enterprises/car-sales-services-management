@@ -1,163 +1,172 @@
 <div
-    class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent"
+  class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent"
 >
-    <!-- Header -->
-    <div
-        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b"
-    >
-        <!-- Loader -->
-        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
-            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
-        </div>
-        <!-- Title -->
-        <div class="text-4xl font-extrabold tracking-tight">Invoices</div>
-        <!-- Actions -->
-        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
-            <!-- Search -->
-            <mat-form-field
-                class="fuse-mat-dense fuse-mat-rounded min-w-45"
-                [subscriptSizing]="'dynamic'"
-            >
-                <mat-icon
-                    class="icon-size-5"
-                    matPrefix
-                    [svgIcon]="'heroicons_solid:magnifying-glass'"
-                ></mat-icon>
-                <input
-                    matInput
-                    [formControl]="searchInputControl"
-                    [autocomplete]="'off'"
-                    [placeholder]="'Search items'"
-                />
-            </mat-form-field>
-            <!-- Add product button -->
-            <button class="ml-4" mat-flat-button [color]="'primary'" (click)="navigateToForm()">
-                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                <span class="ml-2 mr-1">Add</span>
-            </button>
-            <!-- TODO: Actual button above is commented since, it needs to integrate to a different invoice form. -->
-        </div>
+  <!-- Header -->
+  <div
+    class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b"
+  >
+    <!-- Loader -->
+    <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+      <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
     </div>
+    <!-- Title -->
+    <div class="text-4xl font-extrabold tracking-tight">Invoices</div>
+    <!-- Actions -->
+    <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+      <!-- Search -->
+      <mat-form-field
+        class="fuse-mat-dense fuse-mat-rounded min-w-45"
+        [subscriptSizing]="'dynamic'"
+      >
+        <mat-icon
+          class="icon-size-5"
+          matPrefix
+          [svgIcon]="'heroicons_solid:magnifying-glass'"
+        ></mat-icon>
+        <input
+          matInput
+          [formControl]="searchInputControl"
+          [autocomplete]="'off'"
+          [placeholder]="'Search items'"
+        />
+      </mat-form-field>
+      <!-- Add product button -->
+      <button
+        class="ml-4"
+        mat-flat-button
+        [color]="'primary'"
+        (click)="navigateToForm()"
+      >
+        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+        <span class="ml-2 mr-1">Add</span>
+      </button>
+      <!-- TODO: Actual button above is commented since, it needs to integrate to a different invoice form. -->
+    </div>
+  </div>
 
-    <!-- Main -->
-    <div class="flex flex-auto overflow-hidden">
-        <!-- Products list -->
-        <div
-            class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto"
-        >
-            <ng-container *ngIf="invoices$ | async as products">
-                <ng-container *ngIf="products.length > 0; else noProducts">
-                    <div class="grid">
-                        <!-- Header -->
-                        <div
-                            class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
-                            matSort
-                            matSortDisableClear
-                        >
-                            <div>S.No</div>
-                            <div
-                                class="truncate"
-                                [mat-sort-header]="'invoiceId'"
-                            >
-                                Invoice ID
-                            </div>
-                            <div
-                                class="truncate"
-                                [mat-sort-header]="'customerName'"
-                            >
-                                Customer Name
-                            </div>
-                            <div
-                                class="truncate hidden sm:hidden md:block"
-                                [mat-sort-header]="'carName'"
-                            >
-                                Car Name
-                            </div>
-                            <div
-                                class="hidden sm:block md:block truncate"
-                                [mat-sort-header]="'services'"
-                            >
-                                Services
-                            </div>
-                            <div
-                                class="hidden sm:hidden md:hidden lg:block truncate"
-                                [mat-sort-header]="'cost'"
-                            >
-                                Cost
-                            </div>
-                            <div
-                                class="hidden sm:hidden md:hidden lg:block truncate"
-                                [mat-sort-header]="'invoice'"
-                            >
-                                Invoice
-                            </div>
-                            <div class="truncate">Action</div>
-                        </div>
-                        <!-- Rows -->
-                        <ng-container *ngIf="invoices$ | async as invoices">
-                            <ng-container
-                                *ngFor="
-                                    let invoice of invoices;
-                                    let i = index;
-                                    trackBy: trackByFn
-                                "
-                            >
-                                <div
-                                    class="inventory-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b"
-                                >
-                                    <!-- S.No -->
-                                    <div class="flex items-center">
-                                        <div
-                                            class="relative flex flex-0 items-center justify-center w-12 h-12 mr-6 overflow-hidden"
-                                        >
-                                            <div
-                                                class="flex items-center justify-center w-full h-full text-xs font-semibold leading-none text-center uppercase"
-                                            >
-                                                {{ i + 1 }}
-                                            </div>
-                                        </div>
-                                    </div>
+  <!-- Main -->
+  <div class="flex flex-auto overflow-hidden">
+    <!-- Products list -->
+    <div
+      class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto"
+    >
+      <ng-container *ngIf="invoices$ | async as products">
+        <ng-container *ngIf="products.length > 0; else noProducts">
+          <div class="grid">
+            <!-- Header -->
+            <div
+              class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+              matSort
+              matSortDisableClear
+            >
+              <div>S.No</div>
+              <div class="truncate" [mat-sort-header]="'invoiceId'">
+                Invoice ID
+              </div>
+              <div class="truncate" [mat-sort-header]="'customerName'">
+                Customer Name
+              </div>
+              <div
+                class="truncate hidden sm:hidden md:block"
+                [mat-sort-header]="'carName'"
+              >
+                Car Name
+              </div>
+              <div
+                class="hidden sm:block md:block truncate"
+                [mat-sort-header]="'services'"
+              >
+                Services
+              </div>
+              <div
+                class="hidden sm:hidden md:hidden lg:block truncate"
+                [mat-sort-header]="'cost'"
+              >
+                Cost
+              </div>
+              <div
+                class="hidden sm:hidden md:hidden lg:block truncate"
+                [mat-sort-header]="'invoice'"
+              >
+                Preview
+              </div>
+              <div class="truncate">Action</div>
+            </div>
+            <!-- Rows -->
+            <ng-container *ngIf="invoices$ | async as invoices">
+              <ng-container
+                *ngFor="
+                  let invoice of invoices;
+                  let i = index;
+                  trackBy: trackByFn
+                "
+              >
+                <div
+                  class="inventory-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b"
+                >
+                  <!-- S.No -->
+                  <div class="flex items-center">
+                    <div
+                      class="relative flex flex-0 items-center justify-center w-12 h-12 mr-6 overflow-hidden"
+                    >
+                      <div
+                        class="flex items-center justify-center w-full h-full text-xs font-semibold leading-none text-center uppercase"
+                      >
+                        {{ i + 1 }}
+                      </div>
+                    </div>
+                  </div>
 
-                                    <!-- Invoice Id -->
-                                    <div class="truncate">
-                                        {{ invoice.id }}
-                                    </div>
+                  <!-- Invoice Id -->
+                  <div class="truncate">
+                    {{ invoice.invoiceNumber }}
+                  </div>
 
-                                    <!-- Customer name -->
-                                    <div
-                                        class="truncate"
-                                    >
-                                        {{ invoice.billTo.name }}
-                                    </div>
+                  <!-- Customer name -->
+                  <div class="truncate">
+                    {{ invoice.billTo.name }}
+                  </div>
 
-                                    <!-- Car name -->
-                                    <div class="truncate hidden sm:hidden md:block">
-                                        {{ invoice.carInfo.make }} -
-                                        {{ invoice.carInfo.model }}
-                                    </div>
+                  <!-- Car name -->
+                  <div class="truncate hidden sm:hidden md:block">
+                    {{ invoice.carInfo.make }} -
+                    {{ invoice.carInfo.model }}
+                  </div>
 
-                                    <!-- Services -->
-                                    <div class="truncate hidden sm:block md:block">
-                                        {{ invoice.services.item }}
-                                    </div>
+                  <!-- Services -->
+                  <div class="truncate hidden sm:block md:block">
+                    {{ invoice.services.item }}
+                  </div>
 
-                                    <!-- Cost -->
-                                    <div class="hidden sm:hidden md:hidden lg:block truncate">
-                                        {{ invoice.services.total }}
-                                    </div>
+                  <!-- Cost -->
+                  <div class="hidden sm:hidden md:hidden lg:block truncate">
+                    {{ invoice.total }}
+                  </div>
 
-                                    <!-- Invoice -->
-                                    <div class="hidden sm:hidden md:hidden lg:block truncate">
-                                        {{ invoice.date }}
-                                    </div>
+                  <!-- Invoice -->
+                  <div class="hidden sm:hidden md:hidden lg:block truncate">
+                    <button
+                      class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                      (click)="previewInvoice(invoice.id)"
+                    >
+                      Preview
+                    </button>
+                  </div>
 
-                                    <!-- Action -->
-                                    <div class="truncate">
-                                        <mat-icon class="cursor-pointer p-2 rounded-full hover:bg-gray-200">edit</mat-icon>
-                                        <mat-icon class="cursor-pointer p-2 rounded-full hover:bg-gray-200" (click)="deleteSelectedProduct()">delete</mat-icon>
-                                    </div>
-                                </div>
-                                <!-- <div class="grid">
+                  <!-- Action -->
+                  <div class="truncate">
+                    <mat-icon
+                      class="cursor-pointer p-2 rounded-full hover:bg-gray-200"
+                      >edit</mat-icon
+                    >
+                    <mat-icon
+                      class="cursor-pointer p-2 rounded-full hover:bg-gray-200"
+                      (click)="deleteSelectedProduct()"
+                      >delete</mat-icon
+                    >
+                  </div>
+                </div>
+                <!-- <div class="grid">
                                     <ng-container
                                         *ngIf="
                                             selectedInvoice?.id === product.id
@@ -171,11 +180,11 @@
                                         ></ng-container>
                                     </ng-container>
                                 </div> -->
-                            </ng-container>
-                        </ng-container>
-                    </div>
+              </ng-container>
+            </ng-container>
+          </div>
 
-                    <!-- <mat-paginator
+          <!-- <mat-paginator
             class="sm:absolute sm:inset-x-0 sm:bottom-0 border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
             [ngClass]="{ 'pointer-events-none': isLoading }"
             [length]="pagination.length"
@@ -184,16 +193,16 @@
             [pageSizeOptions]="[5, 10, 25, 100]"
             [showFirstLastButtons]="true"
           ></mat-paginator> -->
-                </ng-container>
-            </ng-container>
+        </ng-container>
+      </ng-container>
 
-            <ng-template #noProducts>
-                <div
-                    class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center"
-                >
-                    There are no items!
-                </div>
-            </ng-template>
+      <ng-template #noProducts>
+        <div
+          class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center"
+        >
+          There are no items!
         </div>
+      </ng-template>
     </div>
+  </div>
 </div>

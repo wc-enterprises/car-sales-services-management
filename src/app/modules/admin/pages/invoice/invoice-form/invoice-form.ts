@@ -91,7 +91,7 @@ export class InvoiceFormComponent {
         private router: Router
     ) {
         this.form = this.fb.group({
-            id: [''],
+            invoiceNumber: [''],
             date: ['', Validators.required],
             dueDate: ['', Validators.required],
             billTo: this.fb.group({
@@ -136,7 +136,7 @@ export class InvoiceFormComponent {
             total: [''],
         });
         this.invoiceService.countInvoices().then((count) => {
-            this.form.get('id').setValue("#0000"+(count+1));    
+            this.form.get('invoiceNumber').setValue("#0000"+(count+1));    
         });
         
     }

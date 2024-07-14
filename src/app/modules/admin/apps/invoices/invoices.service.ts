@@ -49,7 +49,6 @@ export class InvoicesService {
    */
   constructor(private db: Database) {
     this.getInvoices();
- 
   }
   destructor() {
     this._unsubscribers.forEach((item) => {
@@ -101,8 +100,8 @@ export class InvoicesService {
     const invoicesRef = ref(this.db, "invoices");
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
-console.log(data)
-console.log(invoicesRef)
+      console.log(data);
+      console.log(invoicesRef);
       // Frame cars for component
       const invoices = [];
       Object.keys(data).forEach((key) => {
@@ -120,11 +119,12 @@ console.log(invoicesRef)
 
     this._unsubscribers.push(unsubsriber);
   }
+
   async countInvoices(): Promise<number> {
     const invoicesRef = ref(this.db, "invoices");
     const snapshot = await get(invoicesRef);
     const data = snapshot.val();
-  
+
     let count = 0;
     if (data) {
       for (const key in data) {
@@ -133,9 +133,16 @@ console.log(invoicesRef)
         }
       }
     }
-  
+
     return count;
   }
+
+  async getInvoiceByIdOnce(id: string) {
+    const invoicesRef = ref(this.db, `invoices/${id}`);
+    const snapshot = await get(invoicesRef)
+    return snapshot.val();
+  }
+
   /**
    * Get product by id
    */
@@ -165,9 +172,9 @@ console.log(invoicesRef)
   /**
    * Create invoice
    */
-  createInvoice(invoiceData: Omit<IInvoice, 'id'>): Promise<void> {
+  createInvoice(invoiceData: Omit<IInvoice, "id">): Promise<void> {
     const id = FuseMockApiUtils.guid();
-    return set(ref(this.db, 'invoices/'+id) , { id, ...invoiceData})
+    return set(ref(this.db, "invoices/" + id), { id, ...invoiceData });
   }
 
   /**
@@ -200,50 +207,51 @@ console.log(invoicesRef)
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
   searchInvoices(query: string) {
-  //TODO: Implement search invoices
+    //TODO: Implement search invoices
 
-  //   const dbRef = ref(this.db);
+    //   const dbRef = ref(this.db);
 
-  //   return get(child(dbRef, "cars"))
-  //     .then((snapshot) => {
-  //       if (snapshot.exists()) {
-  //         const dbCars = snapshot.val();
+    //   return get(child(dbRef, "cars"))
+    //     .then((snapshot) => {
+    //       if (snapshot.exists()) {
+    //         const dbCars = snapshot.val();
 
-  //         // Frame cars for component
-  //         let cars: IInvoice[] = [];
-  //         Object.keys(dbCars).forEach((key) => {
-  //           const val = dbCars[key];
-  //           cars.push(val);
-  //         });
+    //         // Frame cars for component
+    //         let cars: IInvoice[] = [];
+    //         Object.keys(dbCars).forEach((key) => {
+    //           const val = dbCars[key];
+    //           cars.push(val);
+    //         });
 
-  //         cars = cars.filter((car) => {
-  //           if (
-  //             (car.regNo &&
-  //               car.regNo
-  //                 .toLowerCase()
-  //                 .replace(/\s/g, "")
-  //                 .includes(query.toLowerCase().replace(/\s/g, ""))) ||
-  //             (car.make &&
-  //               car.make.toLowerCase().includes(query.toLowerCase())) ||
-  //             (car.model &&
-  //               car.model.toLowerCase().includes(query.toLowerCase())) ||
-  //             (car.customerId && car.customerId === query) ||
-  //             (car.id && car.id === query)
-  //           ) {
-  //             return true;
-  //           }
-  //           return false;
-  //         });
+    //         cars = cars.filter((car) => {
+    //           if (
+    //             (car.regNo &&
+    //               car.regNo
+    //                 .toLowerCase()
+    //                 .replace(/\s/g, "")
+    //                 .includes(query.toLowerCase().replace(/\s/g, ""))) ||
+    //             (car.make &&
+    //               car.make.toLowerCase().includes(query.toLowerCase())) ||
+    //             (car.model &&
+    //               car.model.toLowerCase().includes(query.toLowerCase())) ||
+    //             (car.customerId && car.customerId === query) ||
+    //             (car.id && car.id === query)
+    //           ) {
+    //             return true;
+    //           }
+    //           return false;
+    //         });
 
-  //         this._invoices.next(cars);
-  //         return true;
-  //       } else {
-  //         console.log("No data available");
-  //         return false;
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  1}
+    //         this._invoices.next(cars);
+    //         return true;
+    //       } else {
+    //         console.log("No data available");
+    //         return false;
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       console.error(error);
+    //     });
+    1;
+  }
 }
