@@ -51,18 +51,22 @@ import { Router } from "@angular/router";
     /* language=SCSS */
     `
       .inventory-grid {
-        grid-template-columns: 36px auto 52px 50px;
+        // Mobile
+        grid-template-columns: 36px auto 120px;
 
+        // Tablet
         @screen sm {
-          grid-template-columns: 48px 112px 112px auto 72px;
+          grid-template-columns: 48px 112px auto 120px;
         }
 
+        // Laptop small
         @screen md {
-          grid-template-columns: 48px 112px 112px 112px auto 72px;
+          grid-template-columns: 48px 112px auto 120px;
         }
 
+        // Laptop medium
         @screen lg {
-          grid-template-columns: 48px 112px 112px 112px auto 80px 80px 72px;
+          grid-template-columns: 48px 112px 112px 112px auto 120px;
         }
       }
     `,

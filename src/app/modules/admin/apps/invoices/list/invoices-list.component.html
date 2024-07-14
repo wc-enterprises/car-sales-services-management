@@ -63,35 +63,36 @@
               <div class="truncate" [mat-sort-header]="'invoiceId'">
                 Invoice ID
               </div>
-              <div class="truncate" [mat-sort-header]="'customerName'">
+              <div
+                class="hidden sm:hidden md:hidden lg:block truncate"
+                [mat-sort-header]="'customerName'"
+              >
                 Customer Name
               </div>
               <div
-                class="truncate hidden sm:hidden md:block"
+                class="hidden sm:hidden md:block truncate"
                 [mat-sort-header]="'carName'"
               >
                 Car Name
               </div>
+           
               <div
-                class="hidden sm:block md:block truncate"
-                [mat-sort-header]="'services'"
-              >
-                Services
-              </div>
-              <div
-                class="hidden sm:hidden md:hidden lg:block truncate"
+                class="hidden sm:block md:hidden lg:block truncate"
                 [mat-sort-header]="'cost'"
               >
                 Cost
               </div>
               <div
-                class="hidden sm:hidden md:hidden lg:block truncate"
-                [mat-sort-header]="'invoice'"
+              class="ml-9"
+                [mat-sort-header]="'preview'"
               >
                 Preview
               </div>
-              <div class="truncate">Action</div>
+              <!-- <div class="hidden sm:hidden md:hidden lg:block truncate">
+                Action
+              </div> -->
             </div>
+
             <!-- Rows -->
             <ng-container *ngIf="invoices$ | async as invoices">
               <ng-container
@@ -123,7 +124,7 @@
                   </div>
 
                   <!-- Customer name -->
-                  <div class="truncate">
+                  <div class="hidden sm:hidden md:hidden lg:block truncate">
                     {{ invoice.billTo.name }}
                   </div>
 
@@ -133,28 +134,31 @@
                     {{ invoice.carInfo.model }}
                   </div>
 
-                  <!-- Services -->
-                  <div class="truncate hidden sm:block md:block">
-                    {{ invoice.services.item }}
-                  </div>
-
                   <!-- Cost -->
-                  <div class="hidden sm:hidden md:hidden lg:block truncate">
+                  <div class="hidden sm:block md:hidden lg:block truncate">
                     {{ invoice.total }}
                   </div>
 
                   <!-- Invoice -->
-                  <div class="hidden sm:hidden md:hidden lg:block truncate">
-                    <button
+                  <div>
+                    <!-- <button
                       class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
                       (click)="previewInvoice(invoice.id)"
                     >
                       Preview
-                    </button>
+                    </button> -->
+                    <button
+                    class="ml-4"
+                    mat-flat-button
+                    [color]="'primary'"
+                    (click)="previewInvoice(invoice.id)"
+                  >
+                    <span class="ml-2 mr-1">Preview</span>
+                  </button>
                   </div>
 
                   <!-- Action -->
-                  <div class="truncate">
+                  <!-- <div class="hidden sm:hidden md:hidden lg:block truncate">
                     <mat-icon
                       class="cursor-pointer p-2 rounded-full hover:bg-gray-200"
                       >edit</mat-icon
@@ -164,7 +168,7 @@
                       (click)="deleteSelectedProduct()"
                       >delete</mat-icon
                     >
-                  </div>
+                  </div> -->
                 </div>
                 <!-- <div class="grid">
                                     <ng-container
