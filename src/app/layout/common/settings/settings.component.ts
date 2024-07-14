@@ -117,7 +117,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
      * @param scheme
      */
     setScheme(scheme: Scheme): void {
-        this._fuseConfigService.config = { scheme };
+        this._fuseConfigService.config = { scheme: 'dark' };
     }
 
     /**

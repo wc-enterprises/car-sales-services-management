@@ -51,18 +51,22 @@ import { Router } from "@angular/router";
     /* language=SCSS */
     `
       .inventory-grid {
-        grid-template-columns: 36px auto 52px 50px;
+        // Mobile
+        grid-template-columns: 36px auto 120px;
 
+        // Tablet
         @screen sm {
-          grid-template-columns: 48px 112px 112px auto 72px;
+          grid-template-columns: 48px 112px auto 120px;
         }
 
+        // Laptop small
         @screen md {
-          grid-template-columns: 48px 112px 112px 112px auto 72px;
+          grid-template-columns: 48px 112px auto 120px;
         }
 
+        // Laptop medium
         @screen lg {
-          grid-template-columns: 48px 112px 112px 112px auto 80px 80px 72px;
+          grid-template-columns: 48px 112px 112px 112px auto 120px;
         }
       }
     `,
@@ -118,11 +122,11 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     private _formBuilder: UntypedFormBuilder,
     private _invoicesService: InvoicesService,
     private _contactsService: ContactsService,
-    private router:Router
+    private router: Router
   ) {}
 
   navigateToForm() {
-    this.router.navigate(['pages/invoice/form']).then(() => {
+    this.router.navigate(["pages/invoice/form"]).then(() => {
       window.location.reload();
     });
   }
@@ -157,8 +161,6 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     //   insuranceValidTill: [""],
     //   roadTaxValidTill: [""],
     // });
-
-   
 
     // // Get the brands
     // this._invoicesService.brands$
@@ -268,6 +270,11 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   // @ Public methods
   // -----------------------------------------------------------------------------------------------------
 
+  previewInvoice(id: string) {
+    console.log("this url", this.router.url, id)   
+    this.router.navigate([`/inventory-and-invoice/invoices/preview/${id}`]);
+  }
+
   /**
    * Toggle product details
    *
@@ -335,8 +342,6 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedProductForm.get("currentImageIndex").setValue(prevIndex);
     }
   }
-
-  
 
   /**
    * Update the selected product using the form data
@@ -435,6 +440,6 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
           ? customer.phoneNumbers[0]
           : null,
     });
-    this.searchQuery = customer.name
+    this.searchQuery = customer.name;
   }
 }

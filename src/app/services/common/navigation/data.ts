@@ -453,26 +453,26 @@ export const defaultNavigation: FuseNavigationItem[] = [
             //         },
             //     ],
             // },
-            {
-                id: 'pages.invoice',
-                title: 'Invoice',
-                type: 'collapsable',
-                icon: 'heroicons_outline:calculator',
-                children: [
-                    {
-                        id: 'pages.invoice.printable.compact',
-                        title: 'Compact',
-                        type: 'basic',
-                        link: '/pages/invoice/printable/compact',
-                    },
-                    {
-                        id: 'pages.invoice.printable.modern',
-                        title: 'Modern',
-                        type: 'basic',
-                        link: '/pages/invoice/printable/modern',
-                    },
-                ],
-            },
+            // {
+            //     id: 'pages.invoice',
+            //     title: 'Invoice',
+            //     type: 'collapsable',
+            //     icon: 'heroicons_outline:calculator',
+            //     children: [
+            //         {
+            //             id: 'pages.invoice.printable.compact',
+            //             title: 'Compact',
+            //             type: 'basic',
+            //             link: '/pages/invoice/printable/compact',
+            //         },
+            //         {
+            //             id: 'pages.invoice.printable.modern',
+            //             title: 'Modern',
+            //             type: 'basic',
+            //             link: '/pages/invoice/printable/modern',
+            //         },
+            //     ],
+            // },
             // {
             //     id: 'pages.profile',
             //     title: 'Profile',
