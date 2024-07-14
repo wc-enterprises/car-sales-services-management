@@ -13,7 +13,7 @@ export class FuseConfigService {
   constructor(@Inject(FUSE_CONFIG) config: any) {
     // Private
     this._config = new BehaviorSubject(config);
-    this.configSet({ scheme: "dark" });
+    // this.configSet({ scheme: "dark" });
   }
 
   // -----------------------------------------------------------------------------------------------------
