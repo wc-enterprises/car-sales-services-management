@@ -73,7 +73,7 @@ export class InvoiceFormComponent {
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
 
     serviceNames: string[] = products.map((product) => product.name);
-
+    
     Nameandprice = products.reduce((acc, product) => {
         acc[product.name] = [product.basePrice, product.taxPercent];
         return acc;
