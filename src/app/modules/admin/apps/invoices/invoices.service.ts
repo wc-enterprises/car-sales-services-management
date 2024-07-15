@@ -206,6 +206,56 @@ export class InvoicesService {
     }
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
+
+  NameOfContact=[]
+  NumberOfConcatact=[]
+  getNameOfContacts() {
+    const contactsRef = ref(this.db, "contacts");
+    const unsubsriber = onValue(contactsRef, (snapshot) => {
+      const data = snapshot.val();
+      
+  
+      // Clear the existing nameContact array
+      let Contact = [];
+  
+      // Iterate through the data and push contacts to nameContact array
+      Object.keys(data).forEach((key) => {
+        const val = data[key];
+        Contact.push(val);
+      });
+      
+      for (let i=0;i<Contact.length;i++){
+        this.NameOfContact.push(Contact[i].name)
+      }
+    });
+    return this.NameOfContact
+  }
+  /* 
+  getNumberOfContacts() {
+    const contactsRef = ref(this.db, "contacts");
+    const unsubsriber = onValue(contactsRef, (snapshot) => {
+      const data = snapshot.val();
+      
+  
+      // Clear the existing nameContact array
+      let Contact = [];
+      let Numbers=[]
+      // Iterate through the data and push contacts to nameContact array
+      Object.keys(data).forEach((key) => {
+        const val = data[key];
+        Contact.push(val);
+      });
+     
+      for (let i=0;i<Contact.length;i++){
+        Numbers.push(Contact[i].phoneNumbers)
+      }
+      for (let i = 0;i<Numbers.length;i++){
+        this.NumberOfConcatact.push(Numbers[i].phoneNumber)
+      }
+      console.log(Numbers)
+    });
+    return "this.NumberOfConcatact"
+  } */
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 
