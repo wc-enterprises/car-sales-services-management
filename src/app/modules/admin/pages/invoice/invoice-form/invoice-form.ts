@@ -151,7 +151,7 @@ export class InvoiceFormComponent {
         this.setupTotalCalculation();
 
         this.filteredServiceNames = this.serviceNames;
-
+        console.log(this.invoiceService.getNumberOfContacts())
         // Subscribe to the input changes
         this.form.get('item').valueChanges.subscribe((value) => {
             this.filterServiceNames(value);
