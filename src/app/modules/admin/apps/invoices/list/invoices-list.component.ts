@@ -126,9 +126,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   navigateToForm() {
-    this.router.navigate(["pages/invoice/form"]).then(() => {
-      window.location.reload();
-    });
+    this.router.navigate(["/inventory-and-invoice/invoices/add"])
   }
 
   // -----------------------------------------------------------------------------------------------------
