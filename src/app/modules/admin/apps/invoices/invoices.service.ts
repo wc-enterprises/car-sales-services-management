@@ -139,7 +139,7 @@ export class InvoicesService {
 
   async getInvoiceByIdOnce(id: string) {
     const invoicesRef = ref(this.db, `invoices/${id}`);
-    const snapshot = await get(invoicesRef)
+    const snapshot = await get(invoicesRef);
     return snapshot.val();
   }
 
@@ -207,68 +207,66 @@ export class InvoicesService {
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
 
-  NameOfContact=[]
-  NumberOfConcatact=[]
+  NameOfContact = [];
+  NumberOfConcatact = [];
   getNameOfContacts() {
     const contactsRef = ref(this.db, "contacts");
     const unsubsriber = onValue(contactsRef, (snapshot) => {
       const data = snapshot.val();
-      
-  
+
       // Clear the existing nameContact array
       let Contact = [];
-  
+
       // Iterate through the data and push contacts to nameContact array
       Object.keys(data).forEach((key) => {
         const val = data[key];
         Contact.push(val);
       });
-      
-      for (let i=0;i<Contact.length;i++){
-        this.NameOfContact.push(Contact[i].name)
+
+      for (let i = 0; i < Contact.length; i++) {
+        this.NameOfContact.push(Contact[i].name);
       }
     });
-    return this.NameOfContact
+    return this.NameOfContact;
   }
 
- getNumberOfContacts() {
+  getNumberOfContacts() {
     const contactsRef = ref(this.db, "contacts");
     const unsubsriber = onValue(contactsRef, (snapshot) => {
-        const data = snapshot.val();
+      const data = snapshot.val();
 
-        // Clear the existing nameContact array
-        let Contact = [];
-        let Numbers = [];
+      // Clear the existing nameContact array
+      let Contact = [];
+      let Numbers = [];
 
-        // Iterate through the data and push contacts to nameContact array
-        Object.keys(data).forEach((key) => {
-            const val = data[key];
-            Contact.push(val);
-        });
+      // Iterate through the data and push contacts to nameContact array
+      Object.keys(data).forEach((key) => {
+        const val = data[key];
+        Contact.push(val);
+      });
 
-        // Push phone numbers into the Numbers array
-        for (let i = 0; i < Contact.length; i++) {
-          Numbers.push(Contact[i].phoneNumbers);
-           let s=Contact[i].phoneNumbers;
-           for (let j = 0; j < s; j++) {
-            this.NumberOfConcatact.push(s[j].phoneNumber);
-            
+      // Push phone numbers into the Numbers array
+      for (let i = 0; i < Contact.length; i++) {
+        if (Contact[i].phoneNumbers) Numbers.push(Contact[i].phoneNumbers);
+        let s = Contact[i].phoneNumbers;
+        for (let j = 0; j < s; j++) {
+          this.NumberOfConcatact.push(s[j].phoneNumber);
         }
-        }
+      }
 
-        // Clear the NumberOfConcatact array
-        this.NumberOfConcatact = [];
+      // Clear the NumberOfConcatact array
+      this.NumberOfConcatact = [];
 
-        // Push phone numbers into the NumberOfConcatact array
-        for (let i = 0; i < Numbers.length; i++) {
-            this.NumberOfConcatact.push(Numbers[i]);
-        }
+      // Push phone numbers into the NumberOfConcatact array
+      for (let i = 0; i < Numbers.length; i++) {
+        this.NumberOfConcatact.push(Numbers[i]);
+      }
 
-        console.log(Numbers);
+      console.log(Numbers.flat().map(item=> item.phoneNumber));
     });
 
     return this.NumberOfConcatact;
-}
+  }
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 
