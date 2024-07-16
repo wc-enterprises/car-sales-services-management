@@ -71,9 +71,17 @@ export class InvoiceFormComponent {
     isDropdownOpen: { [key: number]: boolean } = {};
     @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
-
+    names: string[] = ['Alice', 'Bob', 'Charlie', 'David', 'Eve','Charlie', 'David', 'Eve','Charlie', 'David', 'Eve'];
+    filteredNames: string[] = [];
+    selectedName: string = '';
+    isDropdownOpened:boolean=false;
     serviceNames: string[] = products.map((product) => product.name);
-    
+
+    phoneNumber:string[]=['9789212608','978545652','8545855658']
+    filteredPhoneNumber: string[] = [];
+    selectedPhoneNumber: string = '';
+    isDropdownOpenedNumber:boolean=false;
+
     Nameandprice = products.reduce((acc, product) => {
         acc[product.name] = [product.basePrice, product.taxPercent];
         return acc;
@@ -140,7 +148,7 @@ export class InvoiceFormComponent {
         });
         
     }
-
+   
     ngOnInit(): void {
       
         if (history.state.data) {
@@ -158,6 +166,36 @@ export class InvoiceFormComponent {
         });
     }
 
+    // CustomerNames
+    filterNames() {
+        this.filteredNames = this.names.filter(name =>
+          name.toLowerCase().includes(this.selectedName.toLowerCase())
+        );
+      }
+    
+      selectName(name: string) {
+        this.selectedName = name;
+        this.filteredNames = [];
+        this.isDropdownOpened = false;
+      }
+      
+      preventClosed(event: Event): void {
+        event.preventDefault();
+    }
+  //phone number
+  filterPhoneNumber() {
+    this.filteredPhoneNumber = this.phoneNumber.filter(phoneNumber =>
+      phoneNumber.toLowerCase().includes(this.selectedPhoneNumber.toLowerCase())
+    );
+  }
+
+  selectPhoneNumber(phoneNumber: string) {
+    this.selectedPhoneNumber = phoneNumber;
+    this.filteredPhoneNumber = [];
+    this.isDropdownOpenedNumber = false;
+  }
+  
+    // serivesNames
     onInputChange(value: string, index: number): void {
         this.filteredSuggestions[index] = this.filterServiceNames(value);
         this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;
