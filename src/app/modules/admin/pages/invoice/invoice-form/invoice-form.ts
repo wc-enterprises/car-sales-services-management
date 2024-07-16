@@ -78,6 +78,7 @@ export class InvoiceFormComponent {
         acc[product.name] = [product.basePrice, product.taxPercent];
         return acc;
     }, {});
+    Numbers=[]
 
     filteredServiceNames: string[];
 
@@ -151,7 +152,9 @@ export class InvoiceFormComponent {
         this.setupTotalCalculation();
 
         this.filteredServiceNames = this.serviceNames;
-        console.log(this.invoiceService.getNumberOfContacts())
+        this.invoiceService.getNumberOfContacts().then((numbers) => {
+           this.Numbers.push(numbers);
+          });
         // Subscribe to the input changes
         this.form.get('item').valueChanges.subscribe((value) => {
             this.filterServiceNames(value);

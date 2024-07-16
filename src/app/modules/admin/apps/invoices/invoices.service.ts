@@ -207,66 +207,63 @@ export class InvoicesService {
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
 
-  NameOfContact = [];
-  NumberOfConcatact = [];
+  nameOfContact = [];
+  numberOfConcatact = [];
   getNameOfContacts() {
     const contactsRef = ref(this.db, "contacts");
     const unsubsriber = onValue(contactsRef, (snapshot) => {
       const data = snapshot.val();
 
       // Clear the existing nameContact array
-      let Contact = [];
+      let contact = [];
 
       // Iterate through the data and push contacts to nameContact array
       Object.keys(data).forEach((key) => {
         const val = data[key];
-        Contact.push(val);
+        contact.push(val);
       });
 
-      for (let i = 0; i < Contact.length; i++) {
-        this.NameOfContact.push(Contact[i].name);
+      for (let i = 0; i < contact.length; i++) {
+        this.nameOfContact.push(contact[i].name);
       }
     });
-    return this.NameOfContact;
+    return this.nameOfContact;
   }
 
-  getNumberOfContacts() {
+ getNumberOfContacts(): Promise<string[]> {
+  return new Promise((resolve) => {
     const contactsRef = ref(this.db, "contacts");
     const unsubsriber = onValue(contactsRef, (snapshot) => {
       const data = snapshot.val();
 
       // Clear the existing nameContact array
-      let Contact = [];
-      let Numbers = [];
+      let contact = [];
+      let numbers = [];
 
       // Iterate through the data and push contacts to nameContact array
       Object.keys(data).forEach((key) => {
         const val = data[key];
-        Contact.push(val);
+        contact.push(val);
       });
 
       // Push phone numbers into the Numbers array
-      for (let i = 0; i < Contact.length; i++) {
-        if (Contact[i].phoneNumbers) Numbers.push(Contact[i].phoneNumbers);
-        let s = Contact[i].phoneNumbers;
-        for (let j = 0; j < s; j++) {
-          this.NumberOfConcatact.push(s[j].phoneNumber);
-        }
+      for (let i = 0; i < contact.length; i++) {
+        if (contact[i].phoneNumbers) numbers.push(contact[i].phoneNumbers);
       }
 
       // Clear the NumberOfConcatact array
-      this.NumberOfConcatact = [];
+      this.numberOfConcatact = [];
+      let flatNumbers = numbers.flat();
 
-      // Push phone numbers into the NumberOfConcatact array
-      for (let i = 0; i < Numbers.length; i++) {
-        this.NumberOfConcatact.push(Numbers[i]);
+      for (let i = 0; i < flatNumbers.length; i++) {
+        this.numberOfConcatact.push(flatNumbers[i].phoneNumber);
       }
 
-      console.log(Numbers.flat().map(item=> item.phoneNumber));
+      // Resolve the Promise with the NumberOfConcatact array
+      resolve(this.numberOfConcatact);
     });
-
-    return this.NumberOfConcatact;
-  }
+  });
+}
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 
