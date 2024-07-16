@@ -71,6 +71,7 @@ export class InvoiceFormComponent {
     isDropdownOpen: { [key: number]: boolean } = {};
     @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
+    contactList: string[] = [];
 
     serviceNames: string[] = products.map((product) => product.name);
     
@@ -142,6 +143,10 @@ export class InvoiceFormComponent {
     }
 
     ngOnInit(): void {
+
+         this.invoiceService.getNameOfContacts().then(data=>{
+            this.contactList = data;
+         });
       
         if (history.state.data) {
             this.invoiceData = history.state.data;
@@ -151,7 +156,6 @@ export class InvoiceFormComponent {
         this.setupTotalCalculation();
 
         this.filteredServiceNames = this.serviceNames;
-        console.log(this.invoiceService.getNumberOfContacts())
         // Subscribe to the input changes
         this.form.get('item').valueChanges.subscribe((value) => {
             this.filterServiceNames(value);
