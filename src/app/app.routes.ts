@@ -3,7 +3,6 @@ import { initialDataResolver } from 'app/app.resolvers';
 import { AuthGuard } from 'app/core/auth/guards/auth.guard';
 import { NoAuthGuard } from 'app/core/auth/guards/noAuth.guard';
 import { LayoutComponent } from 'app/layout/layout.component';
-import { InvoiceFormComponent } from './modules/admin/pages/invoice/invoice-form/invoice-form';
 // @formatter:off
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -256,10 +255,6 @@ export const appRoutes: Route[] = [
                                     import(
                                         'app/modules/admin/pages/invoice/modern/modern.routes'
                                     ),
-                            },
-                            {
-                                path: 'form',
-                                component: InvoiceFormComponent,
                             },
                         ],
                     },
