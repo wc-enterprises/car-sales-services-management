@@ -20,6 +20,7 @@ import {
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
 import { Contact } from "../contacts/contacts.types";
 
+
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
   //   private _pagination: BehaviorSubject<InventoryPagination | null> =
@@ -208,6 +209,7 @@ export class InvoicesService {
 
   nameOfContact = [];
   numberOfConcatact = [];
+  nameOfMake=[]
   async getNameOfContacts() {
     const contactsRef = ref(this.db, "contacts");
     // Fetch the data once
@@ -262,6 +264,40 @@ export class InvoicesService {
     // Return the NumberOfConcatact array
     return this.numberOfConcatact;
   }  
+  async getRegNo(){
+    const carsRef = ref(this.db, "cars");
+    // Fetch the data once
+    const snapshot = await get(carsRef);
+    const data = snapshot.val();
+    // Clear the existing nameOfContact array
+    let regNo = [];
+    // Iterate through the data and push regNo to regNo array
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const val = data[key];
+        regNo.push(val.regNo);
+      }
+    }
+    return regNo;
+  }
+  async makeName() {
+    const makeRef = ref(this.db, "make");
+    // Fetch the data once
+    const snapshot = await get(makeRef);
+    const data = snapshot.val();
+    console.log(data)
+    // Clear the existing nameOfContact array
+    this.nameOfMake = [];
+  
+    // Iterate through the data and push names to nameOfContact array
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        this.nameOfMake.push(key);
+      }
+    }
+    return this.nameOfMake;
+  }
+
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 

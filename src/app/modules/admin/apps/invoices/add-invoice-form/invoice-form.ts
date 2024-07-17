@@ -76,27 +76,13 @@ export class InvoiceFormComponent {
     selectedName: string = '';
     isDropdownOpened:boolean=false;
     serviceNames: string[] = products.map((product) => product.name);
-
     // carRegNo
-    regNo: string[] = [
-        'TN03C0207',
-        'TN02X6232',
-        'TN19S5944',
-        'TN03C0207',
-        'TN02X6232',
-        'TN19S5944',
-    ];
+    regNoList: string[] = [];
     filteredRegNo: string[] = [];
     selectedRegNo: string = '';
     isDropdownOpenedRegNo: boolean = false;
     // carMakes
-    makeName: string[] = [
-        'Abarth',
-        'AlfaRomeo',
-        'Audi',
-        'BMW',
-        'Chevrolet',
-    ];
+    makeNameList: string[] = [];
     
     makeModelMapping: { [key: string]: string[] } = {
         Abarth: ['Model1', 'Model2'],
@@ -186,9 +172,10 @@ export class InvoiceFormComponent {
     }
    
     ngOnInit(): void {
-
+        this.getMakeName()
         this.numberInformation()
         this.getContactList()
+        this.getRegno()
         if (history.state.data) {
             this.invoiceData = history.state.data;
             this.form.patchValue(this.invoiceData);
@@ -210,6 +197,16 @@ export class InvoiceFormComponent {
     async getContactList(){
         let name = await this.invoiceService.getNameOfContacts()
         this.contactList = name
+        
+    }
+    async getRegno(){
+        let regNo=  await this.invoiceService.getRegNo()
+        this.regNoList = regNo
+        
+    }
+    async getMakeName(){
+        let makeName=  await this.invoiceService.makeName()
+        this.makeNameList = makeName
         
     }
     // CustomerNames
@@ -255,18 +252,18 @@ export class InvoiceFormComponent {
 
     // carRegNo
     filterRegNo() {
-        this.filteredRegNo = this.regNo.filter((regNo) =>
+        this.filteredRegNo = this.regNoList.filter((regNo) =>
             regNo.toLowerCase().includes(this.selectedRegNo.toLowerCase())
         );
     }
-    selectRegNo(regNo: string) {
-        this.selectedRegNo = regNo;
+    selectRegNo(regNoList: string) {
+        this.selectedRegNo = regNoList;
         this.filteredRegNo = [];
         this.isDropdownOpenedRegNo = false;
     }
    
     filterMakeName() {
-        this.filteredMakeName = this.makeName.filter((makeName) =>
+        this.filteredMakeName = this.makeNameList.filter((makeName) =>
             makeName.toLowerCase().includes(this.selectedMakeName.toLowerCase())
         );
     }
