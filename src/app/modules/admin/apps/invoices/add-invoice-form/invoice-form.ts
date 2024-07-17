@@ -89,18 +89,27 @@ export class InvoiceFormComponent {
     makeName: string[] = [
         'Abarth',
         'AlfaRomeo',
-        'BMW',
         'Audi',
-        'BMWBikes',
-        'Chevrolet',
         'BMW',
-        'Audi',
-        'BMWBikes',
         'Chevrolet',
     ];
+    
+    makeModelMapping: { [key: string]: string[] } = {
+        Abarth: ['Model1', 'Model2'],
+        AlfaRomeo: ['Model3', 'Model4'],
+        Audi: ['Model5', 'Model6'],
+        BMW: ['Model7', 'Model8', 'Model9'],
+        Chevrolet: ['Model10', 'Model11', 'Model12'],
+    };
+    
     filteredMakeName: string[] = [];
     selectedMakeName: string = '';
     isDropdownOpenedMakeName: boolean = false;
+    
+    modelName: string[] = [];
+    filteredModelName: string[] = [];
+    selectedModelName: string = '';
+    isDropdownOpenedModelName: boolean = false;
 
     Nameandprice = products.reduce((acc, product) => {
         acc[product.name] = [product.basePrice, product.taxPercent];
@@ -206,16 +215,39 @@ export class InvoiceFormComponent {
         this.filteredRegNo = [];
         this.isDropdownOpenedRegNo = false;
     }
-    //carMakes
+   
     filterMakeName() {
         this.filteredMakeName = this.makeName.filter((makeName) =>
             makeName.toLowerCase().includes(this.selectedMakeName.toLowerCase())
         );
     }
+    
     selectMakeName(makeName: string) {
         this.selectedMakeName = makeName;
         this.filteredMakeName = [];
         this.isDropdownOpenedMakeName = false;
+        this.updateModelList(makeName); // Update the model list based on selected make
+    }
+    
+    updateModelList(makeName: string) {
+        this.modelName = this.makeModelMapping[makeName] || [];
+        this.selectedModelName = ''; // Reset the selected model
+        this.filteredModelName = this.modelName;
+    }
+    
+    filterModelName() {
+        this.filteredModelName = this.modelName.filter((modelName) =>
+            modelName.toLowerCase().includes(this.selectedModelName.toLowerCase())
+        );
+    }
+    
+    selectModelName(modelName: string) {
+        this.selectedModelName = modelName;
+        this.filteredModelName = [];
+        this.isDropdownOpenedModelName = false;
+    
+        // Update selected make to selected model name
+        this.selectedModelName = modelName;
     }
 
     selectSuggestion(suggestion: string, index: number): void {

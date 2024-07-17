@@ -260,6 +260,10 @@ cdkScrollable>
                      <mat-label class="text-gray-500">Model</mat-label>
                      <input
                          matInput
+                         [(ngModel)]="selectedModelName"
+                         (input)="filterModelName()"
+                         (focus)="isDropdownOpenedModelName= true"
+                         (blur)="isDropdownOpenedModelName=false"
                          [formControlName]="'model'"
                          placeholder="Model"
                      />
@@ -277,6 +281,13 @@ cdkScrollable>
                   {{ makeName }}
                 </li>
               </ul>
+              <!-- modelName -->
+              <ul  *ngIf="isDropdownOpenedModelName && filteredModelName.length" class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2  md:mt-30 mobile-small:mt-[299px]  z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto" (mousedown)="preventClose($event)">
+                <li *ngFor="let modelName of filteredModelName"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectModelName(modelName)">
+                  {{ modelName }}
+                </li>
+              </ul>
+
              <!-- Row 2 -->
              <div
                  class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0"
