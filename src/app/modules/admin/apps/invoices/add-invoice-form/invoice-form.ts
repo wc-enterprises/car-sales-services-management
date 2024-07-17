@@ -73,7 +73,6 @@ export class InvoiceFormComponent {
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
     contactList: string[] = [];
     numberList:string[]=[]
-    //names: string[] = ['Alice', 'Bob', 'Charlie', 'David', 'Eve','Charlie', 'David', 'Eve','Charlie', 'David', 'Eve'];
     filteredNames: string[] = [];
     selectedName: string = '';
     isDropdownOpened:boolean=false;
