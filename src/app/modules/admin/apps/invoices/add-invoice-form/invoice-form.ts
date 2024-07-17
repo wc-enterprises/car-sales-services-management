@@ -70,7 +70,11 @@ export class InvoiceFormComponent {
     isDropdownOpen: { [key: number]: boolean } = {};
     @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
-
+    contactList: string[] = [];
+    numberList:string[]=[]
+    filteredNames: string[] = [];
+    selectedName: string = '';
+    isDropdownOpened:boolean=false;
     serviceNames: string[] = products.map((product) => product.name);
 
     // carRegNo
@@ -110,6 +114,10 @@ export class InvoiceFormComponent {
     filteredModelName: string[] = [];
     selectedModelName: string = '';
     isDropdownOpenedModelName: boolean = false;
+   
+    filteredPhoneNumber: string[] = [];
+    selectedPhoneNumber: string = '';
+    isDropdownOpenedNumber:boolean=false;
 
     Nameandprice = products.reduce((acc, product) => {
         acc[product.name] = [product.basePrice, product.taxPercent];
@@ -176,8 +184,11 @@ export class InvoiceFormComponent {
             this.form.get('invoiceNumber').setValue('#0000' + (count + 1));
         });
     }
-
+   
     ngOnInit(): void {
+
+        this.numberInformation()
+        this.getContactList()
         if (history.state.data) {
             this.invoiceData = history.state.data;
             this.form.patchValue(this.invoiceData);
@@ -186,13 +197,51 @@ export class InvoiceFormComponent {
         this.setupTotalCalculation();
 
         this.filteredServiceNames = this.serviceNames;
-
         // Subscribe to the input changes
         this.form.get('item').valueChanges.subscribe((value) => {
             this.filterServiceNames(value);
         });
     }
 
+    async numberInformation(){
+        let number = await this.invoiceService.getNumberOfContacts()
+        this.numberList = number
+    }
+    async getContactList(){
+        let name = await this.invoiceService.getNameOfContacts()
+        this.contactList = name
+        
+    }
+    // CustomerNames
+    filterNames() {
+        this.filteredNames = this.contactList.filter(name =>
+          name.toLowerCase().includes(this.selectedName.toLowerCase())
+        );
+      }
+    
+      selectName(name: string) {
+        this.selectedName = name;
+        this.filteredNames = [];
+        this.isDropdownOpened = false;
+      }
+      
+      preventClosed(event: Event): void {
+        event.preventDefault();
+    }
+  //phone number
+  filterPhoneNumber() {
+    this.filteredPhoneNumber = this.numberList.filter(phoneNumber =>
+      phoneNumber.toLowerCase().includes(this.selectedPhoneNumber.toLowerCase())
+    );
+  }
+
+  selectPhoneNumber(phoneNumber: string) {
+    this.selectedPhoneNumber = phoneNumber;
+    this.filteredPhoneNumber = [];
+    this.isDropdownOpenedNumber = false;
+  }
+  
+    // serivesNames
     onInputChange(value: string, index: number): void {
         this.filteredSuggestions[index] = this.filterServiceNames(value);
         this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;

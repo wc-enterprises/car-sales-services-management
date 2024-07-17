@@ -18,6 +18,7 @@ import {
   Unsubscribe,
 } from "@angular/fire/database";
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
+import { Contact } from "../contacts/contacts.types";
 
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
@@ -100,8 +101,6 @@ export class InvoicesService {
     const invoicesRef = ref(this.db, "invoices");
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
-      console.log(data);
-      console.log(invoicesRef);
       // Frame cars for component
       const invoices = [];
       Object.keys(data).forEach((key) => {
@@ -139,7 +138,7 @@ export class InvoicesService {
 
   async getInvoiceByIdOnce(id: string) {
     const invoicesRef = ref(this.db, `invoices/${id}`);
-    const snapshot = await get(invoicesRef)
+    const snapshot = await get(invoicesRef);
     return snapshot.val();
   }
 
@@ -206,6 +205,63 @@ export class InvoicesService {
     }
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
+
+  nameOfContact = [];
+  numberOfConcatact = [];
+  async getNameOfContacts() {
+    const contactsRef = ref(this.db, "contacts");
+    // Fetch the data once
+    const snapshot = await get(contactsRef);
+    const data = snapshot.val();
+  
+    // Clear the existing nameOfContact array
+    this.nameOfContact = [];
+  
+    // Iterate through the data and push names to nameOfContact array
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const val = data[key];
+        this.nameOfContact.push(val.name);
+      }
+    }
+    return this.nameOfContact;
+  }
+  
+  
+
+  async getNumberOfContacts() {
+    const contactsRef = ref(this.db, "contacts");
+  
+    // Fetch the data once
+    const snapshot = await get(contactsRef);
+    const data = snapshot.val();
+  
+    // Clear the existing nameContact array
+    let contact = [];
+    let numbers = [];
+  
+    // Iterate through the data and push contacts to nameContact array
+    Object.keys(data).forEach((key) => {
+      const val = data[key];
+      contact.push(val);
+    });
+  
+    // Push phone numbers into the Numbers array
+    for (let i = 0; i < contact.length; i++) {
+      if (contact[i].phoneNumbers) numbers.push(contact[i].phoneNumbers);
+    }
+  
+    // Clear the NumberOfConcatact array
+    this.numberOfConcatact = [];
+    let flatNumbers = numbers.flat();
+  
+    for (let i = 0; i < flatNumbers.length; i++) {
+      this.numberOfConcatact.push(flatNumbers[i].phoneNumber);
+    }
+    
+    // Return the NumberOfConcatact array
+    return this.numberOfConcatact;
+  }  
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 
