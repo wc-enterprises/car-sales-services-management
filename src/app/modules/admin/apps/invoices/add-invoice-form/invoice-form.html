@@ -289,14 +289,14 @@ cdkScrollable>
              </div>
              <!-- regNo -->
              <ul  *ngIf="isDropdownOpenedRegNo && filteredRegNo.length" class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2  md:mt-29 mobile-small:mt-[120px]  z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto" (mousedown)="preventClose($event)">
-                <li *ngFor="let regNo of filteredRegNo"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectRegNo(regNo)">
-                  {{ regNo }}
+                <li *ngFor="let regNoList of filteredRegNo"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectRegNo(regNoList)">
+                  {{ regNoList }}
                 </li>
               </ul>
               <!-- makeName -->
               <ul  *ngIf="isDropdownOpenedMakeName && filteredMakeName.length" class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2  md:mt-30 mobile-small:mt-[210px]  z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto" (mousedown)="preventClose($event)">
-                <li *ngFor="let makeName of filteredMakeName"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectMakeName(makeName)">
-                  {{ makeName }}
+                <li *ngFor="let makeNameList of filteredMakeName"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectMakeName(makeNameList)">
+                  {{ makeNameList }}
                 </li>
               </ul>
               <!-- modelName -->
