@@ -228,10 +228,16 @@ cdkScrollable>
                      <mat-label class="text-gray-500">Reg no</mat-label>
                      <input
                          matInput
+                         [(ngModel)]="selectedRegNo"
+                         (input)="filterRegNo()"
+                         (focus)="isDropdownOpenedRegNo= true"
+                         (blur)="isDropdownOpenedRegNo=false"
                          [formControlName]="'regNo'"
                          placeholder="Reg no"
                      />
                  </mat-form-field>
+
+
                  <mat-form-field
                      class="w-full"
                      [subscriptSizing]="'dynamic'"
@@ -239,6 +245,10 @@ cdkScrollable>
                      <mat-label class="text-gray-500">Make</mat-label>
                      <input
                          matInput
+                         [(ngModel)]="selectedMakeName"
+                         (input)="filterMakeName()"
+                         (focus)="isDropdownOpenedMakeName= true"
+                         (blur)="isDropdownOpenedMakeName=false"
                          [formControlName]="'make'"
                          placeholder="Make"
                      />
@@ -255,7 +265,18 @@ cdkScrollable>
                      />
                  </mat-form-field>
              </div>
-
+             <!-- regNo -->
+             <ul  *ngIf="isDropdownOpenedRegNo && filteredRegNo.length" class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2  md:mt-29 mobile-small:mt-[120px]  z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto" (mousedown)="preventClose($event)">
+                <li *ngFor="let regNo of filteredRegNo"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectRegNo(regNo)">
+                  {{ regNo }}
+                </li>
+              </ul>
+              <!-- makeName -->
+              <ul  *ngIf="isDropdownOpenedMakeName && filteredMakeName.length" class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2  md:mt-30 mobile-small:mt-[210px]  z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto" (mousedown)="preventClose($event)">
+                <li *ngFor="let makeName of filteredMakeName"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectMakeName(makeName)">
+                  {{ makeName }}
+                </li>
+              </ul>
              <!-- Row 2 -->
              <div
                  class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0"
