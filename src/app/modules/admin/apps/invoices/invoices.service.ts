@@ -18,6 +18,7 @@ import {
   Unsubscribe,
 } from "@angular/fire/database";
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
+import { Contact } from "../contacts/contacts.types";
 
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
@@ -230,40 +231,39 @@ export class InvoicesService {
     return this.nameOfContact;
   }
 
- getNumberOfContacts(): Promise<string[]> {
-  return new Promise((resolve) => {
+  async getNumberOfContacts() {
     const contactsRef = ref(this.db, "contacts");
-    const unsubsriber = onValue(contactsRef, (snapshot) => {
-      const data = snapshot.val();
-
-      // Clear the existing nameContact array
-      let contact = [];
-      let numbers = [];
-
-      // Iterate through the data and push contacts to nameContact array
-      Object.keys(data).forEach((key) => {
-        const val = data[key];
-        contact.push(val);
-      });
-
-      // Push phone numbers into the Numbers array
-      for (let i = 0; i < contact.length; i++) {
-        if (contact[i].phoneNumbers) numbers.push(contact[i].phoneNumbers);
-      }
-
-      // Clear the NumberOfConcatact array
-      this.numberOfConcatact = [];
-      let flatNumbers = numbers.flat();
-
-      for (let i = 0; i < flatNumbers.length; i++) {
-        this.numberOfConcatact.push(flatNumbers[i].phoneNumber);
-      }
-
-      // Resolve the Promise with the NumberOfConcatact array
-      resolve(this.numberOfConcatact);
+  
+    // Fetch the data once
+    const snapshot = await get(contactsRef);
+    const data = snapshot.val();
+  
+    // Clear the existing nameContact array
+    let contact = [];
+    let numbers = [];
+  
+    // Iterate through the data and push contacts to nameContact array
+    Object.keys(data).forEach((key) => {
+      const val = data[key];
+      contact.push(val);
     });
-  });
-}
+  
+    // Push phone numbers into the Numbers array
+    for (let i = 0; i < contact.length; i++) {
+      if (contact[i].phoneNumbers) numbers.push(contact[i].phoneNumbers);
+    }
+  
+    // Clear the NumberOfConcatact array
+    this.numberOfConcatact = [];
+    let flatNumbers = numbers.flat();
+  
+    for (let i = 0; i < flatNumbers.length; i++) {
+      this.numberOfConcatact.push(flatNumbers[i].phoneNumber);
+    }
+  
+    // Return the NumberOfConcatact array
+    return this.numberOfConcatact;
+  }  
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 

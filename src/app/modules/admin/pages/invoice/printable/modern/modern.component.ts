@@ -49,9 +49,7 @@ export class ModernComponent
     }, 1000);
   }
   onEdit(): void {
-    this.router.navigate(['pages/invoice/form'], { state: { data: this.invoiceData } }).then(() => {
-window.location.reload();
-});
+    this.router.navigate(['inventory-and-invoice/invoices/add'], { state: { data: this.invoiceData } });
 }
 }
 

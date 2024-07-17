@@ -71,14 +71,14 @@ export class InvoiceFormComponent {
     isDropdownOpen: { [key: number]: boolean } = {};
     @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
-
+    contactList: string[] = [];
+    numberList:string[]=[]
     serviceNames: string[] = products.map((product) => product.name);
     
     Nameandprice = products.reduce((acc, product) => {
         acc[product.name] = [product.basePrice, product.taxPercent];
         return acc;
     }, {});
-    Numbers=[]
 
     filteredServiceNames: string[];
 
@@ -143,7 +143,8 @@ export class InvoiceFormComponent {
     }
 
     ngOnInit(): void {
-      
+        this.numberinformation()
+         console.log()
         if (history.state.data) {
             this.invoiceData = history.state.data;
             this.form.patchValue(this.invoiceData);
@@ -152,15 +153,17 @@ export class InvoiceFormComponent {
         this.setupTotalCalculation();
 
         this.filteredServiceNames = this.serviceNames;
-        this.invoiceService.getNumberOfContacts().then((numbers) => {
-           this.Numbers.push(numbers);
-          });
         // Subscribe to the input changes
         this.form.get('item').valueChanges.subscribe((value) => {
             this.filterServiceNames(value);
         });
     }
 
+    async numberinformation(){
+        let Noofcon = await this.invoiceService.getNumberOfContacts()
+        this.numberList=Noofcon
+        console.log(this.numberList)
+    }
     onInputChange(value: string, index: number): void {
         this.filteredSuggestions[index] = this.filterServiceNames(value);
         this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;
