@@ -101,8 +101,6 @@ export class InvoicesService {
     const invoicesRef = ref(this.db, "invoices");
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
-      console.log(data);
-      console.log(invoicesRef);
       // Frame cars for component
       const invoices = [];
       Object.keys(data).forEach((key) => {
@@ -210,26 +208,26 @@ export class InvoicesService {
 
   nameOfContact = [];
   numberOfConcatact = [];
-  getNameOfContacts() {
+  async getNameOfContacts() {
     const contactsRef = ref(this.db, "contacts");
-    const unsubsriber = onValue(contactsRef, (snapshot) => {
-      const data = snapshot.val();
-
-      // Clear the existing nameContact array
-      let contact = [];
-
-      // Iterate through the data and push contacts to nameContact array
-      Object.keys(data).forEach((key) => {
+    // Fetch the data once
+    const snapshot = await get(contactsRef);
+    const data = snapshot.val();
+  
+    // Clear the existing nameOfContact array
+    this.nameOfContact = [];
+  
+    // Iterate through the data and push names to nameOfContact array
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
         const val = data[key];
-        contact.push(val);
-      });
-
-      for (let i = 0; i < contact.length; i++) {
-        this.nameOfContact.push(contact[i].name);
+        this.nameOfContact.push(val.name);
       }
-    });
+    }
     return this.nameOfContact;
   }
+  
+  
 
   async getNumberOfContacts() {
     const contactsRef = ref(this.db, "contacts");
@@ -260,7 +258,7 @@ export class InvoicesService {
     for (let i = 0; i < flatNumbers.length; i++) {
       this.numberOfConcatact.push(flatNumbers[i].phoneNumber);
     }
-  
+    
     // Return the NumberOfConcatact array
     return this.numberOfConcatact;
   }  
