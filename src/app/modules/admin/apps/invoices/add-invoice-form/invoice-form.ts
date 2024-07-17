@@ -35,7 +35,6 @@ import { products } from 'app/services/apps/ecommerce/inventory/data';
 import { List } from 'lodash';
 import { getGlobal } from '@firebase/util';
 
-
 @Component({
     selector: 'invoice',
     templateUrl: './invoice-form.html',
@@ -78,6 +77,43 @@ export class InvoiceFormComponent {
     isDropdownOpened:boolean=false;
     serviceNames: string[] = products.map((product) => product.name);
 
+    // carRegNo
+    regNo: string[] = [
+        'TN03C0207',
+        'TN02X6232',
+        'TN19S5944',
+        'TN03C0207',
+        'TN02X6232',
+        'TN19S5944',
+    ];
+    filteredRegNo: string[] = [];
+    selectedRegNo: string = '';
+    isDropdownOpenedRegNo: boolean = false;
+    // carMakes
+    makeName: string[] = [
+        'Abarth',
+        'AlfaRomeo',
+        'Audi',
+        'BMW',
+        'Chevrolet',
+    ];
+    
+    makeModelMapping: { [key: string]: string[] } = {
+        Abarth: ['Model1', 'Model2'],
+        AlfaRomeo: ['Model3', 'Model4'],
+        Audi: ['Model5', 'Model6'],
+        BMW: ['Model7', 'Model8', 'Model9'],
+        Chevrolet: ['Model10', 'Model11', 'Model12'],
+    };
+    
+    filteredMakeName: string[] = [];
+    selectedMakeName: string = '';
+    isDropdownOpenedMakeName: boolean = false;
+    
+    modelName: string[] = [];
+    filteredModelName: string[] = [];
+    selectedModelName: string = '';
+    isDropdownOpenedModelName: boolean = false;
    
     filteredPhoneNumber: string[] = [];
     selectedPhoneNumber: string = '';
@@ -129,7 +165,7 @@ export class InvoiceFormComponent {
                 mileage: [''],
                 color: [''],
                 vin: [''],
-                nextServiceDate: ['',Validators.required],
+                nextServiceDate: ['', Validators.required],
                 motValidTill: [''],
                 insuranceValidTill: [''],
                 roadTaxValidTill: [''],
@@ -145,9 +181,8 @@ export class InvoiceFormComponent {
             total: [''],
         });
         this.invoiceService.countInvoices().then((count) => {
-            this.form.get('invoiceNumber').setValue("#0000"+(count+1));    
+            this.form.get('invoiceNumber').setValue('#0000' + (count + 1));
         });
-        
     }
    
     ngOnInit(): void {
@@ -218,6 +253,52 @@ export class InvoiceFormComponent {
         );
     }
 
+    // carRegNo
+    filterRegNo() {
+        this.filteredRegNo = this.regNo.filter((regNo) =>
+            regNo.toLowerCase().includes(this.selectedRegNo.toLowerCase())
+        );
+    }
+    selectRegNo(regNo: string) {
+        this.selectedRegNo = regNo;
+        this.filteredRegNo = [];
+        this.isDropdownOpenedRegNo = false;
+    }
+   
+    filterMakeName() {
+        this.filteredMakeName = this.makeName.filter((makeName) =>
+            makeName.toLowerCase().includes(this.selectedMakeName.toLowerCase())
+        );
+    }
+    
+    selectMakeName(makeName: string) {
+        this.selectedMakeName = makeName;
+        this.filteredMakeName = [];
+        this.isDropdownOpenedMakeName = false;
+        this.updateModelList(makeName); // Update the model list based on selected make
+    }
+    
+    updateModelList(makeName: string) {
+        this.modelName = this.makeModelMapping[makeName] || [];
+        this.selectedModelName = ''; // Reset the selected model
+        this.filteredModelName = this.modelName;
+    }
+    
+    filterModelName() {
+        this.filteredModelName = this.modelName.filter((modelName) =>
+            modelName.toLowerCase().includes(this.selectedModelName.toLowerCase())
+        );
+    }
+    
+    selectModelName(modelName: string) {
+        this.selectedModelName = modelName;
+        this.filteredModelName = [];
+        this.isDropdownOpenedModelName = false;
+    
+        // Update selected make to selected model name
+        this.selectedModelName = modelName;
+    }
+
     selectSuggestion(suggestion: string, index: number): void {
         const serviceGroup = this.services.at(index) as FormGroup;
         serviceGroup.get('item').setValue(suggestion);
@@ -262,34 +343,34 @@ export class InvoiceFormComponent {
         const price = this.Nameandprice[suggestion] || '';
         const quantity = this.Nameandprice[suggestion] || '';
         return this.fb.group({
-            item: [suggestion,Validators.required],
+            item: [suggestion, Validators.required],
             price: [price],
             quantity: [quantity],
             total: [''],
         });
     }
- 
+
     addService(suggestion: string = ''): void {
-         for(let i = 0;i < 5; i++){
+        for (let i = 0; i < 5; i++) {
             this.services.push(this.createServiceGroup(suggestion));
-         }
+        }
         this.calculateSubtotal();
     }
 
-   removeService(index: number): void {
-    if (this.services.length > 1) {
-        var a=0
-        const removedService = this.services.at(index).value;
-        const removedTax = this.Nameandprice[removedService.item][1] || 0;
-        const currentTax = this.form.get('tax.value').value;
-        this.form.get('tax.value').setValue(currentTax - removedTax);
+    removeService(index: number): void {
+        if (this.services.length > 1) {
+            var a = 0;
+            const removedService = this.services.at(index).value;
+            const removedTax = this.Nameandprice[removedService.item][1] || 0;
+            const currentTax = this.form.get('tax.value').value;
+            this.form.get('tax.value').setValue(currentTax - removedTax);
 
-        this.services.removeAt(index);
-    } else {
-        alert('At least one service is required.');
+            this.services.removeAt(index);
+        } else {
+            alert('At least one service is required.');
+        }
+        this.calculateSubtotal();
     }
-    this.calculateSubtotal();
-}
 
     calculateSubtotal(): void {
         this.services.valueChanges
@@ -331,7 +412,9 @@ export class InvoiceFormComponent {
                 })
             )
             .subscribe((total) => {
-                this.form.get('total').setValue(total === 0 ? '' : total, { emitEvent: false });
+                this.form
+                    .get('total')
+                    .setValue(total === 0 ? '' : total, { emitEvent: false });
             });
     }
 
@@ -357,7 +440,6 @@ export class InvoiceFormComponent {
         if (this.form.valid) {
             const updatedData = this.form.value;
             this.invoiceService.saveInvoiceData(updatedData);
-          
         }
         if (this.form.valid) {
             const formData = this.form.value;
@@ -382,7 +464,6 @@ export class InvoiceFormComponent {
         if (this.form.valid) {
             this.onSave();
             this.router.navigate(['pages/invoice/printable/modern']);
-          
         } else {
             alert('Please fill in all required fields before printing');
         }
