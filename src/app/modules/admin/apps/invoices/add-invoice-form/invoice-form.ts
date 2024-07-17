@@ -71,13 +71,14 @@ export class InvoiceFormComponent {
     isDropdownOpen: { [key: number]: boolean } = {};
     @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
     @ViewChildren('dropdown') dropdowns: QueryList<ElementRef>;
-    names: string[] = ['Alice', 'Bob', 'Charlie', 'David', 'Eve','Charlie', 'David', 'Eve','Charlie', 'David', 'Eve'];
+    contactList: string[] = [];
+    numberList:string[]=[]
     filteredNames: string[] = [];
     selectedName: string = '';
     isDropdownOpened:boolean=false;
     serviceNames: string[] = products.map((product) => product.name);
 
-    phoneNumber:string[]=['9789212608','978545652','8545855658']
+   
     filteredPhoneNumber: string[] = [];
     selectedPhoneNumber: string = '';
     isDropdownOpenedNumber:boolean=false;
@@ -150,7 +151,9 @@ export class InvoiceFormComponent {
     }
    
     ngOnInit(): void {
-      
+
+        this.numberInformation()
+        this.getContactList()
         if (history.state.data) {
             this.invoiceData = history.state.data;
             this.form.patchValue(this.invoiceData);
@@ -159,16 +162,24 @@ export class InvoiceFormComponent {
         this.setupTotalCalculation();
 
         this.filteredServiceNames = this.serviceNames;
-
         // Subscribe to the input changes
         this.form.get('item').valueChanges.subscribe((value) => {
             this.filterServiceNames(value);
         });
     }
 
+    async numberInformation(){
+        let number = await this.invoiceService.getNumberOfContacts()
+        this.numberList = number
+    }
+    async getContactList(){
+        let name = await this.invoiceService.getNameOfContacts()
+        this.contactList = name
+        
+    }
     // CustomerNames
     filterNames() {
-        this.filteredNames = this.names.filter(name =>
+        this.filteredNames = this.contactList.filter(name =>
           name.toLowerCase().includes(this.selectedName.toLowerCase())
         );
       }
@@ -184,7 +195,7 @@ export class InvoiceFormComponent {
     }
   //phone number
   filterPhoneNumber() {
-    this.filteredPhoneNumber = this.phoneNumber.filter(phoneNumber =>
+    this.filteredPhoneNumber = this.numberList.filter(phoneNumber =>
       phoneNumber.toLowerCase().includes(this.selectedPhoneNumber.toLowerCase())
     );
   }

@@ -218,13 +218,13 @@ cdkScrollable>
              </div>
          </div>
          <ul #dropdowned *ngIf="isDropdownOpened && filteredNames.length" class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2  md:mt-90 mobile-small:mt-[450px]  z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto" (mousedown)="preventClose($event)">
-            <li *ngFor="let name of filteredNames"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectName(name)">
-              {{ name }}
+            <li *ngFor="let contactList of filteredNames"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectName(contactList)">
+              {{ contactList }}
             </li>
           </ul>
           <ul  *ngIf="isDropdownOpenedNumber && filteredPhoneNumber.length" class=" left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2  md:mt-90 mobile-small:mt-[540px]  z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto" (mousedown)="preventClose($event)">
-            <li *ngFor="let phoneNumber of filteredPhoneNumber"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectPhoneNumber(phoneNumber)">
-              {{ phoneNumber }}
+            <li *ngFor="let numberList of filteredPhoneNumber"  class="p-2 cursor-pointer hover:bg-gray-200" (click)="selectPhoneNumber(numberList)">
+              {{ numberList }}
             </li>
           </ul>
        
