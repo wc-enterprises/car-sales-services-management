@@ -285,7 +285,6 @@ export class InvoicesService {
     // Fetch the data once
     const snapshot = await get(makeRef);
     const data = snapshot.val();
-    console.log(data)
     // Clear the existing nameOfContact array
     this.nameOfMake = [];
   
@@ -296,6 +295,14 @@ export class InvoicesService {
       }
     }
     return this.nameOfMake;
+  }
+  async makeMap() {
+    const makeRef = ref(this.db, "make");
+    // Fetch the data once
+    const snapshot = await get(makeRef);
+    const data = snapshot.val();
+    
+    return data; 
   }
 
   searchInvoices(query: string) {

@@ -117,7 +117,6 @@ export class ContactsService {
     const contactsRef = ref(this.db, "contacts");
     const unsubsriber = onValue(contactsRef, (snapshot) => {
       const data = snapshot.val();
-      console.log("Snaphost data of updated contact", data);
 
       const framedContacts = this.frameContactsForComponent(data);
 

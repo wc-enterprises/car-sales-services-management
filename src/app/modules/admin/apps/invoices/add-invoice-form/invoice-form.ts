@@ -83,15 +83,8 @@ export class InvoiceFormComponent {
     isDropdownOpenedRegNo: boolean = false;
     // carMakes
     makeNameList: string[] = [];
-    
-    makeModelMapping: { [key: string]: string[] } = {
-        Abarth: ['Model1', 'Model2'],
-        AlfaRomeo: ['Model3', 'Model4'],
-        Audi: ['Model5', 'Model6'],
-        BMW: ['Model7', 'Model8', 'Model9'],
-        Chevrolet: ['Model10', 'Model11', 'Model12'],
-    };
-    
+    mapForMake:{}={}
+    makeModelMapping: { [key: string]: string[] } = this.mapForMake
     filteredMakeName: string[] = [];
     selectedMakeName: string = '';
     isDropdownOpenedMakeName: boolean = false;
@@ -171,7 +164,10 @@ export class InvoiceFormComponent {
         });
     }
    
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
+       
+        await this.getMakeForMaping()
+        this.makeModelMapping = this.mapForMake;
         this.getMakeName()
         this.numberInformation()
         this.getContactList()
@@ -191,23 +187,22 @@ export class InvoiceFormComponent {
     }
 
     async numberInformation(){
-        let number = await this.invoiceService.getNumberOfContacts()
-        this.numberList = number
+        this.numberList = await this.invoiceService.getNumberOfContacts()
+      
     }
     async getContactList(){
-        let name = await this.invoiceService.getNameOfContacts()
-        this.contactList = name
-        
+        this.contactList = await this.invoiceService.getNameOfContacts()
     }
     async getRegno(){
-        let regNo=  await this.invoiceService.getRegNo()
-        this.regNoList = regNo
+        this.regNoList =  await this.invoiceService.getRegNo()
+        
         
     }
     async getMakeName(){
-        let makeName=  await this.invoiceService.makeName()
-        this.makeNameList = makeName
-        
+        this.makeNameList =  await this.invoiceService.makeName()
+    }
+    async getMakeForMaping(){
+        this.mapForMake=  await this.invoiceService.makeMap()
     }
     // CustomerNames
     filterNames() {
