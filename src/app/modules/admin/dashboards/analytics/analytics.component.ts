@@ -1,14 +1,19 @@
-import { DecimalPipe, NgFor } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { CurrencyPipe, DecimalPipe, NgFor } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { AnalyticsService } from 'app/modules/admin/dashboards/analytics/analytics.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Subject, takeUntil } from 'rxjs';
+import { FinanceService } from '../finance/finance.service';
+import { MatSort } from '@angular/material/sort';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
     selector       : 'analytics',
@@ -16,10 +21,12 @@ import { Subject, takeUntil } from 'rxjs';
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone     : true,
-    imports        : [MatButtonModule, MatIconModule, MatMenuModule, MatButtonToggleModule, NgApexchartsModule, MatTooltipModule, NgFor, DecimalPipe],
+    imports        : [MatButtonModule, MatIconModule, MatMenuModule, MatButtonToggleModule, NgApexchartsModule, MatTooltipModule, NgFor, DecimalPipe, MatTableModule, MatDividerModule, MatProgressBarModule, CurrencyPipe],
 })
 export class AnalyticsComponent implements OnInit, OnDestroy
 {
+    @ViewChild('recentTransactionsTable', {read: MatSort}) recentTransactionsTableMatSort: MatSort;
+
     chartVisitors: ApexOptions;
     chartConversions: ApexOptions;
     chartImpressions: ApexOptions;
@@ -30,6 +37,9 @@ export class AnalyticsComponent implements OnInit, OnDestroy
     chartAge: ApexOptions;
     chartLanguage: ApexOptions;
     data: any;
+    recentTransactionsDataSource: MatTableDataSource<any> = new MatTableDataSource();
+    recentTransactionsTableColumns: string[] = ['transactionId', 'date', 'name', 'amount', 'status'];
+
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -39,6 +49,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy
     constructor(
         private _analyticsService: AnalyticsService,
         private _router: Router,
+        private _financeService: FinanceService
     )
     {
     }
@@ -64,6 +75,16 @@ export class AnalyticsComponent implements OnInit, OnDestroy
                 this._prepareChartData();
             });
 
+                 // Get the data
+        this._financeService.data$
+        .pipe(takeUntil(this._unsubscribeAll))
+        .subscribe((data) =>
+        {
+            
+            // Store the table data
+            this.recentTransactionsDataSource.data = data.recentTransactions;
+        });
+
         // Attach SVG fill fixer to all ApexCharts
         window['Apex'] = {
             chart: {
@@ -80,6 +101,15 @@ export class AnalyticsComponent implements OnInit, OnDestroy
             },
         };
     }
+
+       /**
+     * After view init
+     */
+       ngAfterViewInit(): void
+       {
+           // Make the data source sortable
+           this.recentTransactionsDataSource.sort = this.recentTransactionsTableMatSort;
+       }
 
     /**
      * On destroy

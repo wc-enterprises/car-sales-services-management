@@ -10,25 +10,11 @@ export const defaultNavigation: FuseNavigationItem[] = [
     icon: "heroicons_outline:home",
     children: [
       {
-        id: "dashboards.project",
-        title: "Project",
-        type: "basic",
-        icon: "heroicons_outline:clipboard-document-check",
-        link: "/dashboards/project",
-      },
-      {
         id: "dashboards.analytics",
-        title: "Analytics",
+        title: "Insights",
         type: "basic",
         icon: "heroicons_outline:chart-pie",
         link: "/dashboards/analytics",
-      },
-      {
-        id: "dashboards.finance",
-        title: "Finance",
-        type: "basic",
-        icon: "heroicons_outline:banknotes",
-        link: "/dashboards/finance",
       },
     ],
   },
