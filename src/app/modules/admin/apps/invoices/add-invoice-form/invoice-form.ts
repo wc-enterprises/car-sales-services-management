@@ -230,7 +230,7 @@ export class InvoiceFormComponent {
         if (phoneNumberControl) {
           if (data.phoneNumbers.length)
             phoneNumberControl.patchValue({
-              code: data.phoneNumbers[0].country,
+              code: data.phoneNumbers[0].country ?? null,
               number: data.phoneNumbers[0].phoneNumber,
             });
         }
@@ -276,7 +276,6 @@ export class InvoiceFormComponent {
     this.selectedRegNo = regNoList;
     this.filteredRegNo = [];
     this.isDropdownOpenedRegNo = false;
-
 
     this.invoiceService.mapRegNo(regNoList).then((data) => {
       if (!data) return;
