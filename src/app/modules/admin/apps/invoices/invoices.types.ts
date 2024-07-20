@@ -1,3 +1,5 @@
+import { IAddress } from "../contacts/contacts.types";
+
 export interface IInvoice {
   id: string;
   date: string;
@@ -12,7 +14,7 @@ export interface IInvoice {
       number: string;
     };
     email?: string;
-    address?: string;
+    address?: IAddress;
     postCode?:string;
     city?:string;
   };
