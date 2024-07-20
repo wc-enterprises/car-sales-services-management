@@ -149,6 +149,7 @@ export class PreviewComponent {
     }
 
     exportInvoice() {
+            document.title = 'Invoice -'+this.invoiceData.invoiceNumber;
             window.print();
     }
 
