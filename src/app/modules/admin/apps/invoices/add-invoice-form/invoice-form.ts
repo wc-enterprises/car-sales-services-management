@@ -34,6 +34,7 @@ import { map, startWith } from 'rxjs';
 import { products } from 'app/services/apps/ecommerce/inventory/data';
 import { List } from 'lodash';
 import { getGlobal } from '@firebase/util';
+import { ContactsService } from '../../contacts/contacts.service';
 
 @Component({
     selector: 'invoice',
@@ -108,12 +109,16 @@ export class InvoiceFormComponent {
     eRef: any;
     invoiceForm: any;
 
+
+
     constructor(
         private fb: FormBuilder,
         private route: ActivatedRoute,
         private invoiceService: InvoicesService,
-        private router: Router
+        private router: Router,
+        private contactsService: ContactsService
     ) {
+
         this.form = this.fb.group({
             invoiceNumber: [''],
             date: ['', Validators.required],
@@ -344,7 +349,9 @@ export class InvoiceFormComponent {
     }
 
     addService(suggestion: string = ''): void {
-        this.services.push(this.createServiceGroup(suggestion));
+        for (let i = 0; i < 5; i++) {
+            this.services.push(this.createServiceGroup(suggestion));
+        }
         this.calculateSubtotal();
     }
 
@@ -444,11 +451,14 @@ export class InvoiceFormComponent {
             );
 
             console.log('dates', formData);
-
+            if(!(this.form.value.billTo.name in this.contactList)){ 
+                this.contactsService.createContact
+             }
             this.invoiceService.createInvoice(formData);
             console.log('Form data saved:', formData);
             alert('Data saved to local storage and shared service');
         }
+        
     }
 
     onPrint() {
