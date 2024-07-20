@@ -148,10 +148,8 @@ export class PreviewComponent {
         }
     }
 
-    onPrint() {
-        setTimeout(() => {
+    exportInvoice() {
             window.print();
-        }, 1000);
     }
 
     onEdit(): void {
