@@ -32,8 +32,6 @@ import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/admin/apps/invoices/invoices.service";
 import { map, startWith } from "rxjs";
 import { products } from "app/services/apps/ecommerce/inventory/data";
-import { List } from "lodash";
-import { getGlobal } from "@firebase/util";
 
 @Component({
   selector: "invoice",
@@ -219,6 +217,7 @@ export class InvoiceFormComponent {
       const billToGroup = this.form.get("billTo");
       if (billToGroup) {
         billToGroup.patchValue({
+          id: data.id,
           name: data.name,
           addressLine1: data.address?.addressLine1 ?? "",
           addressLine2: data.address?.addressLine2 ?? "",
@@ -277,6 +276,31 @@ export class InvoiceFormComponent {
     this.selectedRegNo = regNoList;
     this.filteredRegNo = [];
     this.isDropdownOpenedRegNo = false;
+
+
+    this.invoiceService.mapRegNo(regNoList).then((data) => {
+      if (!data) return;
+
+      const carInfoGroup = this.form.get("carInfo");
+      if (carInfoGroup) {
+        carInfoGroup.patchValue({
+          id: data.id,
+          regNo: data.regNo,
+          make: data.make,
+          model: data.model,
+          regYear: data.regYear,
+          fuelType: data.fuelType,
+          transmission: data.transmission,
+          mileage: data.mileage,
+          color: data.color,
+          vin: data.vinNumber,
+          nextServiceDate: data.nextServiceDate,
+          motValidTill: data.motValidTill,
+          insuranceValidTill: data.insuranceValidTill,
+          roadTaxValidTill: data.roadTaxValidTill,
+        });
+      }
+    });
   }
 
   filterMakeName() {

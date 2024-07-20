@@ -19,6 +19,7 @@ import {
 } from "@angular/fire/database";
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
 import { Contact } from "../contacts/contacts.types";
+import { ICar } from "../cars/cars.types";
 
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
@@ -302,32 +303,34 @@ export class InvoicesService {
     return data;
   }
 
-  async mapRegNo(regNo = "AB23 J324") {
+  async mapRegNo(regNo: string): Promise<ICar | null> {
+    console.log("Incoming regNo: ", regNo);
     const carsRef = ref(this.db, "cars");
 
     // Fetch the data once
     const snapshot = await get(carsRef);
     const data = snapshot.val();
-    const a = {};
+
     for (const key in data) {
       const val = data[key];
-      if (val.regNo === regNo) {
-        a[data[key].regNo] = [
-          val.make,
-          val.model,
-          val.color,
-          val.fuelType,
-          val.vinNumber,
-          val.regYear,
-          val.transmission,
-          val.mileage,
-        ];
-        return a;
-      } else {
-        return null;
-      }
+
+      console.log(
+        "check",
+        val.regNo.replace(/[-\s]+/g, "").toLowerCase() ===
+          regNo.replace(/[-\s]+/g, "").toLowerCase(),
+        "dbCar",
+        val.regNo.replace(/[-\s]+/g, "").toLowerCase(),
+        "incoming car",
+        regNo.replace(/[-\s]+/g, "").toLowerCase()
+      );
+      if (
+        val.regNo.replace(/[-\s]+/g, "").toLowerCase() ===
+        regNo.replace(/[-\s]+/g, "").toLowerCase()
+      )
+        return val;
     }
   }
+
   async mapName(name: string): Promise<Contact | null> {
     if (!name) return null;
 
@@ -340,7 +343,6 @@ export class InvoicesService {
     for (const key in data) {
       const val = data[key];
       if (val.name.toLowerCase() === name.toLowerCase()) return val;
-      else return null;
     }
   }
   searchInvoices(query: string) {
