@@ -13,7 +13,7 @@ export interface Contact
         phoneNumber: string;
         label: string;
     }[];
-    address?: string | null;
+    address?: IAddress;
     notes?: string | null;
 }
 
@@ -30,4 +30,13 @@ export interface Tag
 {
     id?: string;
     title?: string;
+}
+
+
+export interface IAddress{
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    country: string;
+    postalCode: string;
 }

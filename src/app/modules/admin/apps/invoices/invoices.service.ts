@@ -20,7 +20,6 @@ import {
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
 import { Contact } from "../contacts/contacts.types";
 
-
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
   //   private _pagination: BehaviorSubject<InventoryPagination | null> =
@@ -209,16 +208,16 @@ export class InvoicesService {
 
   nameOfContact = [];
   numberOfConcatact = [];
-  nameOfMake=[]
+  nameOfMake = [];
   async getNameOfContacts() {
     const contactsRef = ref(this.db, "contacts");
     // Fetch the data once
     const snapshot = await get(contactsRef);
     const data = snapshot.val();
-  
+
     // Clear the existing nameOfContact array
     this.nameOfContact = [];
-  
+
     // Iterate through the data and push names to nameOfContact array
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
@@ -228,43 +227,41 @@ export class InvoicesService {
     }
     return this.nameOfContact;
   }
-  
-  
 
   async getNumberOfContacts() {
     const contactsRef = ref(this.db, "contacts");
-  
+
     // Fetch the data once
     const snapshot = await get(contactsRef);
     const data = snapshot.val();
-  
+
     // Clear the existing nameContact array
     let contact = [];
     let numbers = [];
-  
+
     // Iterate through the data and push contacts to nameContact array
     Object.keys(data).forEach((key) => {
       const val = data[key];
       contact.push(val);
     });
-  
+
     // Push phone numbers into the Numbers array
     for (let i = 0; i < contact.length; i++) {
       if (contact[i].phoneNumbers) numbers.push(contact[i].phoneNumbers);
     }
-  
+
     // Clear the NumberOfConcatact array
     this.numberOfConcatact = [];
     let flatNumbers = numbers.flat();
-  
+
     for (let i = 0; i < flatNumbers.length; i++) {
       this.numberOfConcatact.push(flatNumbers[i].phoneNumber);
     }
-    
+
     // Return the NumberOfConcatact array
     return this.numberOfConcatact;
-  }  
-  async getRegNo(){
+  }
+  async getRegNo() {
     const carsRef = ref(this.db, "cars");
     // Fetch the data once
     const snapshot = await get(carsRef);
@@ -287,7 +284,7 @@ export class InvoicesService {
     const data = snapshot.val();
     // Clear the existing nameOfContact array
     this.nameOfMake = [];
-  
+
     // Iterate through the data and push names to nameOfContact array
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
@@ -301,52 +298,51 @@ export class InvoicesService {
     // Fetch the data once
     const snapshot = await get(makeRef);
     const data = snapshot.val();
-    
-    return data; 
+
+    return data;
   }
 
- async mapRegNo( regNo="AB23 J324") {
-  
+  async mapRegNo(regNo = "AB23 J324") {
     const carsRef = ref(this.db, "cars");
-    
+
     // Fetch the data once
     const snapshot = await get(carsRef);
     const data = snapshot.val();
-    const a=  {}
+    const a = {};
     for (const key in data) {
-        const val = data[key];
-        if (val.regNo === regNo){
-        a[data[key].regNo] =[val.make,val.model,val.color,val.fuelType,val.vinNumber,val.regYear,val.transmission,val.mileage,]
-        return a; 
-          }
-        else{
-          return null;
-        }
-    }
-   
-}
-async mapName( name="Trudy Berg") {
-  
-  const contactsRef = ref(this.db, "contacts");
-  
-  // Fetch the data once
-  const snapshot = await get(contactsRef);
-  const data = snapshot.val();
-  const a=  {}
-  console.log(data)
- for (const key in data) {
       const val = data[key];
-      if (val.name === name){
-        a[data[key].name] =[val.phoneNumbers[0].phoneNumber||null,val.emails[0].email||null,val.address||null]
-        return a; 
-          }
-        else{
-         
-          return null;
-        }
-      
-  } 
-}
+      if (val.regNo === regNo) {
+        a[data[key].regNo] = [
+          val.make,
+          val.model,
+          val.color,
+          val.fuelType,
+          val.vinNumber,
+          val.regYear,
+          val.transmission,
+          val.mileage,
+        ];
+        return a;
+      } else {
+        return null;
+      }
+    }
+  }
+  async mapName(name: string): Promise<Contact | null> {
+    if (!name) return null;
+
+    const contactsRef = ref(this.db, "contacts");
+
+    // Fetch the data once
+    const snapshot = await get(contactsRef);
+    const data = snapshot.val();
+
+    for (const key in data) {
+      const val = data[key];
+      if (val.name.toLowerCase() === name.toLowerCase()) return val;
+      else return null;
+    }
+  }
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 

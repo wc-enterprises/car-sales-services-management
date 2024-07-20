@@ -38,9 +38,10 @@ import { ContactsService } from "app/modules/admin/apps/contacts/contacts.servic
 import {
   Contact,
   Country,
+  IAddress,
 } from "app/modules/admin/apps/contacts/contacts.types";
 import { ContactsListComponent } from "app/modules/admin/apps/contacts/list/list.component";
-import { debounceTime, Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "contacts-details",
@@ -132,9 +133,17 @@ export class ContactsDetailsComponent
       name: ["", [Validators.required]],
       emails: this._formBuilder.array([]),
       phoneNumbers: this._formBuilder.array([]),
-      address: [null],
+      address: this._formBuilder.group({
+        addressLine1: ["", Validators.required],
+        addressLine2: [""],
+        city: ["", Validators.required],
+        country: ["", Validators.required],
+        postalCode: ["", Validators.required],
+      }),
       notes: [null],
     });
+
+    
 
     // Get the contacts
     this._contactsService.contacts$
@@ -245,6 +254,10 @@ export class ContactsDetailsComponent
       });
 
     this.checkBackgroundColor();
+  }
+
+  frameAddress(address: IAddress){
+    return Object.values(address).filter(Boolean).join(", ");
   }
 
   /**
