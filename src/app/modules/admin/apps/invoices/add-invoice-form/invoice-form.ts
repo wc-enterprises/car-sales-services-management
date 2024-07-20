@@ -213,9 +213,6 @@ export class InvoiceFormComponent {
     this.filteredNames = [];
     this.isDropdownOpened = false;
 
-    // Assuming `form` is already defined and initialized
-    const billToNameControl = this.form.get("billTo.name");
-
     this.invoiceService.mapName(name).then((data) => {
       if (!data) return;
 
@@ -235,8 +232,8 @@ export class InvoiceFormComponent {
           if (data.phoneNumbers.length)
             phoneNumberControl.patchValue({
               code: data.phoneNumbers[0].country,
-              number: data.phoneNumbers[0].phoneNumber
-          })
+              number: data.phoneNumbers[0].phoneNumber,
+            });
         }
       }
     });
