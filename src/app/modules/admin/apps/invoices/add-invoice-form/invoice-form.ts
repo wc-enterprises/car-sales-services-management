@@ -128,7 +128,7 @@ export class InvoiceFormComponent {
         email: [""],
         address1: ["", Validators.required],
         address2: [""],
-        postCode: ["", Validators.required],
+        postalCode: ["", Validators.required],
         country: ["", Validators.required],
         city: ["", Validators.required],
       }),
