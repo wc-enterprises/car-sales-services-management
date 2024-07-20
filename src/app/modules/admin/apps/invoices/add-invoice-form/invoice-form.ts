@@ -165,7 +165,8 @@ export class InvoiceFormComponent {
     }
    
     async ngOnInit(): Promise<void> {
-       
+        
+        console.log(this.invoiceService.mapName())
         await this.getMakeForMaping()
         this.makeModelMapping = this.mapForMake;
         this.getMakeName()

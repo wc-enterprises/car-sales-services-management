@@ -305,6 +305,48 @@ export class InvoicesService {
     return data; 
   }
 
+ async mapRegNo( regNo="AB23 J324") {
+  
+    const carsRef = ref(this.db, "cars");
+    
+    // Fetch the data once
+    const snapshot = await get(carsRef);
+    const data = snapshot.val();
+    const a=  {}
+    for (const key in data) {
+        const val = data[key];
+        if (val.regNo === regNo){
+        a[data[key].regNo] =[val.make,val.model,val.color,val.fuelType,val.vinNumber,val.regYear,val.transmission,val.mileage,]
+        return a; 
+          }
+        else{
+          return null;
+        }
+    }
+   
+}
+async mapName( name="Trudy Berg") {
+  
+  const contactsRef = ref(this.db, "contacts");
+  
+  // Fetch the data once
+  const snapshot = await get(contactsRef);
+  const data = snapshot.val();
+  const a=  {}
+  console.log(data)
+ for (const key in data) {
+      const val = data[key];
+      if (val.name === name){
+        a[data[key].name] =[val.phoneNumbers[0].phoneNumber||null,val.emails[0].email||null,val.address||null]
+        return a; 
+          }
+        else{
+         
+          return null;
+        }
+      
+  } 
+}
   searchInvoices(query: string) {
     //TODO: Implement search invoices
 
