@@ -126,8 +126,8 @@ export class InvoiceFormComponent {
           number: ["", Validators.required],
         }),
         email: [""],
-        address1: ["", Validators.required],
-        address2: [""],
+        addressLine1: ["", Validators.required],
+        addressLine2: [""],
         postalCode: ["", Validators.required],
         country: ["", Validators.required],
         city: ["", Validators.required],
@@ -165,7 +165,7 @@ export class InvoiceFormComponent {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log(this.invoiceService.mapName(''));
+    console.log(this.invoiceService.mapName(""));
     await this.getMakeForMaping();
     this.makeModelMapping = this.mapForMake;
     this.getMakeName();
@@ -181,25 +181,9 @@ export class InvoiceFormComponent {
 
     this.filteredServiceNames = this.serviceNames;
     // Subscribe to the input changes
-    this.form.get("item").valueChanges.subscribe((value) => {
+    this.form.get("item")?.valueChanges.subscribe((value) => {
       this.filterServiceNames(value);
     });
-
-
-    this.form.get('billTo').get('name').valueChanges.subscribe((value) => {
-        this.invoiceService.mapName(value).then((data) => { 
-            if(!data) return;
-
-            // this.form.get('billTo').patchValue({
-            //     name: data.name,
-            //     address1: data.address?.address1,
-            //     address2: data.address?.address2 ?? '',
-            //     city: data.city,
-            //     state: data.state,
-            //     postalCode: data.pos
-            // })
-        })
-    })
   }
 
   async numberInformation() {
@@ -228,6 +212,34 @@ export class InvoiceFormComponent {
     this.selectedName = name;
     this.filteredNames = [];
     this.isDropdownOpened = false;
+
+    // Assuming `form` is already defined and initialized
+    const billToNameControl = this.form.get("billTo.name");
+
+    this.invoiceService.mapName(name).then((data) => {
+      if (!data) return;
+
+      const billToGroup = this.form.get("billTo");
+      if (billToGroup) {
+        billToGroup.patchValue({
+          name: data.name,
+          addressLine1: data.address?.addressLine1 ?? "",
+          addressLine2: data.address?.addressLine2 ?? "",
+          city: data.address?.city ?? "",
+          country: data.address?.country ?? "",
+          postalCode: data.address?.postalCode ?? "",
+        });
+
+        const phoneNumberControl = billToGroup.get("phoneNumber");
+        if (phoneNumberControl) {
+          if (data.phoneNumbers.length)
+            phoneNumberControl.patchValue({
+              code: data.phoneNumbers[0].country,
+              number: data.phoneNumbers[0].phoneNumber
+          })
+        }
+      }
+    });
   }
 
   preventClosed(event: Event): void {
