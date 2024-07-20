@@ -344,9 +344,7 @@ export class InvoiceFormComponent {
     }
 
     addService(suggestion: string = ''): void {
-        for (let i = 0; i < 5; i++) {
-            this.services.push(this.createServiceGroup(suggestion));
-        }
+        this.services.push(this.createServiceGroup(suggestion));
         this.calculateSubtotal();
     }
 
