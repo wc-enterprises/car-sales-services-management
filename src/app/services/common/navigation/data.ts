@@ -4,17 +4,17 @@ import { FuseNavigationItem } from "@fuse/components/navigation";
 export const defaultNavigation: FuseNavigationItem[] = [
   {
     id: "analytics",
-    title: "Analytics",
+    title: "Home",
     subtitle: "",
     type: "group",
     icon: "heroicons_outline:home",
     children: [
       {
         id: "dashboards.analytics",
-        title: "Insights",
+        title: "Dashboard",
         type: "basic",
         icon: "heroicons_outline:chart-pie",
-        link: "/dashboards/analytics",
+        link: "/home/dashboard",
       },
     ],
   },

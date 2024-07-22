@@ -90,6 +90,7 @@ const config = {
             'mobile-small': '320px',
             'mobile-medium': '375px',
             'mobile-large': '425px', 
+            'larger-screens': {'min': '376px'},
             ss:{'max':'460px'},
             sm: '600px',
             md: '960px',
