@@ -146,9 +146,10 @@
             <div class="flex sm:items-center">
               <mat-icon [svgIcon]="'heroicons_outline:map-pin'"></mat-icon>
               <div class="ml-6 leading-6">
-                {{ contact.address }}
+                {{ frameAddress(contact.address) }}
               </div>
             </div>
+            
           </ng-container>
 
           <!-- Notes -->
@@ -477,9 +478,10 @@
           </div>
 
           <!-- Address -->
-          <div class="mt-8">
-            <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-              <mat-label>Address</mat-label>
+          <div class="mt-8" formGroupName="address">
+            <mat-label>Address</mat-label>
+            <!-- Address line 1 -->
+            <mat-form-field class="w-full mt-5" [subscriptSizing]="'dynamic'">
               <mat-icon
                 matPrefix
                 class="hidden sm:flex icon-size-5"
@@ -487,14 +489,70 @@
               ></mat-icon>
               <input
                 matInput
-                [formControlName]="'address'"
-                [placeholder]="'Address'"
+                [formControlName]="'addressLine1'"
+                [placeholder]="'Address Line 1'"
+              />
+            </mat-form-field>
+
+            <!-- Address line 2 -->
+            <mat-form-field class="w-full mt-5" [subscriptSizing]="'dynamic'">
+              <mat-icon
+                matPrefix
+                class="hidden sm:flex icon-size-5"
+                [svgIcon]="'heroicons_solid:map-pin'"
+              ></mat-icon>
+              <input
+                matInput
+                [formControlName]="'addressLine2'"
+                [placeholder]="'Address Line 2'"
+              />
+            </mat-form-field>
+
+            <!-- City -->
+            <mat-form-field class="w-full mt-5" [subscriptSizing]="'dynamic'">
+              <mat-icon
+                matPrefix
+                class="hidden sm:flex icon-size-5"
+                [svgIcon]="'heroicons_solid:map-pin'"
+              ></mat-icon>
+              <input
+                matInput
+                [formControlName]="'city'"
+                [placeholder]="'City'"
+              />
+            </mat-form-field>
+
+            <!-- Country -->
+            <mat-form-field class="w-full mt-5" [subscriptSizing]="'dynamic'">
+              <mat-icon
+                matPrefix
+                class="hidden sm:flex icon-size-5"
+                [svgIcon]="'heroicons_solid:map-pin'"
+              ></mat-icon>
+              <input
+                matInput
+                [formControlName]="'country'"
+                [placeholder]="'Country'"
+              />
+            </mat-form-field>
+
+            <!-- Postal Code -->
+            <mat-form-field class="w-full mt-5" [subscriptSizing]="'dynamic'">
+              <mat-icon
+                matPrefix
+                class="hidden sm:flex icon-size-5"
+                [svgIcon]="'heroicons_solid:map-pin'"
+              ></mat-icon>
+              <input
+                matInput
+                [formControlName]="'postalCode'"
+                [placeholder]="'Postal Code'"
               />
             </mat-form-field>
           </div>
 
           <!-- Notes -->
-          <div class="mt-8">
+          <div class="mt-10">
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label>Notes</mat-label>
               <mat-icon

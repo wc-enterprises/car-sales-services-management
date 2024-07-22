@@ -148,10 +148,9 @@ export class PreviewComponent {
         }
     }
 
-    onPrint() {
-        setTimeout(() => {
+    exportInvoice() {
+            document.title = 'Invoice -'+this.invoiceData.invoiceNumber;
             window.print();
-        }, 1000);
     }
 
     onEdit(): void {

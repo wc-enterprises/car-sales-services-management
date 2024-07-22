@@ -118,6 +118,7 @@ cdkScrollable>
                (blur)="isDropdownOpened=false"
              />
            </mat-form-field>
+           
             <mat-form-field
                     formGroupName="phoneNumber"
                    
@@ -147,7 +148,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'address1'"
+                         [formControlName]="'addressLine1'"
                          placeholder="Address line1"
                      />
                  </mat-form-field>
@@ -166,7 +167,7 @@ cdkScrollable>
                      >
                      <input
                          matInput
-                         [formControlName]="'address2'"
+                         [formControlName]="'addressLine2'"
                          placeholder="Address line2"
                      />
                  </mat-form-field>
@@ -207,12 +208,12 @@ cdkScrollable>
                      [subscriptSizing]="'dynamic'"
                  >
                      <mat-label class="text-gray-500"
-                         >Postcode</mat-label
+                         >Postal code</mat-label
                      >
                      <input
                          matInput
-                         [formControlName]="'postCode'"
-                         placeholder="Postcode"
+                         [formControlName]="'postalCode'"
+                         placeholder="Postal code"
                      />
                  </mat-form-field>
              </div>
