@@ -75,19 +75,22 @@
               >
                 Car Name
               </div>
-           
+
               <div
-                class="hidden sm:block md:hidden lg:block truncate"
+                class="hidden sm:block md:block lg:block truncate"
                 [mat-sort-header]="'cost'"
               >
                 Cost
               </div>
+
               <div
-              class="ml-9"
-                [mat-sort-header]="'preview'"
+                class="hidden sm:block md:block lg:block truncate"
+                [mat-sort-header]="'type'"
               >
-                Preview
+                Type
               </div>
+
+              <div class="ml-9" [mat-sort-header]="'preview'">Preview</div>
               <!-- <div class="hidden sm:hidden md:hidden lg:block truncate">
                 Action
               </div> -->
@@ -130,13 +133,18 @@
 
                   <!-- Car name -->
                   <div class="truncate hidden sm:hidden md:block">
-                    {{ invoice.carInfo.make }} -
-                    {{ invoice.carInfo.model }}
+                    {{ invoice.carInfo?.make }} -
+                    {{ invoice.carInfo?.model }}
                   </div>
 
                   <!-- Cost -->
-                  <div class="hidden sm:block md:hidden lg:block truncate">
+                  <div class="hidden sm:block md:block lg:block truncate">
                     {{ invoice.total }}
+                  </div>
+
+                  <!-- Type -->
+                  <div class="hidden sm:block md:block lg:block truncate">
+                    {{ invoice.type }}
                   </div>
 
                   <!-- Invoice -->
@@ -148,13 +156,13 @@
                       Preview
                     </button> -->
                     <button
-                    class="ml-4"
-                    mat-flat-button
-                    [color]="'primary'"
-                    (click)="previewInvoice(invoice.id)"
-                  >
-                    <span class="ml-2 mr-1">Preview</span>
-                  </button>
+                      class="ml-4"
+                      mat-flat-button
+                      [color]="'primary'"
+                      (click)="previewInvoice(invoice.id)"
+                    >
+                      <span class="ml-2 mr-1">Preview</span>
+                    </button>
                   </div>
 
                   <!-- Action -->

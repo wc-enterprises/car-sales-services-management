@@ -102,8 +102,11 @@ export class InvoicesService {
     const invoicesRef = ref(this.db, "invoices");
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
+
       // Frame cars for component
-      const invoices = [];
+      const invoices: IInvoice[] = [];
+      if (!data) return invoices;
+
       Object.keys(data).forEach((key) => {
         const val = data[key];
         invoices.push(val);
@@ -111,7 +114,7 @@ export class InvoicesService {
 
       // Write logic to sortInvoices based on created date
       const sortedInvoices = invoices.slice().sort((a, b) => {
-        return b["date"].localeCompare(a["date"], "en-US");
+        return a["date"].localeCompare(b["date"], "en-US");
       });
 
       this._invoices.next(sortedInvoices);

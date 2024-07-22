@@ -56,17 +56,17 @@ import { Router } from "@angular/router";
 
         // Tablet
         @screen sm {
-          grid-template-columns: 48px 112px auto 120px;
+          grid-template-columns: 48px 112px 112px auto 120px;
         }
 
         // Laptop small
         @screen md {
-          grid-template-columns: 48px 112px auto 120px;
+          grid-template-columns: 48px 112px 112px 112px auto 120px;
         }
 
         // Laptop medium
         @screen lg {
-          grid-template-columns: 48px 112px 112px 112px auto 120px;
+          grid-template-columns: 48px 112px 112px 112px 112px auto 120px;
         }
       }
     `,
@@ -126,7 +126,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   navigateToForm() {
-    this.router.navigate(["/inventory-and-invoice/invoices/add"])
+    this.router.navigate(["/inventory-and-invoice/invoices/add"]);
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   // -----------------------------------------------------------------------------------------------------
 
   previewInvoice(id: string) {
-    console.log("this url", this.router.url, id)   
+    console.log("this url", this.router.url, id);
     this.router.navigate([`/inventory-and-invoice/invoices/preview/${id}`]);
   }
 

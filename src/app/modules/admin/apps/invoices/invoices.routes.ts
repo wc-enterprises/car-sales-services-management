@@ -2,7 +2,7 @@ import { Routes } from "@angular/router";
 import { InvoicesComponent } from "./invoices.component";
 import { InvoicesListComponent } from "./list/invoices-list.component";
 import { PreviewComponent } from "./preview/preview.component";
-import { InvoiceFormComponent } from "./add-invoice-form/invoice-form";
+import { InvoiceFormComponent } from "./add-invoice/add-invoice.component";
 
 export default [
   {
@@ -22,8 +22,8 @@ export default [
       {
         path: "add",
         component: InvoiceFormComponent,
-        resolve: {}
-      }
+        resolve: {},
+      },
     ],
   },
 ] as Routes;

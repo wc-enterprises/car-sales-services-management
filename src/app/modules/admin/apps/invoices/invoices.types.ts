@@ -1,9 +1,10 @@
 import { IAddress } from "../contacts/contacts.types";
 
+export type IInvoiceType = "SALE" | "SERVICE";
 export interface IInvoice {
   id: string;
   date: string;
-  dueDate?: string;
+  type?: IInvoiceType;
 
   billTo: {
     id?: string;
@@ -15,22 +16,22 @@ export interface IInvoice {
     };
     email?: string;
     address?: IAddress;
-    postCode?:string;
-    city?:string;
+    postCode?: string;
+    city?: string;
   };
 
-  carInfo: {
+  carInfo?: {
     id?: string;
     regNo: string;
-    regYear:string;
+    regYear: string;
     make: string;
     model: string;
-    engineType:string;
-    transmission:string;
-    fuelType:string;
-    mileage:string;
-    color:string;
-    vin:string;
+    engineType: string;
+    transmission: string;
+    fuelType: string;
+    mileage: string;
+    color: string;
+    vin: string;
     nextServiceDate?: string;
     motValidTill?: string;
     insuranceValidTill?: string;
@@ -43,7 +44,6 @@ export interface IInvoice {
     quantity: number;
     price: number;
     total: string;
-  
   }[];
   tax: {
     unit: string;

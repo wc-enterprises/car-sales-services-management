@@ -21,6 +21,8 @@ import { FinanceService } from "../finance/finance.service";
 import { MatSort } from "@angular/material/sort";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { InvoicesService } from "../../apps/invoices/invoices.service";
+import { IInvoice } from "../../apps/invoices/invoices.types";
 
 @Component({
   selector: "analytics",
@@ -41,7 +43,7 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
     MatDividerModule,
     MatProgressBarModule,
     CurrencyPipe,
-    DatePipe
+    DatePipe,
   ],
 })
 export class AnalyticsComponent implements OnInit, OnDestroy {
@@ -68,6 +70,11 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     "amount",
     "status",
   ];
+  latestFiveInvoices: IInvoice[] = [];
+  totalSalesInvoiceForMonth: number = 0;
+  totalServicesInvoiceForMonth: number = 0;
+  totalSalesRevenueForMonth: number = 0;
+  totalServicesRevenueForMonth: number = 0;
 
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -77,7 +84,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   constructor(
     private _analyticsService: AnalyticsService,
     private _router: Router,
-    private _financeService: FinanceService
+    private _financeService: FinanceService,
+    private _invoiceService: InvoicesService
   ) {}
 
   // -----------------------------------------------------------------------------------------------------
@@ -88,6 +96,80 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
+    // Get the invoices
+    this._invoiceService.invoices$
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe((data) => {
+        const getInvoiceMetrics = (invoices: IInvoice[]) => {
+          const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-based
+          const currentYear = new Date().getFullYear();
+
+          // Sort invoices by date in descending order and get the latest five
+          const latestFiveInvoices = invoices
+            .sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            )
+            .slice(0, 5);
+
+          let totalSalesInvoiceForMonth = 0;
+          let totalServicesInvoiceForMonth = 0;
+          let totalSalesRevenueForMonth = 0;
+          let totalServicesRevenueForMonth = 0;
+
+          invoices.forEach((invoice) => {
+            const invoiceDate = new Date(invoice.date);
+            const invoiceMonth = invoiceDate.getMonth() + 1;
+            const invoiceYear = invoiceDate.getFullYear();
+
+            // Check if the invoice is from the current month and year
+            if (invoiceMonth === currentMonth && invoiceYear === currentYear) {
+              if (invoice.type === "SALE") {
+                totalSalesInvoiceForMonth++;
+                totalSalesRevenueForMonth += (invoice as any).subtotal;
+              } else if (invoice.type === "SERVICE") {
+                totalServicesInvoiceForMonth++;
+                totalServicesRevenueForMonth += (invoice as any).subtotal;
+              }
+            }
+          });
+
+          return {
+            latestFiveInvoices,
+            totalSalesInvoiceForMonth,
+            totalServicesInvoiceForMonth,
+            totalSalesRevenueForMonth,
+            totalServicesRevenueForMonth,
+          };
+        };
+
+        if (data && data.length) {
+          const {
+            latestFiveInvoices,
+            totalSalesInvoiceForMonth,
+            totalServicesInvoiceForMonth,
+            totalSalesRevenueForMonth,
+            totalServicesRevenueForMonth,
+          } = getInvoiceMetrics(data);
+
+          this.latestFiveInvoices = latestFiveInvoices;
+          this.totalSalesInvoiceForMonth = totalSalesInvoiceForMonth;
+          this.totalServicesInvoiceForMonth = totalServicesInvoiceForMonth;
+          this.totalSalesRevenueForMonth = totalSalesRevenueForMonth;
+          this.totalServicesRevenueForMonth = totalServicesRevenueForMonth;
+
+          console.log(
+            {
+              latestFiveInvoices,
+              totalSalesInvoiceForMonth,
+              totalServicesInvoiceForMonth,
+              totalSalesRevenueForMonth,
+              totalServicesRevenueForMonth,
+            },
+            "data"
+          );
+        }
+      });
+
     // Get the data
     this._analyticsService.data$
       .pipe(takeUntil(this._unsubscribeAll))
@@ -668,7 +750,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
           enabled: true,
         },
       },
-      colors: ["#805AD5", "#B794F4", '#ba5ad5', '#3f3ac9'],
+      colors: ["#805AD5", "#B794F4", "#ba5ad5", "#3f3ac9"],
       labels: this.data.topServices.labels,
       plotOptions: {
         pie: {

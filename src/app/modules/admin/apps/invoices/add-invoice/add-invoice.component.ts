@@ -32,10 +32,11 @@ import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/admin/apps/invoices/invoices.service";
 import { map, startWith } from "rxjs";
 import { products } from "app/services/apps/ecommerce/inventory/data";
+import { IInvoiceType } from "../invoices.types";
 
 @Component({
   selector: "invoice",
-  templateUrl: "./invoice-form.html",
+  templateUrl: "./add-invoice.component.html",
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
@@ -96,6 +97,20 @@ export class InvoiceFormComponent {
   selectedPhoneNumber: string = "";
   isDropdownOpenedNumber: boolean = false;
 
+  invoiceTypes: {
+    value: string;
+    viewValue: string;
+  }[] = [
+    {
+      value: "SERVICE",
+      viewValue: "Service",
+    },
+    {
+      value: "SALE",
+      viewValue: "Sale",
+    },
+  ];
+
   Nameandprice = products.reduce((acc, product) => {
     acc[product.name] = [product.basePrice, product.taxPercent];
     return acc;
@@ -108,14 +123,13 @@ export class InvoiceFormComponent {
 
   constructor(
     private fb: FormBuilder,
-    private route: ActivatedRoute,
     private invoiceService: InvoicesService,
     private router: Router
   ) {
     this.form = this.fb.group({
       invoiceNumber: [""],
+      type: ["SERVICE", Validators.required],
       date: ["", Validators.required],
-      dueDate: ["", Validators.required],
       billTo: this.fb.group({
         id: [""],
         name: ["", Validators.required],
@@ -130,23 +144,6 @@ export class InvoiceFormComponent {
         country: ["", Validators.required],
         city: ["", Validators.required],
       }),
-      carInfo: this.fb.group({
-        id: [""],
-        regNo: ["", Validators.required],
-        regYear: [""],
-        make: ["", Validators.required],
-        model: ["", Validators.required],
-        engineType: [""],
-        transmission: [""],
-        fuelType: [""],
-        mileage: [""],
-        color: [""],
-        vin: [""],
-        nextServiceDate: ["", Validators.required],
-        motValidTill: [""],
-        insuranceValidTill: [""],
-        roadTaxValidTill: [""],
-      }),
       services: this.fb.array([this.createServiceGroup()]),
       subtotal: [""],
       tax: this.fb.group({
@@ -160,6 +157,8 @@ export class InvoiceFormComponent {
     this.invoiceService.countInvoices().then((count) => {
       this.form.get("invoiceNumber").setValue("#0000" + (count + 1));
     });
+
+    this.form.get("date").patchValue(new Date());
   }
 
   async ngOnInit(): Promise<void> {
@@ -182,6 +181,35 @@ export class InvoiceFormComponent {
     this.form.get("item")?.valueChanges.subscribe((value) => {
       this.filterServiceNames(value);
     });
+  }
+
+  showCarDetails() {
+    // If invoice type is services, show car details in the add form.
+    if (this.form.get("type")?.value === "SERVICE") {
+      const carInfo = this.fb.group({
+        id: [""],
+        regNo: ["", Validators.required],
+        regYear: [""],
+        make: ["", Validators.required],
+        model: ["", Validators.required],
+        engineType: [""],
+        transmission: [""],
+        fuelType: [""],
+        mileage: [""],
+        color: [""],
+        vin: [""],
+        nextServiceDate: ["", Validators.required],
+        motValidTill: [""],
+        insuranceValidTill: [""],
+        roadTaxValidTill: [""],
+      });
+
+      this.form.addControl("carInfo", carInfo);
+      return true;
+    }
+    //Else do not show.
+    this.form.removeControl("carInfo");
+    return false;
   }
 
   async numberInformation() {
@@ -481,10 +509,10 @@ export class InvoiceFormComponent {
 
       // Format the date fields to remove the timestamp
       formData.date = this.formatDate(formData.date);
-      formData.dueDate = this.formatDate(formData.dueDate);
-      formData.carInfo.nextServiceDate = this.formatDate(
-        formData.carInfo.nextServiceDate
-      );
+      if (formData.carInfo)
+        formData.carInfo.nextServiceDate = this.formatDate(
+          formData.carInfo.nextServiceDate
+        );
 
       console.log("dates", formData);
 
