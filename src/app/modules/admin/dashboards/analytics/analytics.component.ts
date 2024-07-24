@@ -125,10 +125,10 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
             if (invoiceMonth === currentMonth && invoiceYear === currentYear) {
               if (invoice.type === "SALE") {
                 totalSalesInvoiceForMonth++;
-                totalSalesRevenueForMonth += (invoice as any).subtotal;
+                totalSalesRevenueForMonth += (invoice as any).total;
               } else if (invoice.type === "SERVICE") {
                 totalServicesInvoiceForMonth++;
-                totalServicesRevenueForMonth += (invoice as any).subtotal;
+                totalServicesRevenueForMonth += (invoice as any).total;
               }
             }
           });

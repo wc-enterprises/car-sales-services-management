@@ -3,7 +3,9 @@ import { IAddress } from "../contacts/contacts.types";
 export type IInvoiceType = "SALE" | "SERVICE";
 export interface IInvoice {
   id: string;
-  date: string;
+  invoiceNumber: string;
+
+  date: number;
   type?: IInvoiceType;
 
   billTo: {
@@ -53,4 +55,9 @@ export interface IInvoice {
     unit: string;
     value: number;
   };
+
+  total: number;
 }
+
+export type TInvoiceTimeFilter = "1m" | "3m" | "9m" | "";
+export type TInvoiceTypeFilter = "ALL" | "SALE" | "SERVICE" | "";

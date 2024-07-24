@@ -8,7 +8,11 @@ import {
   take,
   throwError,
 } from "rxjs";
-import { IInvoice } from "./invoices.types";
+import {
+  IInvoice,
+  TInvoiceTimeFilter,
+  TInvoiceTypeFilter,
+} from "./invoices.types";
 import {
   Database,
   get,
@@ -91,11 +95,8 @@ export class InvoicesService {
    * Get cars
    */
   getInvoices(
-    page: number = 0,
-    size: number = 10,
-    sort: string = "name",
-    order: "asc" | "desc" | "" = "asc",
-    search: string = ""
+    timeFilter?: TInvoiceTimeFilter,
+    typeFilter?: TInvoiceTypeFilter
   ) {
     // TODO: Include pagination to this function.
 
@@ -104,7 +105,7 @@ export class InvoicesService {
       const data = snapshot.val();
 
       // Frame cars for component
-      const invoices: IInvoice[] = [];
+      let invoices: IInvoice[] = [];
       if (!data) return invoices;
 
       Object.keys(data).forEach((key) => {
@@ -112,12 +113,36 @@ export class InvoicesService {
         invoices.push(val);
       });
 
+      if (timeFilter) {
+        const now = Date.now();
+        let pastDate;
+
+        if (timeFilter === "1m")
+          pastDate = new Date(now).setMonth(new Date().getMonth() - 1);
+        if (timeFilter === "3m")
+          pastDate = new Date(now).setMonth(new Date().getMonth() - 3);
+        if (timeFilter === "9m")
+          pastDate = new Date(now).setMonth(new Date().getMonth() - 9);
+
+        invoices = invoices.filter((invoice) => {
+          return invoice.date >= pastDate && invoice.date <= now;
+        });
+      }
+
+      if (typeFilter) {
+        if (typeFilter === "ALL") invoices = invoices;
+        if (typeFilter === "SALE")
+          invoices = invoices.filter((invoice) => invoice.type === "SALE");
+        if (typeFilter === "SERVICE")
+          invoices = invoices.filter((invoice) => invoice.type === "SERVICE");
+      }
+
       // Write logic to sortInvoices based on created date
-      const sortedInvoices = invoices.slice().sort((a, b) => {
-        return a["date"].localeCompare(b["date"], "en-US");
+      invoices = invoices.sort((a, b) => {
+        return b.date - a.date;
       });
 
-      this._invoices.next(sortedInvoices);
+      this._invoices.next(invoices);
     });
 
     this._unsubscribers.push(unsubsriber);

@@ -40,9 +40,16 @@ import { FuseConfirmationService } from "@fuse/services/confirmation";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { ContactsService } from "../../contacts/contacts.service";
 import { Contact } from "../../contacts/contacts.types";
-import { IInvoice } from "../invoices.types";
+import {
+  IInvoice,
+  TInvoiceTimeFilter,
+  TInvoiceTypeFilter,
+} from "../invoices.types";
 import { InvoicesService } from "../invoices.service";
 import { Router } from "@angular/router";
+import { MatMenu, MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 @Component({
   selector: "inventory-list",
@@ -96,6 +103,7 @@ import { Router } from "@angular/router";
     MatRippleModule,
     AsyncPipe,
     CurrencyPipe,
+    MatMenuModule,
   ],
 })
 export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -103,6 +111,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSort) private _sort: MatSort;
 
   invoices$: Observable<IInvoice[]>;
+  invoices: IInvoice[];
   filteredCustomers: Contact[];
   flashMessage: "success" | "error" | null = null;
   isLoading: boolean = false;
@@ -112,6 +121,37 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   tagsEditMode: boolean = false;
   searchQuery: string;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
+  selectedTimePeriodFilter: TInvoiceTimeFilter = "";
+  selectedInvoiceTypeFilter: TInvoiceTypeFilter = "";
+
+  getDisplayValueOfSelectedFilter(
+    actualValue: string,
+    filterType: "TIME_PERIOD" | "INVOICE_TYPE"
+  ) {
+    if (filterType === "INVOICE_TYPE") {
+      if (actualValue === "ALL") return "All";
+      if (actualValue === "SALE") return "Sales";
+      if (actualValue === "SERVICE") return "Services";
+      if (actualValue === "") return "Filter by Invoice Type";
+    }
+
+    if (filterType === "TIME_PERIOD") {
+      if (actualValue === "1m") return "30 days";
+      if (actualValue === "3m") return "3 months";
+      if (actualValue === "9m") return "9 months";
+      if (actualValue === "") return "Filter by time";
+    }
+  }
+
+  setFilterValue(value: string, type: "TIME_PERIOD" | "INVOICE_TYPE") {
+    if (type === "INVOICE_TYPE") this.selectedInvoiceTypeFilter = value as any;
+    if (type === "TIME_PERIOD") this.selectedTimePeriodFilter = value as any;
+
+    this._invoicesService.getInvoices(
+      this.selectedTimePeriodFilter,
+      this.selectedInvoiceTypeFilter
+    );
+  }
 
   /**
    * Constructor
@@ -137,123 +177,17 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
-    // Create the selected product form
-    // this.selectedProductForm = this._formBuilder.group({
-    //   id: [""],
-    //   regNo: ["", [Validators.required]],
-    //   make: ["", [Validators.required]],
-    //   model: ["", [Validators.required]],
-    //   customer: this._formBuilder.group({
-    //     id: [""],
-    //     name: [""],
-    //     phoneNumber: [""],
-    //   }),
-    //   color: [""],
-    //   fuelType: [""],
-    //   vinNumber: [""],
-    //   regYear: [""],
-    //   transmission: [""],
-    //   mileage: [""],
-    //   nextServiceDate: [""],
-    //   motValidTill: [""],
-    //   insuranceValidTill: [""],
-    //   roadTaxValidTill: [""],
-    // });
-
-    // // Get the brands
-    // this._invoicesService.brands$
-    //     .pipe(takeUntil(this._unsubscribeAll))
-    //     .subscribe((brands: InventoryBrand[]) => {
-    //         // Update the brands
-    //         this.brands = brands;
-
-    //         // Mark for check
-    //         this._changeDetectorRef.markForCheck();
-    //     });
-
-    // // Get the categories
-    // this._invoicesService.categories$
-    //     .pipe(takeUntil(this._unsubscribeAll))
-    //     .subscribe((categories: InventoryCategory[]) => {
-    //         // Update the categories
-    //         this.categories = categories;
-
-    //         // Mark for check
-    //         this._changeDetectorRef.markForCheck();
-    //     });
-
-    // Get the pagination
-    // this._invoicesService.pagination$
-    //   .pipe(takeUntil(this._unsubscribeAll))
-    //   .subscribe((pagination: InventoryPagination) => {
-    //     // Update the pagination
-    //     this.pagination = pagination;
-
-    //     // Mark for check
-    //     this._changeDetectorRef.markForCheck();
-    //   });
-
     // Get the products
     this.invoices$ = this._invoicesService.invoices$;
-
-    // Subscribe to search input field value changes
-    // this.searchInputControl.valueChanges
-    //   .pipe(takeUntil(this._unsubscribeAll))
-    //   .subscribe((query) => {
-    //     this.isLoading = true;
-    //     this._invoicesService
-    //       .searchCars(query)
-    //       .then((data) => {
-    //         this.isLoading = false;
-    //       })
-    //       .catch((err) => {
-    //         this.isLoading = false;
-    //       });
-    //   });
+    this._invoicesService.invoices$.subscribe((data) => {
+      this.invoices = data;
+    });
   }
 
   /**
    * After view init
    */
-  ngAfterViewInit(): void {
-    // if (this._sort && this._paginator) {
-    //   // Set the initial sort
-    //   this._sort.sort({
-    //     id: "name",
-    //     start: "asc",
-    //     disableClear: true,
-    //   });
-    //   // Mark for check
-    //   this._changeDetectorRef.markForCheck();
-    //   // If the user changes the sort order...
-    //   this._sort.sortChange
-    //     .pipe(takeUntil(this._unsubscribeAll))
-    //     .subscribe(() => {
-    //       // Reset back to the first page
-    //       this._paginator.pageIndex = 0;
-    //       // Close the details
-    //       this.closeDetails();
-    //     });
-    // Get products if sort or page changes
-    //   merge(this._sort.sortChange, this._paginator.page)
-    //     .pipe(
-    //       switchMap(() => {
-    //         this.closeDetails();
-    //         this.isLoading = true;
-    //         return this._invoicesService.getCars(
-    //           this._paginator.pageIndex,
-    //           this._paginator.pageSize,
-    //           this._sort.active,
-    //           this._sort.direction
-    //         );
-    //       }),
-    //       map(() => {
-    //         this.isLoading = false;
-    //       })
-    //     )
-    //     .subscribe();
-    // }
-  }
+  ngAfterViewInit(): void {}
 
   /**
    * On destroy
@@ -439,5 +373,42 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
           : null,
     });
     this.searchQuery = customer.name;
+  }
+
+  generateInvoicesReport() {
+    const doc = new jsPDF();
+
+    autoTable(doc, {
+      head: [
+        [
+          "S.no",
+          "Invoice ID",
+          "Type",
+          "Customer Name",
+          "Car Name",
+          "Sub Total",
+        ],
+      ],
+      body: this.invoices.map((invoice, index) => [
+        index + 1,
+        invoice.invoiceNumber,
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.total,
+      ]),
+    });
+
+    const date = new Date();
+    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+    const formattedTime = `${date.getHours().toString().padStart(2, "0")}-${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}-${date.getSeconds().toString().padStart(2, "0")}`;
+
+    // Save the PDF with the formatted date and time
+    doc.save(`Invoice_Report_${formattedDate}_${formattedTime}.pdf`);
   }
 }

@@ -10,37 +10,112 @@
       <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
     </div>
     <!-- Title -->
-    <div class="text-4xl font-extrabold tracking-tight">Invoices</div>
+    <div class="flex justify-between">
+      <div class="text-4xl font-extrabold tracking-tight">Invoices</div>
+      <!-- Actions menu (visible on xs) -->
+      <div class="sm:hidden mt-1">
+        <button [matMenuTriggerFor]="actionsMenu" mat-icon-button>
+          <mat-icon [svgIcon]="'heroicons_mini:ellipsis-vertical'"></mat-icon>
+        </button>
+        <mat-menu #actionsMenu="matMenu">
+          <button mat-menu-item>Add</button>
+          <button mat-menu-item>Export</button>
+        </mat-menu>
+      </div>
+    </div>
+
     <!-- Actions -->
     <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
-      <!-- Search -->
-      <mat-form-field
-        class="fuse-mat-dense fuse-mat-rounded min-w-45"
-        [subscriptSizing]="'dynamic'"
-      >
-        <mat-icon
-          class="icon-size-5"
-          matPrefix
-          [svgIcon]="'heroicons_solid:magnifying-glass'"
-        ></mat-icon>
-        <input
-          matInput
-          [formControl]="searchInputControl"
-          [autocomplete]="'off'"
-          [placeholder]="'Search items'"
-        />
-      </mat-form-field>
-      <!-- Add product button -->
-      <button
-        class="ml-4"
-        mat-flat-button
-        [color]="'primary'"
-        (click)="navigateToForm()"
-      >
-        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-        <span class="ml-2 mr-1">Add</span>
-      </button>
-      <!-- TODO: Actual button above is commented since, it needs to integrate to a different invoice form. -->
+      <div class="flex">
+        <!-- Filter by days -->
+        <div class="ml-2">
+          <button
+            class="h-30 w-50 min-h-6 px-2 rounded-full bg-hover"
+            mat-button
+            [matMenuTriggerFor]="conversionMenu"
+          >
+            <span class="font-medium text-base text-secondary">{{
+              getDisplayValueOfSelectedFilter(
+                selectedTimePeriodFilter,
+                "TIME_PERIOD"
+              )
+            }}</span>
+          </button>
+          <mat-menu #conversionMenu="matMenu">
+            <button mat-menu-item (click)="setFilterValue('1m', 'TIME_PERIOD')">
+              30 days
+            </button>
+            <button mat-menu-item (click)="setFilterValue('3m', 'TIME_PERIOD')">
+              3 months
+            </button>
+            <button mat-menu-item (click)="setFilterValue('9m', 'TIME_PERIOD')">
+              9 months
+            </button>
+          </mat-menu>
+        </div>
+
+        <!-- Filter by type -->
+        <div class="ml-2">
+          <button
+            class="h-30 w-50 min-h-6 px-2 rounded-full bg-hover"
+            mat-button
+            [matMenuTriggerFor]="invoiceTypeList"
+          >
+            <span class="font-medium text-base text-secondary">{{
+              getDisplayValueOfSelectedFilter(
+                selectedInvoiceTypeFilter,
+                "INVOICE_TYPE"
+              )
+            }}</span>
+          </button>
+          <mat-menu #invoiceTypeList="matMenu">
+            <button
+              mat-menu-item
+              (click)="setFilterValue('ALL', 'INVOICE_TYPE')"
+            >
+              All
+            </button>
+            <button
+              mat-menu-item
+              (click)="setFilterValue('SERVICE', 'INVOICE_TYPE')"
+            >
+              Services
+            </button>
+            <button
+              mat-menu-item
+              (click)="setFilterValue('SALE', 'INVOICE_TYPE')"
+            >
+              Sales
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+
+      <div class="flex items-center ml-6">
+        <!-- Add product button -->
+        <button
+          class="ml-4 hidden sm:inline-flex ml-3"
+          mat-flat-button
+          [color]="'primary'"
+          (click)="navigateToForm()"
+        >
+          <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+          <span class="ml-2 mr-1">Add</span>
+        </button>
+        <!-- Export button -->
+        <button
+          class="hidden sm:inline-flex ml-3"
+          mat-flat-button
+          [color]="'primary'"
+          (click)="generateInvoicesReport()"
+        >
+          <mat-icon
+            class="icon-size-5"
+            [svgIcon]="'heroicons_solid:arrow-up-tray'"
+          ></mat-icon>
+          <span class="ml-2">Export</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -164,47 +239,10 @@
                       <span class="ml-2 mr-1">Preview</span>
                     </button>
                   </div>
-
-                  <!-- Action -->
-                  <!-- <div class="hidden sm:hidden md:hidden lg:block truncate">
-                    <mat-icon
-                      class="cursor-pointer p-2 rounded-full hover:bg-gray-200"
-                      >edit</mat-icon
-                    >
-                    <mat-icon
-                      class="cursor-pointer p-2 rounded-full hover:bg-gray-200"
-                      (click)="deleteSelectedProduct()"
-                      >delete</mat-icon
-                    >
-                  </div> -->
                 </div>
-                <!-- <div class="grid">
-                                    <ng-container
-                                        *ngIf="
-                                            selectedInvoice?.id === product.id
-                                        "
-                                    >
-                                        <ng-container
-                                            *ngTemplateOutlet="
-                                                rowDetailsTemplate;
-                                                context: { $implicit: product }
-                                            "
-                                        ></ng-container>
-                                    </ng-container>
-                                </div> -->
               </ng-container>
             </ng-container>
           </div>
-
-          <!-- <mat-paginator
-            class="sm:absolute sm:inset-x-0 sm:bottom-0 border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
-            [ngClass]="{ 'pointer-events-none': isLoading }"
-            [length]="pagination.length"
-            [pageIndex]="pagination.page"
-            [pageSize]="pagination.size"
-            [pageSizeOptions]="[5, 10, 25, 100]"
-            [showFirstLastButtons]="true"
-          ></mat-paginator> -->
         </ng-container>
       </ng-container>
 

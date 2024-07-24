@@ -505,16 +505,13 @@ export class InvoiceFormComponent {
     }
     if (this.form.valid) {
       const formData = this.form.value;
-      console.log("dates before formatting", formData);
 
       // Format the date fields to remove the timestamp
-      formData.date = this.formatDate(formData.date);
+      formData.date = new Date(formData.date).getTime();
       if (formData.carInfo)
-        formData.carInfo.nextServiceDate = this.formatDate(
+        formData.carInfo.nextServiceDate = new Date(
           formData.carInfo.nextServiceDate
-        );
-
-      console.log("dates", formData);
+        ).getTime();
 
       this.invoiceService.createInvoice(formData);
       console.log("Form data saved:", formData);
