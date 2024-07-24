@@ -64,11 +64,11 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   recentTransactionsDataSource: MatTableDataSource<any> =
     new MatTableDataSource();
   recentTransactionsTableColumns: string[] = [
-    "transactionId",
+    "invoiceId",
     "date",
-    "name",
+    "type",
+    "customerName",
     "amount",
-    "status",
   ];
   latestFiveInvoices: IInvoice[] = [];
   totalSalesInvoiceForMonth: number = 0;
@@ -157,6 +157,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
           this.totalSalesRevenueForMonth = totalSalesRevenueForMonth;
           this.totalServicesRevenueForMonth = totalServicesRevenueForMonth;
 
+          this.recentTransactionsDataSource.data = latestFiveInvoices;
+
           console.log(
             {
               latestFiveInvoices,
@@ -187,7 +189,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         console.log(data, "financial data");
         // Store the table data
-        this.recentTransactionsDataSource.data = data.recentTransactions;
+        // this.recentTransactionsDataSource.data = data.recentTransactions;
       });
 
     // Attach SVG fill fixer to all ApexCharts
@@ -226,6 +228,14 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------------------------------------
   // @ Public methods
   // -----------------------------------------------------------------------------------------------------
+
+  getTotalRevenueOfMonth() {
+    return this.totalSalesRevenueForMonth + this.totalServicesRevenueForMonth;
+  }
+
+  routeToInvoiceListPage() {
+    this._router.navigate(["/inventory-and-invoice/invoices"]);
+  }
 
   /**
    * Track by function for ngFor loops

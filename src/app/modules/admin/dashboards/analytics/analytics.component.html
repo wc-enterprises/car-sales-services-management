@@ -60,12 +60,12 @@
             </div>
           </div>
         </div>
-        <div class="mt-6">
+        <!-- <div class="mt-6">
           Last month; you had <strong>223</strong> services transactions,
           <strong>12</strong> sales transactions. <strong>235</strong> bills in
           total.
-        </div>
-        <div class="my-8 space-y-8">
+        </div> -->
+        <div class="my-8 space-y-20">
           <div class="flex flex-col">
             <div class="flex items-center">
               <div
@@ -81,16 +81,16 @@
                   Sales Revenue
                 </div>
                 <div class="mt-2 font-medium text-2xl">
-                  {{ "22322" | currency : "GBP" }}
+                  {{ totalSalesRevenueForMonth | currency : "GBP" }}
                 </div>
               </div>
-              <div class="flex items-end justify-end min-w-18 mt-auto ml-6">
+              <!-- <div class="flex items-end justify-end min-w-18 mt-auto ml-6">
                 <div class="text-lg leading-none">2.6%</div>
                 <mat-icon
                   class="text-green-600 icon-size-4 ml-1"
                   [svgIcon]="'heroicons_mini:arrow-long-down'"
                 ></mat-icon>
-              </div>
+              </div> -->
             </div>
           </div>
           <div class="flex flex-col">
@@ -108,16 +108,16 @@
                   Services Revenue
                 </div>
                 <div class="mt-2 font-medium text-2xl">
-                  {{ "3242" | currency : "GBP" }}
+                  {{ totalServicesRevenueForMonth | currency : "GBP" }}
                 </div>
               </div>
-              <div class="flex items-end justify-end min-w-18 mt-auto ml-6">
+              <!-- <div class="flex items-end justify-end min-w-18 mt-auto ml-6">
                 <div class="text-lg leading-none">12.7%</div>
                 <mat-icon
                   class="text-red-600 icon-size-4 ml-1"
                   [svgIcon]="'heroicons_mini:arrow-long-up'"
                 ></mat-icon>
-              </div>
+              </div> -->
             </div>
           </div>
           <div class="flex flex-col">
@@ -135,25 +135,25 @@
                   Total Revenue
                 </div>
                 <div class="mt-2 font-medium text-2xl">
-                  {{ "25564" | currency : "GBP" }}
+                  {{ getTotalRevenueOfMonth() | currency : "GBP" }}
                 </div>
               </div>
-              <div class="flex items-end justify-end min-w-18 mt-auto ml-6">
+              <!-- <div class="flex items-end justify-end min-w-18 mt-auto ml-6">
                 <div class="text-lg leading-none">105.7%</div>
                 <mat-icon
                   class="text-red-600 icon-size-4 ml-1"
                   [svgIcon]="'heroicons_mini:arrow-long-up'"
                 ></mat-icon>
-              </div>
+              </div> -->
             </div>
-            <div class="mt-3 text-md text-secondary">
+            <!-- <div class="mt-3 text-md text-secondary">
               Exceeded your personal limit! Be careful next month.
-            </div>
+            </div> -->
           </div>
         </div>
-        <div class="flex items-center mt-auto">
+        <!-- <div class="flex items-center mt-auto">
           <button class="mt-2" mat-stroked-button>Download Summary</button>
-        </div>
+        </div> -->
       </div>
 
       <!-- Recent transactions table -->
@@ -164,7 +164,7 @@
           <div
             class="mr-4 text-lg font-medium tracking-tight leading-6 truncate"
           >
-            Recent transactions
+            Recent invoices
           </div>
         </div>
         <div class="overflow-x-auto mx-6">
@@ -177,15 +177,15 @@
             #recentTransactionsTable
           >
             <!-- Transaction ID -->
-            <ng-container matColumnDef="transactionId">
+            <ng-container matColumnDef="invoiceId">
               <th mat-header-cell mat-sort-header *matHeaderCellDef>
-                Transaction ID
+                Invoice ID
               </th>
-              <td mat-cell *matCellDef="let transaction">
+              <td mat-cell *matCellDef="let invoice">
                 <span
                   class="pr-6 font-medium text-sm text-secondary whitespace-nowrap"
                 >
-                  {{ transaction.transactionId }}
+                  {{ invoice.invoiceNumber }}
                 </span>
               </td>
             </ng-container>
@@ -193,19 +193,31 @@
             <!-- Date -->
             <ng-container matColumnDef="date">
               <th mat-header-cell mat-sort-header *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let transaction">
+              <td mat-cell *matCellDef="let invoice">
                 <span class="pr-6 whitespace-nowrap">
-                  {{ transaction.date | date : "MMM dd, y" }}
+                  {{ invoice.date | date : "MMM dd, y" }}
                 </span>
               </td>
             </ng-container>
 
             <!-- Name -->
-            <ng-container matColumnDef="name">
-              <th mat-header-cell mat-sort-header *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let transaction">
+            <ng-container matColumnDef="type">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let invoice">
                 <span class="pr-6 whitespace-nowrap">
-                  {{ transaction.name }}
+                  {{ invoice.type }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Customer Name -->
+            <ng-container matColumnDef="customerName">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                Customer Name
+              </th>
+              <td mat-cell *matCellDef="let invoice">
+                <span class="pr-6 font-medium whitespace-nowrap">
+                  {{ invoice.billTo.name }}
                 </span>
               </td>
             </ng-container>
@@ -213,29 +225,9 @@
             <!-- Amount -->
             <ng-container matColumnDef="amount">
               <th mat-header-cell mat-sort-header *matHeaderCellDef>Amount</th>
-              <td mat-cell *matCellDef="let transaction">
+              <td mat-cell *matCellDef="let invoice">
                 <span class="pr-6 font-medium whitespace-nowrap">
-                  {{ transaction.amount | currency : "USD" }}
-                </span>
-              </td>
-            </ng-container>
-
-            <!-- Status -->
-            <ng-container matColumnDef="status">
-              <th mat-header-cell mat-sort-header *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let transaction">
-                <span
-                  class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
-                  [ngClass]="{
-                    'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50':
-                      transaction.status === 'pending',
-                    'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50':
-                      transaction.status === 'completed'
-                  }"
-                >
-                  <span class="leading-relaxed whitespace-nowrap">{{
-                    transaction.status
-                  }}</span>
+                  {{ invoice.total | currency : "GBP" }}
                 </span>
               </td>
             </ng-container>
@@ -248,7 +240,9 @@
                 *matFooterCellDef
                 colspan="6"
               >
-                <button mat-stroked-button>See all transactions</button>
+                <button mat-stroked-button (click)="routeToInvoiceListPage()">
+                  See all transactions
+                </button>
               </td>
             </ng-container>
 
@@ -283,18 +277,14 @@
             Total Invoices
           </div>
           <div class="ml-2">
-            <button
-              class="h-6 min-h-6 px-2 rounded-full bg-hover"
-              mat-button
-              [matMenuTriggerFor]="conversionMenu"
-            >
+            <button class="h-6 min-h-6 px-2 rounded-full bg-hover" mat-button>
               <span class="font-medium text-sm text-secondary">30 days</span>
             </button>
-            <mat-menu #conversionMenu="matMenu">
+            <!-- <mat-menu #conversionMenu="matMenu">
               <button mat-menu-item>30 days</button>
               <button mat-menu-item>3 months</button>
               <button mat-menu-item>9 months</button>
-            </mat-menu>
+            </mat-menu> -->
           </div>
         </div>
 
@@ -304,7 +294,7 @@
           <!-- Services Invoices Number -->
           <div>
             <div class="text-7xl font-bold tracking-tighter leading-tight">
-              {{ 235 | number : "1.0-0" }}
+              {{ totalServicesInvoiceForMonth | number : "1.0-0" }}
             </div>
             <div
               class="flex items-center ml-1 lg:ml-0 lg:mt-0.5 text-md leading-none whitespace-nowrap text-secondary"
@@ -316,7 +306,7 @@
           <!-- Sales Invoices Number -->
           <div class="">
             <div class="text-7xl font-bold tracking-tighter leading-tight">
-              {{ 235 | number : "1.0-0" }}
+              {{ totalSalesInvoiceForMonth | number : "1.0-0" }}
             </div>
             <div
               class="flex items-center ml-1 lg:ml-0 lg:mt-0.5 text-md leading-none whitespace-nowrap text-secondary"
