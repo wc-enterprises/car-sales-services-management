@@ -100,7 +100,7 @@
           </ng-container>
 
           <!-- Phone -->
-          <ng-container *ngIf="contact.phoneNumbers.length">
+          <ng-container *ngIf="contact.phoneNumbers?.length">
             <div class="flex">
               <mat-icon [svgIcon]="'heroicons_outline:phone'"></mat-icon>
               <div class="min-w-0 ml-6 space-y-1">
@@ -149,7 +149,6 @@
                 {{ frameAddress(contact.address) }}
               </div>
             </div>
-            
           </ng-container>
 
           <!-- Notes -->
