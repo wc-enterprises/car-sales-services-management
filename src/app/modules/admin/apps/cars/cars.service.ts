@@ -22,8 +22,8 @@ import { FuseMockApiUtils } from "@fuse/lib/mock-api";
 
 @Injectable({ providedIn: "root" })
 export class CarsService {
-//   private _pagination: BehaviorSubject<InventoryPagination | null> =
-//     new BehaviorSubject(null);
+  //   private _pagination: BehaviorSubject<InventoryPagination | null> =
+  //     new BehaviorSubject(null);
   private _car: BehaviorSubject<ICar | null> = new BehaviorSubject(null);
   private _cars: BehaviorSubject<ICar[] | null> = new BehaviorSubject(null);
 
@@ -48,9 +48,9 @@ export class CarsService {
   /**
    * Getter for pagination
    */
-//   get pagination$(): Observable<InventoryPagination> {
-//     return this._pagination.asObservable();
-//   }
+  //   get pagination$(): Observable<InventoryPagination> {
+  //     return this._pagination.asObservable();
+  //   }
 
   /**
    * Getter for product
@@ -88,6 +88,7 @@ export class CarsService {
 
       // Frame cars for component
       const cars = [];
+      if (!data || data.length === 0) return cars;
       Object.keys(data).forEach((key) => {
         const val = data[key];
         cars.push(val);
@@ -159,6 +160,13 @@ export class CarsService {
     this._car.next(updatedCar);
 
     return updatedCar;
+  }
+
+  async createCar(car: Omit<ICar, "id">) {
+    const id = FuseMockApiUtils.guid();
+    await this.updateCar(id, { id, ...car });
+    console.log("Car created successfully", { id, ...car });
+    return id;
   }
 
   /**

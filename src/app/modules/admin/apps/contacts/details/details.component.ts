@@ -143,8 +143,6 @@ export class ContactsDetailsComponent
       notes: [null],
     });
 
-    
-
     // Get the contacts
     this._contactsService.contacts$
       .pipe(takeUntil(this._unsubscribeAll))
@@ -256,7 +254,7 @@ export class ContactsDetailsComponent
     this.checkBackgroundColor();
   }
 
-  frameAddress(address: IAddress){
+  frameAddress(address: IAddress) {
     return Object.values(address).filter(Boolean).join(", ");
   }
 
@@ -504,7 +502,10 @@ export class ContactsDetailsComponent
    * @param iso
    */
   getCountryByIso(iso: string): Country {
-    return this.countries.find((country) => country.iso === iso);
+    console.log("Received request to getcountrybyiso for iso:", iso);
+    const countryFound = this.countries.find((country) => country.iso === iso);
+    console.log("Found country", countryFound);
+    return countryFound;
   }
 
   /**

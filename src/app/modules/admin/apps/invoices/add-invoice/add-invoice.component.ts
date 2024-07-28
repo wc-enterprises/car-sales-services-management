@@ -33,6 +33,11 @@ import { InvoicesService } from "app/modules/admin/apps/invoices/invoices.servic
 import { map, startWith } from "rxjs";
 import { products } from "app/services/apps/ecommerce/inventory/data";
 import { IInvoiceType } from "../invoices.types";
+import { Contact } from "../../contacts/contacts.types";
+import { Invoice } from "app/modules/admin/pages/invoice/invoice.type";
+import { ContactsService } from "../../contacts/contacts.service";
+import { ICar } from "../../cars/cars.types";
+import { CarsService } from "../../cars/cars.service";
 
 @Component({
   selector: "invoice",
@@ -124,6 +129,8 @@ export class InvoiceFormComponent {
   constructor(
     private fb: FormBuilder,
     private invoiceService: InvoicesService,
+    private contactService: ContactsService,
+    private carService: CarsService,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -180,6 +187,10 @@ export class InvoiceFormComponent {
     // Subscribe to the input changes
     this.form.get("item")?.valueChanges.subscribe((value) => {
       this.filterServiceNames(value);
+    });
+
+    this.form.valueChanges.subscribe((data) => {
+      console.log("Change in form data: ", data);
     });
   }
 
@@ -498,13 +509,93 @@ export class InvoiceFormComponent {
     return `${year}-${month}-${day}`;
   }
 
-  onSave() {
+  async onSave() {
     if (this.form.valid) {
       const updatedData = this.form.value;
       this.invoiceService.saveInvoiceData(updatedData);
     }
     if (this.form.valid) {
       const formData = this.form.value;
+
+      let customerId: string;
+      if (!formData.billTo.id) {
+        // Save the contact
+        // There will be no code in phone. Hardcode it to Great Britan.
+
+        const billToCustomer = formData.billTo as Invoice["billTo"];
+        const contact: Omit<Contact, "id"> = {
+          name: billToCustomer.name,
+          address: {
+            addressLine1: billToCustomer.addressLine1,
+            addressLine2: billToCustomer.addressLine2,
+            city: billToCustomer.city,
+            country: billToCustomer.country,
+            postalCode: billToCustomer.postalCode,
+          },
+          phoneNumbers: [
+            {
+              country: "gb",
+              label: "",
+              phoneNumber: billToCustomer.phoneNumber?.number,
+            },
+          ],
+        };
+
+        customerId = await this.contactService.createContact(contact);
+      }
+
+      if (!formData.carInfo.id) {
+        // Save the car
+        /**
+         * {
+	              color: "",
+	              engineType: "",
+	              fuelType: "",
+	              id: "",
+	              insuranceValidTill: "",
+	              make: "skoda",
+	              mileage: "",
+	              model: "Citigo",
+	              motValidTill: "",
+	              nextServiceDate: "",
+	              regNo: "RTAK2342LLS",
+	              regYear: "",
+	              roadTaxValidTill: "",
+	              transmission: "",
+	              vin: ""
+            }
+         */
+        const carInfoFromForm = formData.carInfo as Invoice["carInfo"];
+
+        const car: Omit<ICar, "id"> = {
+          regNo: carInfoFromForm.regNo,
+          make: carInfoFromForm.make,
+          model: carInfoFromForm.model,
+          color: carInfoFromForm.color,
+          fuelType: carInfoFromForm.fuelType,
+          mileage: carInfoFromForm.mileage
+            ? parseInt(carInfoFromForm.mileage)
+            : null,
+          insuranceValidTill: carInfoFromForm.insuranceValidTill
+            ? new Date(carInfoFromForm.insuranceValidTill).getTime()
+            : null,
+          motValidTill: carInfoFromForm.motValidTill
+            ? new Date(carInfoFromForm.motValidTill).getTime()
+            : null,
+          nextServiceDate: carInfoFromForm.nextServiceDate
+            ? new Date(carInfoFromForm.nextServiceDate).getTime()
+            : null,
+          roadTaxValidTill: carInfoFromForm.roadTaxValidTill
+            ? new Date(carInfoFromForm.roadTaxValidTill).getTime()
+            : null,
+          regYear: carInfoFromForm.regYear,
+          transmission: carInfoFromForm.transmission,
+          vinNumber: carInfoFromForm.vin,
+          customerId,
+        };
+
+        await this.carService.createCar(car);
+      }
 
       // Format the date fields to remove the timestamp
       formData.date = new Date(formData.date).getTime();

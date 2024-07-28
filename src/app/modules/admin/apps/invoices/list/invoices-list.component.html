@@ -18,19 +18,23 @@
           <mat-icon [svgIcon]="'heroicons_mini:ellipsis-vertical'"></mat-icon>
         </button>
         <mat-menu #actionsMenu="matMenu">
-          <button mat-menu-item>Add</button>
-          <button mat-menu-item>Export</button>
+          <button (click)="navigateToForm()" mat-menu-item>Add</button>
+          <button (click)="generateInvoicesReport()" mat-menu-item>
+            Export
+          </button>
         </mat-menu>
       </div>
     </div>
 
     <!-- Actions -->
     <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
-      <div class="flex">
+      <div
+        class="flex ss:flex-col ss:gap-4 sm:flex-col sm:gap-4 ss:w-120 xl:flex-row"
+      >
         <!-- Filter by days -->
         <div class="ml-2">
           <button
-            class="h-30 w-50 min-h-6 px-2 rounded-full bg-hover"
+            class="h-30 w-50 ss:w-full min-h-6 rounded-full bg-hover"
             mat-button
             [matMenuTriggerFor]="conversionMenu"
           >
@@ -57,7 +61,7 @@
         <!-- Filter by type -->
         <div class="ml-2">
           <button
-            class="h-30 w-50 min-h-6 px-2 rounded-full bg-hover"
+            class="h-30 w-50 ss:w-full min-h-6 px-2 rounded-full bg-hover"
             mat-button
             [matMenuTriggerFor]="invoiceTypeList"
           >

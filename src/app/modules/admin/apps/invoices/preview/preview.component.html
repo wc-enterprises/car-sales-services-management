@@ -1,8 +1,13 @@
 <!-- Title and action buttons -->
-<div class="absolute pl-10 mobile-small:pl-7 pr-7 pt-2 pb-2 flex items-center justify-between w-full bg-gray-200 print:hidden">
+<div
+  class="absolute pl-10 mobile-small:pl-7 pr-7 pt-2 pb-2 flex items-center justify-between w-full bg-gray-200 print:hidden"
+  *ngIf="invoiceData"
+>
   <div>
-    <div class="text-3xl mobile-small:text-base font-semibold tracking-tight leading-8">
-      Invoice {{invoiceData.invoiceNumber}}
+    <div
+      class="text-3xl mobile-small:text-base font-semibold tracking-tight leading-8"
+    >
+      Invoice {{ invoiceData.invoiceNumber }}
     </div>
   </div>
   <div class="flex items-center ml-6">
@@ -18,19 +23,6 @@
       ></mat-icon>
       <span class="ml-2 mobile-small:text-sm">Export</span>
     </button>
-
-    <!-- Actions menu (visible on xs) -->
-    <!-- <div class="sm:hidden">
-              <button
-                  [matMenuTriggerFor]="actionsMenu"
-                  mat-icon-button>
-                  <mat-icon [svgIcon]="'heroicons_outline:ellipsis-vertical'"></mat-icon>
-              </button>
-              <mat-menu #actionsMenu="matMenu">
-                  <button mat-menu-item>Export</button>
-                  <button mat-menu-item>Settings</button>
-              </mat-menu>
-          </div> -->
   </div>
 </div>
 
@@ -46,18 +38,19 @@
     <div
       class="w-240 p-16 rounded-2xl shadow bg-card print:w-auto print:rounded-none print:shadow-none print:bg-transparent"
     >
+      <!-- Head content -->
       <div class="flex items-start justify-between">
         <div class="grid grid-cols-2 gap-x-4 gap-y-1">
           <div class="text-4xl tracking-tight text-secondary">INVOICE</div>
-          <div class="text-4xl">#9-0004</div>
+          <div class="text-4xl">{{ invoiceData.invoiceNumber }}</div>
           <div class="font-medium tracking-tight text-secondary">
             INVOICE DATE
           </div>
-          <div class="font-medium">Jul 19, 2022</div>
-          <div class="font-medium tracking-tight text-secondary">DUE DATE</div>
-          <div class="font-medium">Aug 19, 2022</div>
+          <div class="font-medium">{{ formatDate(invoiceData.date) }}</div>
           <div class="font-medium tracking-tight text-secondary">TOTAL DUE</div>
-          <div class="font-medium">$235,000.00</div>
+          <div class="font-medium">
+            {{ invoiceData.total | currency : "GBP" }}
+          </div>
         </div>
         <div
           class="grid auto-cols-max grid-flow-col gap-x-8 -mr-16 py-6 px-8 rounded-l-2xl bg-accent dark"
@@ -76,11 +69,21 @@
         </div>
       </div>
 
+      <!-- Customer Data -->
       <div class="text-md">
-        <div class="text-xl font-medium">Jobin Ebenezer</div>
-        <div>9301 Wood Street Philadelphia, PA 19111</div>
-        <div>jobin.ebenezer&#64;company.com</div>
-        <div>+55 552 455 87</div>
+        <div class="text-xl font-medium">{{ invoiceData.billTo.name }}</div>
+        <div>
+          {{
+            formatAddress(
+              invoiceData.billTo.addressLine1,
+              invoiceData.billTo.addressLine2,
+              invoiceData.billTo.city,
+              invoiceData.billTo.country,
+              invoiceData.billTo.postalCode
+            )
+          }}
+        </div>
+        <div>{{ formatNumber(invoiceData.billTo.phoneNumber) }}</div>
       </div>
 
       <div class="grid grid-cols-12 gap-x-1 mt-12">
@@ -92,76 +95,25 @@
           TOTAL
         </div>
 
-        <!-- Divider -->
-        <div class="col-span-12 my-4 border-b"></div>
+        <ng-container *ngFor="let service of invoiceData.services">
+          <!-- Divider -->
+          <div class="col-span-12 my-4 border-b"></div>
 
-        <!-- Item -->
-        <div class="col-span-8 text-lg font-medium">Prototype & Design</div>
-        <div class="self-center text-right">$75.00</div>
-        <div class="self-center text-right">240</div>
-        <div class="col-span-2 self-center text-right">$18,000.00</div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-4 border-b"></div>
-
-        <!-- Item -->
-        <div class="col-span-8 text-lg font-medium">Development</div>
-        <div class="self-center text-right">$60.50</div>
-        <div class="self-center text-right">350</div>
-        <div class="col-span-2 self-center text-right">$21,175.00</div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-4 border-b"></div>
-
-        <!-- Item -->
-        <div class="col-span-8 text-lg font-medium">Testing</div>
-        <div class="self-center text-right">$25.00</div>
-        <div class="self-center text-right">50</div>
-        <div class="col-span-2 self-center text-right">$1,250.00</div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-4 border-b"></div>
-
-        <!-- Item -->
-        <div class="col-span-8 text-lg font-medium">
-          Documentation & Training
-        </div>
-        <div class="self-center text-right">$26.50</div>
-        <div class="self-center text-right">260</div>
-        <div class="col-span-2 self-center text-right">$6,890.00</div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-4 border-b"></div>
-
-        <!-- Item -->
-        <div class="col-span-8 text-lg font-medium">
-          Critical bug fixes for a year
-        </div>
-        <div class="self-center text-right">$25,000</div>
-        <div class="self-center text-right">2</div>
-        <div class="col-span-2 self-center text-right">$50,000.00</div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-4 border-b"></div>
-
-        <!-- Item -->
-        <div class="col-span-8 text-lg font-medium">
-          Extended security updates for a year
-        </div>
-        <div class="self-center text-right">$15.000</div>
-        <div class="self-center text-right">2</div>
-        <div class="col-span-2 self-center text-right">$30,000.00</div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-4 border-b"></div>
-
-        <!-- Item -->
-        <div class="col-span-8 text-lg font-medium">
-          Extended updates for a year
-        </div>
-        <div class="self-center text-right">$50.000</div>
-        <div class="self-center text-right">2</div>
-        <div class="col-span-2 self-center text-right">$100,000.00</div>
+          <!-- Item -->
+          <div class="col-span-8 text-lg font-medium">
+            {{ service.item }}
+          </div>
+          <div class="self-center text-right">
+            {{ service.price | currency : "GBP" }}
+          </div>
+          <div class="self-center text-right">{{ service.quantity }}</div>
+          <div class="col-span-2 self-center text-right">
+            {{
+              getTotalPerItem(service.price, service.quantity)
+                | currency : "GBP"
+            }}
+          </div>
+        </ng-container>
 
         <!-- Spacer -->
         <div class="col-span-12 mt-16"></div>
@@ -172,7 +124,9 @@
         >
           SUBTOTAL
         </div>
-        <div class="col-span-2 text-right text-lg">$227,315.00</div>
+        <div class="col-span-2 text-right text-lg">
+          {{ invoiceData.subtotal | currency : "GBP" }}
+        </div>
 
         <!-- Divider -->
         <div class="col-span-12 my-3 border-b"></div>
@@ -183,7 +137,9 @@
         >
           TAX
         </div>
-        <div class="col-span-2 text-right text-lg">$11,365.75</div>
+        <div class="col-span-2 text-right text-lg">
+          {{ invoiceData.tax.value }} %
+        </div>
 
         <!-- Divider -->
         <div class="col-span-12 my-3 border-b"></div>
@@ -194,7 +150,9 @@
         >
           DISCOUNT
         </div>
-        <div class="col-span-2 text-right text-lg">$3,680.75</div>
+        <div class="col-span-2 text-right text-lg">
+          {{ invoiceData.discount?.value | currency : "GBP" }}
+        </div>
 
         <!-- Divider -->
         <div class="col-span-12 my-3 border-b"></div>
@@ -206,7 +164,7 @@
           TOTAL
         </div>
         <div class="col-span-2 text-right text-2xl font-medium">
-          $235,000.00
+          {{ invoiceData.total | currency : "GBP" }}
         </div>
       </div>
 
@@ -214,7 +172,7 @@
         <div class="font-medium">
           Please pay within 15 days. Thank you for your business.
         </div>
-        <div class="flex items-start mt-4">
+        <!-- <div class="flex items-start mt-4">
           <img class="flex-0 w-10 mt-2" src="assets/images/logo/logo.svg" />
           <div class="ml-6 text-sm text-secondary">
             In condimentum malesuada efficitur. Mauris volutpat placerat auctor.
@@ -225,7 +183,7 @@
             porttitor ex finibus. Proin eu nibh id libero tincidunt lacinia et
             eget.
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

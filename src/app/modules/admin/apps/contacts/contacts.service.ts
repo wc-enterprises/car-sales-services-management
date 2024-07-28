@@ -129,9 +129,11 @@ export class ContactsService {
   /**
    * Create contact
    */
-  createContact(contactData: Omit<Contact, "id">) {
+  async createContact(contactData: Omit<Contact, "id">) {
     const id = FuseMockApiUtils.guid();
-    set(ref(this.db, "contacts/" + id), { id, ...contactData });
+    await set(ref(this.db, "contacts/" + id), { id, ...contactData });
+    console.log("Contact created succesfully", { id, ...contactData });
+    return id;
   }
 
   createNoopContact(): Observable<Contact> {
@@ -170,25 +172,24 @@ export class ContactsService {
         if (snapshot.exists()) {
           let framedContacts = this.frameContactsForComponent(snapshot.val());
 
-          if(!query) this._contacts.next(framedContacts)
+          if (!query) this._contacts.next(framedContacts);
 
-            framedContacts = framedContacts.filter(
+          framedContacts = framedContacts.filter(
             (contact) =>
               contact.name &&
               contact.name.toLowerCase().includes(query.toLowerCase())
           );
           this._contacts.next(framedContacts);
           return framedContacts;
-
         } else {
           console.log("No data available");
-          return []
+          return [];
         }
       })
       .catch((error) => {
         console.error(error);
-        return []
-      })
+        return [];
+      });
   }
 
   /**
@@ -199,10 +200,11 @@ export class ContactsService {
     return this._contacts.pipe(
       take(1),
       map((contacts) => {
+        console.log("Fetched contacts", contacts);
         if (!contacts) return;
         // Find the contact
         const contact = contacts.find((item) => item.id === id) || null;
-
+        console.log("Fetched contact", contact);
         // Update the contact
         this._contact.next(contact);
 

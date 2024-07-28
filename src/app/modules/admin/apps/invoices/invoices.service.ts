@@ -306,8 +306,9 @@ export class InvoicesService {
     }
     return regNo;
   }
+
   async makeName() {
-    const makeRef = ref(this.db, "make");
+    const makeRef = ref(this.db, "Makes");
     // Fetch the data once
     const snapshot = await get(makeRef);
     const data = snapshot.val();
@@ -320,10 +321,12 @@ export class InvoicesService {
         this.nameOfMake.push(key);
       }
     }
+
     return this.nameOfMake;
   }
+
   async makeMap() {
-    const makeRef = ref(this.db, "make");
+    const makeRef = ref(this.db, "Makes");
     // Fetch the data once
     const snapshot = await get(makeRef);
     const data = snapshot.val();
