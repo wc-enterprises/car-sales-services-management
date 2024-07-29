@@ -45,11 +45,6 @@ export class InvoicesService {
   setInvoiceData(data: any): void {
     this.invoiceData = data;
   }
-
-  saveInvoiceData(data: any): void {
-    // Save the data to your backend or local storage
-    this.invoiceData = data;
-  }
   /**
    * Constructor
    */
@@ -200,9 +195,10 @@ export class InvoicesService {
   /**
    * Create invoice
    */
-  createInvoice(invoiceData: Omit<IInvoice, "id">): Promise<void> {
+  async createInvoice(invoiceData: Omit<IInvoice, "id">): Promise<string> {
     const id = FuseMockApiUtils.guid();
-    return set(ref(this.db, "invoices/" + id), { id, ...invoiceData });
+    await set(ref(this.db, "invoices/" + id), { id, ...invoiceData });
+    return id;
   }
 
   /**

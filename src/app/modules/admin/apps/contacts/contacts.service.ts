@@ -131,8 +131,17 @@ export class ContactsService {
    */
   async createContact(contactData: Omit<Contact, "id">) {
     const id = FuseMockApiUtils.guid();
-    await set(ref(this.db, "contacts/" + id), { id, ...contactData });
-    console.log("Contact created succesfully", { id, ...contactData });
+    const createdDate = new Date().getTime();
+    await set(ref(this.db, "contacts/" + id), {
+      id,
+      ...contactData,
+      createdDate,
+    });
+    console.log("Contact created succesfully", {
+      id,
+      ...contactData,
+      createdDate,
+    });
     return id;
   }
 
@@ -148,6 +157,7 @@ export class ContactsService {
           emails: [],
           phoneNumbers: [],
           notes: null,
+          createdDate: new Date().getTime(),
         };
         // Update the contacts with the new contact
         this._contacts.next([newContact, ...contacts]);

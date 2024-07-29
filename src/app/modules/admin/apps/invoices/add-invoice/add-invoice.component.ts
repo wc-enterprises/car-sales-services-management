@@ -150,6 +150,7 @@ export class InvoiceFormComponent {
         postalCode: ["", Validators.required],
         country: ["", Validators.required],
         city: ["", Validators.required],
+        createdDate: [""],
       }),
       services: this.fb.array([this.createServiceGroup()]),
       subtotal: [""],
@@ -263,6 +264,7 @@ export class InvoiceFormComponent {
           city: data.address?.city ?? "",
           country: data.address?.country ?? "",
           postalCode: data.address?.postalCode ?? "",
+          createdDate: data.createdDate ?? "",
         });
 
         const phoneNumberControl = billToGroup.get("phoneNumber");
@@ -326,16 +328,16 @@ export class InvoiceFormComponent {
           regNo: data.regNo,
           make: data.make,
           model: data.model,
-          regYear: data.regYear,
-          fuelType: data.fuelType,
-          transmission: data.transmission,
-          mileage: data.mileage,
-          color: data.color,
-          vin: data.vinNumber,
-          nextServiceDate: data.nextServiceDate,
-          motValidTill: data.motValidTill,
-          insuranceValidTill: data.insuranceValidTill,
-          roadTaxValidTill: data.roadTaxValidTill,
+          regYear: data.regYear ?? null,
+          fuelType: data.fuelType ?? null,
+          transmission: data.transmission ?? null,
+          mileage: data.mileage ?? null,
+          color: data.color ?? null,
+          vin: data.vinNumber ?? null,
+          nextServiceDate: data.nextServiceDate ?? null,
+          motValidTill: data.motValidTill ?? null,
+          insuranceValidTill: data.insuranceValidTill ?? null,
+          roadTaxValidTill: data.roadTaxValidTill ?? null,
         });
       }
     });
@@ -511,11 +513,8 @@ export class InvoiceFormComponent {
 
   async onSave() {
     if (this.form.valid) {
-      const updatedData = this.form.value;
-      this.invoiceService.saveInvoiceData(updatedData);
-    }
-    if (this.form.valid) {
       const formData = this.form.value;
+      const now = Date.now();
 
       let customerId: string;
       if (!formData.billTo.id) {
@@ -539,32 +538,18 @@ export class InvoiceFormComponent {
               phoneNumber: billToCustomer.phoneNumber?.number,
             },
           ],
+          createdDate: now,
         };
 
         customerId = await this.contactService.createContact(contact);
+
+        formData.billTo.id = customerId;
+        formData.billTo.createdDate = now;
       }
 
-      if (!formData.carInfo.id) {
+      if (formData.carInfo && !formData.carInfo.id) {
+        console.log("Saving car block called", formData.carInfo);
         // Save the car
-        /**
-         * {
-	              color: "",
-	              engineType: "",
-	              fuelType: "",
-	              id: "",
-	              insuranceValidTill: "",
-	              make: "skoda",
-	              mileage: "",
-	              model: "Citigo",
-	              motValidTill: "",
-	              nextServiceDate: "",
-	              regNo: "RTAK2342LLS",
-	              regYear: "",
-	              roadTaxValidTill: "",
-	              transmission: "",
-	              vin: ""
-            }
-         */
         const carInfoFromForm = formData.carInfo as Invoice["carInfo"];
 
         const car: Omit<ICar, "id"> = {
@@ -591,33 +576,30 @@ export class InvoiceFormComponent {
           regYear: carInfoFromForm.regYear,
           transmission: carInfoFromForm.transmission,
           vinNumber: carInfoFromForm.vin,
-          customerId,
+          customerId: customerId ?? null,
         };
 
         await this.carService.createCar(car);
       }
 
       // Format the date fields to remove the timestamp
-      formData.date = new Date(formData.date).getTime();
+      formData.date = now;
       if (formData.carInfo)
         formData.carInfo.nextServiceDate = new Date(
           formData.carInfo.nextServiceDate
         ).getTime();
 
-      this.invoiceService.createInvoice(formData);
-      console.log("Form data saved:", formData);
-      alert("Data saved to local storage and shared service");
-    }
-  }
-
-  onPrint() {
-    if (this.form.valid) {
-      this.onSave();
-      this.router.navigate(["pages/invoice/printable/modern"]);
+      const invoiceId = await this.invoiceService.createInvoice(formData);
+      console.log("Form data saved:", formData, invoiceId);
+      this.router.navigate([
+        `/inventory-and-invoice/invoices/preview/${invoiceId}`,
+      ]);
+      return invoiceId;
     } else {
       alert("Please fill in all required fields before printing");
     }
   }
+
   backToInvoices() {
     this.router.navigate(["inventory-and-invoice/invoices"]);
   }

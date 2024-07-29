@@ -22,7 +22,15 @@ import { MatSort } from "@angular/material/sort";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { InvoicesService } from "../../apps/invoices/invoices.service";
-import { IInvoice } from "../../apps/invoices/invoices.types";
+import { IInvoice, IInvoiceType } from "../../apps/invoices/invoices.types";
+import { DailySalesAnalytics, TTimeFilter } from "./analytics.type";
+import { DateTime } from "luxon";
+
+export interface IChartData {
+  total: number;
+  percentSplits: number[];
+  labels: string[];
+}
 
 @Component({
   selector: "analytics",
@@ -55,10 +63,42 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   chartImpressions: ApexOptions;
   chartVisits: ApexOptions;
   chartVisitorsVsPageViews: ApexOptions;
-  chartNewVsReturning: ApexOptions;
-  chartGender: ApexOptions;
+
+  chartServiceCustomersNewVsReturning: ApexOptions;
+  serviceCustomersNewVsReturningData: IChartData;
+  serviceCustomerNewVsReturningFilter: TTimeFilter = "1m";
+
+  chartSalesCustomersNewVsReturning: ApexOptions;
+  saleCustomersNewVsReturningData: IChartData;
+  salesCustomerNewVsReturningFilter: TTimeFilter = "1m";
+
   chartTopMakes: ApexOptions;
+  topMakesData: IChartData;
+  topMakeFilter: TTimeFilter = "1m";
+
   chartTopServices: ApexOptions;
+  topServicesData: IChartData;
+  topServiceFilter: TTimeFilter = "1m";
+
+  dailySalesData: DailySalesAnalytics = {
+    series: {
+      "this-week": [
+        {
+          name: "Revenue",
+          data: [],
+        },
+      ],
+      "this-month": [
+        {
+          name: "Revenue",
+          data: [],
+        },
+      ],
+    },
+  };
+
+  invoicesData: IInvoice[];
+
   chartLanguage: ApexOptions;
   data: any;
   recentTransactionsDataSource: MatTableDataSource<any> =
@@ -100,6 +140,14 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     this._invoiceService.invoices$
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((data) => {
+        this.invoicesData = data;
+
+        this.getCustomersNewVsReturningNumbers("1m", "SERVICE");
+        this.getCustomersNewVsReturningNumbers("1m", "SALE");
+        this.getTopMakeOrService("1m", "make");
+        this.getTopMakeOrService("1m", "service");
+        this.getSalesDataForThisMonth();
+
         const getInvoiceMetrics = (invoices: IInvoice[]) => {
           const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-based
           const currentYear = new Date().getFullYear();
@@ -170,17 +218,18 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
             "data"
           );
         }
-      });
 
-    // Get the data
-    this._analyticsService.data$
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe((data) => {
-        // Store the data
-        this.data = data;
+        // Get the data
+        this._analyticsService.data$
+          .pipe(takeUntil(this._unsubscribeAll))
+          .subscribe((data) => {
+            // Store the data
+            this.data = data;
+            console.log("visitor data from api", this.data.visitors);
 
-        // Prepare the chart data
-        this._prepareChartData();
+            // Prepare the chart data
+            this._prepareChartData();
+          });
       });
 
     // Get the data
@@ -329,7 +378,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
           },
         },
       },
-      series: this.data.visitors.series,
+      series: this.dailySalesData.series as any,
       stroke: {
         width: 2,
       },
@@ -575,8 +624,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       },
     };
 
-    // New vs. returning
-    this.chartNewVsReturning = {
+    // Services New vs. returning
+    this.chartServiceCustomersNewVsReturning = {
       chart: {
         animations: {
           speed: 400,
@@ -593,7 +642,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         },
       },
       colors: ["#3182CE", "#63B3ED"],
-      labels: this.data.newVsReturning.labels,
+      labels: this.serviceCustomersNewVsReturningData.labels,
       plotOptions: {
         pie: {
           customScale: 0.9,
@@ -603,7 +652,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
           },
         },
       },
-      series: this.data.newVsReturning.series,
+      series: this.serviceCustomersNewVsReturningData.percentSplits,
       states: {
         hover: {
           filter: {
@@ -631,8 +680,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       },
     };
 
-    // Gender
-    this.chartGender = {
+    // Sales New vs. returning
+    this.chartSalesCustomersNewVsReturning = {
       chart: {
         animations: {
           speed: 400,
@@ -649,7 +698,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         },
       },
       colors: ["#319795", "#4FD1C5"],
-      labels: this.data.gender.labels,
+      labels: this.saleCustomersNewVsReturningData.labels,
       plotOptions: {
         pie: {
           customScale: 0.9,
@@ -659,7 +708,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
           },
         },
       },
-      series: this.data.gender.series,
+      series: this.saleCustomersNewVsReturningData.percentSplits,
       states: {
         hover: {
           filter: {
@@ -687,7 +736,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       },
     };
 
-    // Age
+    // Top Makes
     this.chartTopMakes = {
       chart: {
         animations: {
@@ -705,7 +754,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         },
       },
       colors: ["#DD6B20", "#F6AD55", "#dd3f20", "#dd9b20"],
-      labels: this.data.topMakes.labels,
+      labels: this.topMakesData.labels,
       plotOptions: {
         pie: {
           customScale: 0.9,
@@ -715,7 +764,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
           },
         },
       },
-      series: this.data.topMakes.series,
+      series: this.topMakesData.percentSplits,
       states: {
         hover: {
           filter: {
@@ -743,7 +792,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       },
     };
 
-    // Language
+    // Top Services
     this.chartTopServices = {
       chart: {
         animations: {
@@ -761,7 +810,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         },
       },
       colors: ["#805AD5", "#B794F4", "#ba5ad5", "#3f3ac9"],
-      labels: this.data.topServices.labels,
+      labels: this.topServicesData.labels,
       plotOptions: {
         pie: {
           customScale: 0.9,
@@ -771,7 +820,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
           },
         },
       },
-      series: this.data.topServices.series,
+      series: this.topServicesData.percentSplits,
       states: {
         hover: {
           filter: {
@@ -798,5 +847,277 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
                                                 </div>`,
       },
     };
+  }
+
+  getSalesDataForThisMonth() {
+    const now = DateTime.local();
+    const startOfMonth = now.startOf("month");
+    const endOfMonth = now.endOf("month");
+
+    // Filter invoices from the current month
+    const invoicesThisMonth = this.invoicesData.filter((invoice) => {
+      const invoiceDate = DateTime.fromMillis(invoice.date);
+      return invoiceDate >= startOfMonth && invoiceDate <= endOfMonth;
+    });
+
+    // Calculate total sales for each day of the current month
+    const salesData: { [key: string]: number } = {};
+
+    for (
+      let day = startOfMonth;
+      day <= endOfMonth;
+      day = day.plus({ days: 1 })
+    ) {
+      const dateString = day.toISODate();
+      salesData[dateString] = 0; // Initialize sales count for each day
+    }
+
+    invoicesThisMonth.forEach((invoice) => {
+      const invoiceDate = DateTime.fromMillis(invoice.date).toISODate();
+      if (salesData[invoiceDate] !== undefined) {
+        salesData[invoiceDate] += invoice.services.reduce(
+          (sum, service) => sum + service.price * service.quantity,
+          0
+        );
+      }
+    });
+
+    // Format data for "this-month"
+    const thisMonthData = Object.keys(salesData).map((date) => ({
+      x: DateTime.fromISO(date).toJSDate(),
+      y: salesData[date],
+    }));
+
+    this.dailySalesData.series["this-month"][0].data = thisMonthData;
+
+    // Calculate weekly numbers as well
+    const startOfWeek = now.startOf("week");
+    const endOfWeek = now.endOf("week");
+
+    const invoicesThisWeek = invoicesThisMonth.filter((invoice) => {
+      const invoiceDate = DateTime.fromMillis(invoice.date);
+      return invoiceDate >= startOfWeek && invoiceDate <= endOfWeek;
+    });
+
+    const weeklySalesData: { [key: string]: number } = {};
+
+    for (let day = startOfWeek; day <= endOfWeek; day = day.plus({ days: 1 })) {
+      const dateString = day.toISODate();
+      weeklySalesData[dateString] = 0; // Initialize sales count for each day
+    }
+
+    invoicesThisWeek.forEach((invoice) => {
+      const invoiceDate = DateTime.fromMillis(invoice.date).toISODate();
+      if (weeklySalesData[invoiceDate] !== undefined) {
+        weeklySalesData[invoiceDate] += invoice.services.reduce(
+          (sum, service) => sum + service.price * service.quantity,
+          0
+        );
+      }
+    });
+
+    const thisWeekData = Object.keys(weeklySalesData).map((date) => ({
+      x: DateTime.fromISO(date).toJSDate(),
+      y: weeklySalesData[date],
+    }));
+
+    this.dailySalesData.series["this-week"][0].data = thisWeekData;
+
+    console.log("new daily sales per month", this.dailySalesData);
+  }
+
+  private filterInvoicesByTime(
+    currentTime: number,
+    months: number
+  ): IInvoice[] {
+    const pastDate = new Date(currentTime).setMonth(
+      new Date(currentTime).getMonth() - months
+    );
+    return this.invoicesData.filter((invoice) => {
+      const invoiceDate = invoice.date;
+      return invoiceDate >= pastDate && invoiceDate <= currentTime;
+    });
+  }
+
+  getCustomersNewVsReturningNumbers(
+    filterValue: TTimeFilter,
+    invoiceType: IInvoiceType
+  ) {
+    let timeFilteredServiceInvoices: IInvoice[] = [];
+    const now = Date.now();
+
+    switch (filterValue) {
+      case "1m":
+        timeFilteredServiceInvoices = this.filterInvoicesByTime(now, 1);
+        break;
+
+      case "3m":
+        timeFilteredServiceInvoices = this.filterInvoicesByTime(now, 1);
+        break;
+
+      case "9m":
+        timeFilteredServiceInvoices = this.filterInvoicesByTime(now, 1);
+        break;
+    }
+
+    const serviceInvoices = timeFilteredServiceInvoices.filter(
+      (item) => item.type === invoiceType
+    );
+
+    // Get customer info
+    let newCustomers = 0;
+    let returningCustomers = 0;
+
+    serviceInvoices.forEach((invoice) => {
+      if (invoice.date === invoice.billTo.createdDate) newCustomers++;
+      else returningCustomers++;
+    });
+
+    const percentOfNewCustomer = serviceInvoices.length
+      ? Math.round((newCustomers / serviceInvoices.length) * 100)
+      : 0;
+    const percentOfReturningCustomer = serviceInvoices.length
+      ? Math.round((returningCustomers / serviceInvoices.length) * 100)
+      : 0;
+
+    console.log("sericeCustomerData", {
+      newCustomers,
+      returningCustomers,
+      total: serviceInvoices.length,
+      percentOfNewCustomer,
+      percentOfReturningCustomer,
+    });
+
+    if (invoiceType === "SERVICE")
+      this.serviceCustomersNewVsReturningData = {
+        total: serviceInvoices.length,
+        percentSplits: [percentOfNewCustomer, percentOfReturningCustomer],
+        labels: ["New", "Returning"],
+      };
+    else if (invoiceType === "SALE")
+      this.saleCustomersNewVsReturningData = {
+        total: serviceInvoices.length,
+        percentSplits: [percentOfNewCustomer, percentOfReturningCustomer],
+        labels: ["New", "Returning"],
+      };
+  }
+
+  getTopMakeOrService(
+    filterValue: TTimeFilter,
+    dataToCollect: "make" | "service"
+  ) {
+    let timeFilteredServiceInvoices: IInvoice[] = [];
+    const now = Date.now();
+
+    switch (filterValue) {
+      case "1m":
+        timeFilteredServiceInvoices = this.filterInvoicesByTime(now, 1);
+        break;
+
+      case "3m":
+        timeFilteredServiceInvoices = this.filterInvoicesByTime(now, 1);
+        break;
+
+      case "9m":
+        timeFilteredServiceInvoices = this.filterInvoicesByTime(now, 1);
+        break;
+    }
+
+    const serviceInvoices = timeFilteredServiceInvoices.filter(
+      (item) => item.type === "SERVICE"
+    );
+
+    if (dataToCollect === "make") {
+      const totalMakesServiced = serviceInvoices.map(
+        (invoice) => invoice.carInfo.make
+      );
+
+      const makeCounts = this.countOccurrences(totalMakesServiced);
+      const topMakes = this.getTopItems(makeCounts);
+
+      this.topMakesData = {
+        total: serviceInvoices.length,
+        percentSplits: topMakes.percentSplits, // Eg: 30, 20, 10, 40
+        labels: topMakes.labels, // Eg: "Tesla", "Nissan", "Toyota", "Honda"
+      };
+      console.log("this.topMakesDAta", this.topMakesData);
+    } else if (dataToCollect === "service") {
+      const totalServices = serviceInvoices
+        .map((invoice) => invoice.services.map((service) => service.item))
+        .flat();
+
+      const serviceCounts = this.countOccurrences(totalServices);
+      const topServices = this.getTopItems(serviceCounts);
+
+      this.topServicesData = {
+        total: serviceInvoices.length,
+        percentSplits: topServices.percentSplits,
+        labels: topServices.labels,
+      };
+      console.log("Total services data", this.topServicesData);
+    }
+  }
+
+  private countOccurrences(items: string[]): { [key: string]: number } {
+    return items.reduce((acc, item) => {
+      acc[item] = (acc[item] || 0) + 1;
+      return acc;
+    }, {});
+  }
+
+  private getTopItems(counts: { [key: string]: number }): {
+    labels: string[];
+    percentSplits: number[];
+  } {
+    const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+    const sortedItems = Object.keys(counts).sort(
+      (a, b) => counts[b] - counts[a]
+    );
+    const labels = sortedItems;
+    const percentSplits = sortedItems.map((item) =>
+      Math.round((counts[item] / total) * 100)
+    );
+
+    return { labels, percentSplits };
+  }
+
+  updateFilter(
+    value: TTimeFilter,
+    filterToUpdate:
+      | "serviceCustomer"
+      | "saleCustomer"
+      | "topMake"
+      | "topService"
+  ) {
+    switch (filterToUpdate) {
+      case "serviceCustomer":
+        this.serviceCustomerNewVsReturningFilter = value;
+        this.getCustomersNewVsReturningNumbers(value, "SERVICE");
+        break;
+
+      case "saleCustomer":
+        this.salesCustomerNewVsReturningFilter = value;
+        this.getCustomersNewVsReturningNumbers(value, "SALE");
+        break;
+
+      case "topMake":
+        this.topMakeFilter = value;
+        break;
+
+      case "topService":
+        this.topServiceFilter = value;
+        break;
+    }
+  }
+
+  getDisplayValueForFilter(timeFilter: TTimeFilter) {
+    switch (timeFilter) {
+      case "1m":
+        return "30 days";
+      case "3m":
+        return "3 months";
+      case "9m":
+        return "9 months";
+    }
   }
 }

@@ -109,7 +109,7 @@ export const products = [
   {
     id: "7eb7c859-1347-4317-96b6-9476a7e2ba3c",
     category: "b899ec30-b85a-40ab-bb1f-18a596d5c6de",
-    name: "Shock Absorbers",
+    name: "Water wash",
     description:
       "Consequat esse in culpa commodo anim. Et ullamco anim amet est. Sunt dolore ex occaecat officia anim. In sit minim laborum nostrud. Consequat ex do velit voluptate do exercitation est adipisicing quis velit.",
     tags: [
@@ -126,7 +126,7 @@ export const products = [
     stock: 30,
     reserved: 5,
     cost: 450.18,
-    basePrice: 1036,
+    basePrice: 420,
     taxPercent: 30,
     price: 1346.8,
     weight: 0.61,
@@ -137,7 +137,7 @@ export const products = [
   {
     id: "00b0292f-3d50-4669-a0c4-7a9d85efc98d",
     category: "07986d93-d4eb-4de1-9448-2538407f7254",
-    name: "Indicators",
+    name: "Tail lamp",
     description:
       "Nulla duis dolor fugiat culpa proident. Duis anim est excepteur occaecat adipisicing occaecat. Labore id laborum non elit proident est veniam officia eu. Labore aliqua nisi duis sint ex consequat nostrud excepteur duis ex incididunt adipisicing.",
     tags: [
@@ -154,7 +154,7 @@ export const products = [
     stock: 37,
     reserved: 2,
     cost: 723.55,
-    basePrice: 1686,
+    basePrice: 230,
     taxPercent: 30,
     price: 2191.8,
     weight: 0.79,
@@ -165,7 +165,7 @@ export const products = [
   {
     id: "3f34e2fb-95bf-4f61-be28-956d2c7e4eb2",
     category: "b899ec30-b85a-40ab-bb1f-18a596d5c6de",
-    name: "Horn",
+    name: "Mot Reg",
     description:
       "Velit irure deserunt aliqua officia. Eiusmod quis sunt magna laboris aliquip non dolor consequat cupidatat dolore esse. Consectetur mollit officia laborum fugiat nulla duis ad excepteur do aliqua fugiat. Fugiat non laboris exercitation ipsum in incididunt.",
     tags: [
@@ -182,7 +182,7 @@ export const products = [
     stock: 30,
     reserved: 3,
     cost: 390.63,
-    basePrice: 950,
+    basePrice: 1950,
     taxPercent: 10,
     price: 1045,
     weight: 0.76,

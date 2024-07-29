@@ -20,6 +20,7 @@ export interface IInvoice {
     address?: IAddress;
     postCode?: string;
     city?: string;
+    createdDate: number;
   };
 
   carInfo?: {
