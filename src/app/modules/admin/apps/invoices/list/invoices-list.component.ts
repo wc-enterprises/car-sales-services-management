@@ -50,6 +50,9 @@ import { Router } from "@angular/router";
 import { MatMenu, MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { DateRangeDialogComponent } from "./utils/date-range-dialog.component";
 
 @Component({
   selector: "inventory-list",
@@ -104,6 +107,8 @@ import autoTable from "jspdf-autotable";
     AsyncPipe,
     CurrencyPipe,
     MatMenuModule,
+    MatDatepickerModule,
+    MatDialogModule,
   ],
 })
 export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -121,11 +126,13 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   tagsEditMode: boolean = false;
   searchQuery: string;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
+
   selectedTimePeriodFilter: TInvoiceTimeFilter = "";
   selectedInvoiceTypeFilter: TInvoiceTypeFilter = "";
+  selectedDateRange: string = "Select date range";
 
   getDisplayValueOfSelectedFilter(
-    actualValue: string,
+    actualValue: TInvoiceTimeFilter | TInvoiceTypeFilter,
     filterType: "TIME_PERIOD" | "INVOICE_TYPE"
   ) {
     if (filterType === "INVOICE_TYPE") {
@@ -138,19 +145,59 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (filterType === "TIME_PERIOD") {
       if (actualValue === "1m") return "30 days";
       if (actualValue === "3m") return "3 months";
-      if (actualValue === "9m") return "9 months";
+      if (actualValue === "6m") return "6 months";
+      if (actualValue === "cfy") return "Current financial year";
+      if (actualValue === "lfy") return "Last financial year";
+      if (actualValue === "dr") return this.selectedDateRange;
       if (actualValue === "") return "Filter by time";
     }
   }
 
-  setFilterValue(value: string, type: "TIME_PERIOD" | "INVOICE_TYPE") {
-    if (type === "INVOICE_TYPE") this.selectedInvoiceTypeFilter = value as any;
-    if (type === "TIME_PERIOD") this.selectedTimePeriodFilter = value as any;
+  setFilterValue(
+    value: TInvoiceTimeFilter | TInvoiceTypeFilter,
+    type: "TIME_PERIOD" | "INVOICE_TYPE"
+  ) {
+    if (type === "INVOICE_TYPE")
+      this.selectedInvoiceTypeFilter = value as TInvoiceTypeFilter;
+    if (type === "TIME_PERIOD")
+      this.selectedTimePeriodFilter = value as TInvoiceTimeFilter;
 
-    this._invoicesService.getInvoices(
-      this.selectedTimePeriodFilter,
-      this.selectedInvoiceTypeFilter
-    );
+    if (value === "dr") {
+      this.openDateRangeDialog();
+    } else {
+      this._invoicesService.getInvoices(
+        this.selectedTimePeriodFilter,
+        this.selectedInvoiceTypeFilter
+      );
+    }
+  }
+
+  openDateRangeDialog(): void {
+    const dialogRef = this.dialog.open(DateRangeDialogComponent, {
+      width: "380px",
+      data: { startDate: null, endDate: null },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const { startDate, endDate } = result;
+
+        this.selectedDateRange = `${startDate.toFormat(
+          "dd/MM/yy"
+        )} - ${endDate.toFormat("dd/MM/yy")}`;
+
+        this._invoicesService.getInvoices(
+          "dr",
+          this.selectedInvoiceTypeFilter,
+          {
+            dateRange: {
+              startDate: new Date(startDate).getTime(),
+              endDate: new Date(endDate).getTime(),
+            },
+          }
+        );
+      }
+    });
   }
 
   /**
@@ -162,7 +209,8 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     private _formBuilder: UntypedFormBuilder,
     private _invoicesService: InvoicesService,
     private _contactsService: ContactsService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {}
 
   navigateToForm() {

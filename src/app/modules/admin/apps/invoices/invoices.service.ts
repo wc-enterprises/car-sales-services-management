@@ -87,11 +87,17 @@ export class InvoicesService {
   // -----------------------------------------------------------------------------------------------------
 
   /**
-   * Get cars
+   * Get invoices
    */
   getInvoices(
     timeFilter?: TInvoiceTimeFilter,
-    typeFilter?: TInvoiceTypeFilter
+    typeFilter?: TInvoiceTypeFilter,
+    additionalData?: {
+      dateRange?: {
+        startDate: number;
+        endDate: number;
+      };
+    }
   ) {
     // TODO: Include pagination to this function.
 
@@ -99,7 +105,6 @@ export class InvoicesService {
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
 
-      // Frame cars for component
       let invoices: IInvoice[] = [];
       if (!data) return invoices;
 
@@ -109,15 +114,55 @@ export class InvoicesService {
       });
 
       if (timeFilter) {
-        const now = Date.now();
-        let pastDate;
+        let now = Date.now();
+        let pastDate: number;
 
-        if (timeFilter === "1m")
-          pastDate = new Date(now).setMonth(new Date().getMonth() - 1);
-        if (timeFilter === "3m")
-          pastDate = new Date(now).setMonth(new Date().getMonth() - 3);
-        if (timeFilter === "9m")
-          pastDate = new Date(now).setMonth(new Date().getMonth() - 9);
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        const currentDay = currentDate.getDate();
+
+        switch (timeFilter) {
+          case "1m":
+            pastDate = new Date(
+              currentDate.setMonth(currentDate.getMonth() - 1)
+            ).getTime();
+            break;
+          case "3m":
+            pastDate = new Date(
+              currentDate.setMonth(currentDate.getMonth() - 3)
+            ).getTime();
+            break;
+          case "6m":
+            pastDate = new Date(
+              currentDate.setMonth(currentDate.getMonth() - 6)
+            ).getTime();
+            break;
+          case "cfy":
+            if (currentMonth >= 3) {
+              // April is month 3 in JS Date
+              pastDate = new Date(currentYear, 3, 1).getTime(); // April 1st of current year
+            } else {
+              pastDate = new Date(currentYear - 1, 3, 1).getTime(); // April 1st of last year
+            }
+            break;
+          case "lfy":
+            if (currentMonth >= 3) {
+              now = new Date(currentYear, 2, 31, 23, 59, 59).getTime(); // March 31st of this year
+              pastDate = new Date(currentYear - 1, 3, 1).getTime(); // April 1st of last year
+            } else {
+              now = new Date(currentYear - 1, 2, 31, 23, 59, 59).getTime(); // March 31st of last year
+              pastDate = new Date(currentYear - 2, 3, 1).getTime(); // April 1st of two years ago
+            }
+            break;
+          case "dr":
+            now = additionalData?.dateRange?.endDate || now;
+            pastDate = additionalData?.dateRange?.startDate || now;
+            break;
+          default:
+            pastDate = 0; // default to earliest date if no filter is provided
+            break;
+        }
 
         invoices = invoices.filter((invoice) => {
           return invoice.date >= pastDate && invoice.date <= now;
@@ -125,17 +170,13 @@ export class InvoicesService {
       }
 
       if (typeFilter) {
-        if (typeFilter === "ALL") invoices = invoices;
-        if (typeFilter === "SALE")
-          invoices = invoices.filter((invoice) => invoice.type === "SALE");
-        if (typeFilter === "SERVICE")
-          invoices = invoices.filter((invoice) => invoice.type === "SERVICE");
+        if (typeFilter !== "ALL") {
+          invoices = invoices.filter((invoice) => invoice.type === typeFilter);
+        }
       }
 
-      // Write logic to sortInvoices based on created date
-      invoices = invoices.sort((a, b) => {
-        return b.date - a.date;
-      });
+      // Sort invoices based on the created date (latest first)
+      invoices = invoices.sort((a, b) => b.date - a.date);
 
       this._invoices.next(invoices);
     });

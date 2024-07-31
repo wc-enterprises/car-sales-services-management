@@ -60,5 +60,5 @@ export interface IInvoice {
   total: number;
 }
 
-export type TInvoiceTimeFilter = "1m" | "3m" | "9m" | "";
+export type TInvoiceTimeFilter = "1m" | "3m" | "6m" | "cfy" | "lfy" | "dr" | "";
 export type TInvoiceTypeFilter = "ALL" | "SALE" | "SERVICE" | "";

@@ -1,6 +1,7 @@
 import {
   AsyncPipe,
   CurrencyPipe,
+  DatePipe,
   NgClass,
   NgFor,
   NgIf,
@@ -63,6 +64,10 @@ import { Contact } from "../../contacts/contacts.types";
         @screen lg {
           grid-template-columns: 48px 112px 112px auto 96px;
         }
+
+        @screen xl {
+          grid-template-columns: 48px 112px 112px 112px 112px 112px 112px auto 96px;
+        }
       }
     `,
   ],
@@ -91,6 +96,7 @@ import { Contact } from "../../contacts/contacts.types";
     MatRippleModule,
     AsyncPipe,
     CurrencyPipe,
+    DatePipe,
   ],
 })
 export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -443,6 +449,6 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
           ? customer.phoneNumbers[0]
           : null,
     });
-    this.searchQuery = customer.name
+    this.searchQuery = customer.name;
   }
 }

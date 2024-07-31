@@ -97,6 +97,21 @@
               <div class="hidden sm:block" [mat-sort-header]="'model'">
                 Model
               </div>
+              <div class="hidden xl:block" [mat-sort-header]="'color'">
+                Color
+              </div>
+              <div class="hidden xl:block" [mat-sort-header]="'mileage'">
+                Mileage
+              </div>
+              <div class="hidden xl:block" [mat-sort-header]="'transmission'">
+                Transmission
+              </div>
+              <div
+                class="hidden xl:block"
+                [mat-sort-header]="'nextServiceDate'"
+              >
+                Next Service Date
+              </div>
               <div class="hidden sm:block">Details</div>
             </div>
             <!-- Rows -->
@@ -137,6 +152,26 @@
                   <!-- Model -->
                   <div class="hidden sm:block">
                     {{ product.model }}
+                  </div>
+
+                  <!-- Color -->
+                  <div class="hidden xl:block ml-2">
+                    {{ product.color || "-" }}
+                  </div>
+
+                  <!-- Mileage -->
+                  <div class="hidden xl:block ml-2">
+                    {{ product.mileage || "-" }}
+                  </div>
+
+                  <!-- Transmission -->
+                  <div class="hidden xl:block ml-2">
+                    {{ product.transmission || "-" }}
+                  </div>
+
+                  <!-- Next Service Date -->
+                  <div class="hidden xl:block">
+                    {{ product.nextServiceDate | date : "shortDate" }}
                   </div>
 
                   <!-- Details button -->

@@ -52,8 +52,23 @@
             <button mat-menu-item (click)="setFilterValue('3m', 'TIME_PERIOD')">
               3 months
             </button>
-            <button mat-menu-item (click)="setFilterValue('9m', 'TIME_PERIOD')">
-              9 months
+            <button mat-menu-item (click)="setFilterValue('6m', 'TIME_PERIOD')">
+              6 months
+            </button>
+            <button
+              mat-menu-item
+              (click)="setFilterValue('cfy', 'TIME_PERIOD')"
+            >
+              Current Financial Year
+            </button>
+            <button
+              mat-menu-item
+              (click)="setFilterValue('lfy', 'TIME_PERIOD')"
+            >
+              Last Financial Year
+            </button>
+            <button mat-menu-item (click)="setFilterValue('dr', 'TIME_PERIOD')">
+              Select Date Range
             </button>
           </mat-menu>
         </div>
