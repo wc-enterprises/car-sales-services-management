@@ -1,54 +1,24 @@
 export interface InventoryProduct {
-    id: string;
-    category?: string;
-    name: string;
-    description?: string;
-    tags?: string[];
-    sku?: string | null;
-    barcode?: string | null;
-    brand?: string | null;
-    vendor: string | null;
-    stock: number;
-    discount: number;
-    cost: number;
-    basePrice: number;
-    taxPercent: number;
-    price: number;
-    weight: number;
-    thumbnail: string;
-    images: string[];
-    active: boolean;
-}
+  id: string;
+  category?: string;
+  name: string;
+  description?: string;
 
-export interface InventoryPagination {
-    length: number;
-    size: number;
-    page: number;
-    lastPage: number;
-    startIndex: number;
-    endIndex: number;
-}
+  tags?: string[];
+  sku?: string | null;
+  barcode?: string | null;
+  brand?: string | null;
+  vendor: string | null;
+  stock: number;
 
-export interface InventoryCategory {
-    id: string;
-    parentId: string;
-    name: string;
-    slug: string;
-}
+  basePrice: number;
+  taxAmount: number;
+  discount: number;
+  sellingPrice: number;
 
-export interface InventoryBrand {
-    id: string;
-    name: string;
-    slug: string;
-}
-
-export interface InventoryTag {
-    id?: string;
-    title?: string;
-}
-
-export interface InventoryVendor {
-    id: string;
-    name: string;
-    slug: string;
+  weight: number;
+  thumbnail: string;
+  images: string[];
+  active: boolean;
+  date: number;
 }

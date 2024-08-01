@@ -106,7 +106,10 @@ export class InvoicesService {
       const data = snapshot.val();
 
       let invoices: IInvoice[] = [];
-      if (!data) return invoices;
+      if (!data) {
+        this._invoices.next(invoices);
+        return invoices;
+      }
 
       Object.keys(data).forEach((key) => {
         const val = data[key];
@@ -225,7 +228,7 @@ export class InvoicesService {
       }),
       switchMap((invoice) => {
         if (!invoice) {
-          return throwError("Could not found product with id of " + id + "!");
+          return throwError("Could not found invoice with id of " + id + "!");
         }
 
         return of(invoice);

@@ -49,11 +49,11 @@ export interface IInvoice {
     total: string;
   }[];
   tax: {
-    unit: string;
+    unit: "percentage" | "amount";
     value: number;
   };
   discount: {
-    unit: string;
+    unit: "percentage" | "amount";
     value: number;
   };
 

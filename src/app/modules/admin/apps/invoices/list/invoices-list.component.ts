@@ -53,6 +53,7 @@ import autoTable from "jspdf-autotable";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { DateRangeDialogComponent } from "./utils/date-range-dialog.component";
+import { DateTime } from "luxon";
 
 @Component({
   selector: "inventory-list",
@@ -129,6 +130,10 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   selectedTimePeriodFilter: TInvoiceTimeFilter = "";
   selectedInvoiceTypeFilter: TInvoiceTypeFilter = "";
+  dateRange = {
+    startDate: Date.now(),
+    endDate: Date.now(),
+  };
   selectedDateRange: string = "Select date range";
 
   getDisplayValueOfSelectedFilter(
@@ -167,7 +172,10 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this._invoicesService.getInvoices(
         this.selectedTimePeriodFilter,
-        this.selectedInvoiceTypeFilter
+        this.selectedInvoiceTypeFilter,
+        {
+          dateRange: this.dateRange,
+        }
       );
     }
   }
@@ -185,6 +193,10 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.selectedDateRange = `${startDate.toFormat(
           "dd/MM/yy"
         )} - ${endDate.toFormat("dd/MM/yy")}`;
+        this.dateRange = {
+          startDate: new Date(startDate).getTime(),
+          endDate: new Date(endDate).getTime(),
+        };
 
         this._invoicesService.getInvoices(
           "dr",
@@ -425,24 +437,31 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   generateInvoicesReport() {
     const doc = new jsPDF();
+    doc.setFontSize(8);
 
     autoTable(doc, {
       head: [
         [
-          "S.no",
+          "Date",
           "Invoice ID",
+          "Description",
           "Type",
           "Customer Name",
           "Car Name",
-          "Sub Total",
+          "Tax Amount",
+          "Total",
         ],
       ],
       body: this.invoices.map((invoice, index) => [
-        index + 1,
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
         invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
         invoice.type,
         invoice.billTo.name,
         invoice.carInfo?.make ?? "-",
+        invoice.tax.value,
         invoice.total,
       ]),
     });
