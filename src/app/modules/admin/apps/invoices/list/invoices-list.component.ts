@@ -54,6 +54,9 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { DateRangeDialogComponent } from "./utils/date-range-dialog.component";
 import { DateTime } from "luxon";
+import { PDFDocument, rgb } from "pdf-lib";
+import { drawTable, DrawTableOptions } from "pdf-lib-draw-table-beta";
+import { TableOptionsDeepPartial } from "pdf-lib-draw-table-beta/build/types";
 
 @Component({
   selector: "inventory-list",
@@ -128,7 +131,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   searchQuery: string;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-  selectedTimePeriodFilter: TInvoiceTimeFilter = "";
+  selectedTimePeriodFilter: TInvoiceTimeFilter = "1m";
   selectedInvoiceTypeFilter: TInvoiceTypeFilter = "";
   dateRange = {
     startDate: Date.now(),
@@ -435,24 +438,54 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.searchQuery = customer.name;
   }
 
-  generateInvoicesReport() {
-    const doc = new jsPDF();
-    doc.setFontSize(8);
+  async generateInvoicesReport() {
+    // Load the existing PDF template
+    const templateUrl = "/assets/grace-templates/bang.pdf";
+    const existingPdfBytes = await fetch(templateUrl).then((res) =>
+      res.arrayBuffer()
+    );
 
-    autoTable(doc, {
-      head: [
-        [
-          "Date",
-          "Invoice ID",
-          "Description",
-          "Type",
-          "Customer Name",
-          "Car Name",
-          "Tax Amount",
-          "Total",
-        ],
+    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+
+    const pdfForm = pdfDoc.getForm();
+
+    pdfForm
+      .getTextField("dateRange")
+      .setText("December 1, 2024 - December 24,2024");
+
+    pdfForm
+      .getTextField("reportGeneratedOn")
+      .setText(DateTime.local().toFormat("MMMM d, yyyy - h:mm a"));
+
+    let totalTax = 0;
+    let totalAmount = 0;
+    this.invoices.forEach((invoice) => {
+      totalTax += invoice.tax.value;
+      totalAmount += invoice.total;
+    });
+
+    pdfForm.getTextField("totalTax").setText(`£ ${totalTax.toFixed(2)}`);
+    pdfForm.getTextField("total").setText(`£ ${totalAmount.toFixed(2)}`);
+    pdfForm.flatten();
+
+    const templatePage = pdfDoc.getPage(0);
+
+    // Define the table data
+    const tableHeaders = [
+      [
+        "Date",
+        "Invoice ID",
+        "Items",
+        "Type",
+        "Customer Name",
+        "Car Name",
+        "Tax Amount",
+        "Total",
       ],
-      body: this.invoices.map((invoice, index) => [
+    ];
+
+    let tableContents = [
+      ...this.invoices.map((invoice, index) => [
         DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
           "dd/MM/yy"
         ),
@@ -461,10 +494,265 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
         invoice.type,
         invoice.billTo.name,
         invoice.carInfo?.make ?? "-",
-        invoice.tax.value,
-        invoice.total,
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
       ]),
-    });
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+      ...this.invoices.map((invoice, index) => [
+        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
+          "dd/MM/yy"
+        ),
+        invoice.invoiceNumber,
+        invoice.services.map((item) => item.item).join(", "),
+        invoice.type,
+        invoice.billTo.name,
+        invoice.carInfo?.make ?? "-",
+        invoice.tax.value.toString(),
+        invoice.total.toString(),
+      ]),
+    ];
+
+    // Set the starting X and Y coordinates for the table
+    const startX = 50;
+    const startY = 646;
+
+    // Set the table options
+    const options: TableOptionsDeepPartial<DrawTableOptions> | undefined = {
+      header: {
+        hasHeaderRow: true,
+        backgroundColor: rgb(
+          0.11764705882352941,
+          0.32941176470588235,
+          0.5098039215686274
+        ),
+        textSize: 10,
+        textColor: rgb(1, 1, 1),
+      },
+      textSize: 8,
+    };
+
+    const finalDoc = await PDFDocument.create();
+    let pageNumber = 1;
+
+    // Outer loop is to handle the pages. Add new pages to the document when the current page is full.
+    while (tableContents.length > 0) {
+      /**
+       * Load pdf pages here.
+       */
+      // Get the pages from the existing PDF
+      const [templatePage] = await finalDoc.copyPages(
+        pdfDoc,
+        pdfDoc.getPageIndices()
+      );
+
+      // Add the pages from the existing PDF to the new PDF
+
+      const currentPage = finalDoc.addPage(templatePage);
+      currentPage.drawText(`Page ${pageNumber}`, {
+        x: currentPage.getWidth() / 2,
+        y: 60,
+        size: 8,
+      });
+      pageNumber++;
+
+      // Inner loop creates the table by adding one invoice after the other until it throw the error : "Table height exceeds the available space on the page."
+      const invoicesForPage = [];
+      for (let i = 0; i < tableContents.length; i++) {
+        invoicesForPage.push(tableContents[i]);
+        try {
+          /**
+           * Keep on adding new items to the page until it throw.
+           */
+
+          // Draw the table
+          const tableDimensions = await drawTable(
+            finalDoc,
+            currentPage,
+            [...tableHeaders, ...invoicesForPage],
+            startX,
+            startY,
+            options
+          );
+
+          if (i === tableContents.length - 1) {
+            tableContents = [];
+          }
+
+          console.log("Table dimensions:", tableDimensions);
+        } catch (error) {
+          /**
+           * When drawTable throws with table height exceeded error, create a new page and add it to doc.
+           */
+          console.error("Error drawing table:", error);
+          if (
+            error.message ===
+            "Table height exceeds the available space on the page."
+          ) {
+            console.log("Page full. Proceed to add new page to document");
+            tableContents = tableContents.slice(invoicesForPage.length);
+            break;
+          }
+        }
+      }
+    }
+
+    // Serialize the PDF to bytes and write to a file
+    const pdfBytes = await finalDoc.save();
 
     const date = new Date();
     const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -475,7 +763,11 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
       .toString()
       .padStart(2, "0")}-${date.getSeconds().toString().padStart(2, "0")}`;
 
-    // Save the PDF with the formatted date and time
-    doc.save(`Invoice_Report_${formattedDate}_${formattedTime}.pdf`);
+    // Trigger download
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Invoice_Report_${formattedDate}_${formattedTime}.pdf`;
+    link.click();
   }
 }
