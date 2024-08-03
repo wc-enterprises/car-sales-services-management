@@ -3,7 +3,7 @@
     "rules": "database.rules.json"
   },
   "hosting": {
-    "public": "dist/invoice-erp",
+    "public": "dist/car-sales-services-management",
     "ignore": [
       "firebase.json",
       "**/.*",
