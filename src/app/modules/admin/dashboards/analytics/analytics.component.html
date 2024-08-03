@@ -267,8 +267,8 @@
 
     <div
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full mt-8"
+      *ngIf="invoicesData"
     >
-      <!-- Total Invoices -->
       <div
         class="sm:col-span-2 lg:col-span-3 flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden"
       >
@@ -280,18 +280,12 @@
             <button class="h-6 min-h-6 px-2 rounded-full bg-hover" mat-button>
               <span class="font-medium text-sm text-secondary">30 days</span>
             </button>
-            <!-- <mat-menu #conversionMenu="matMenu">
-              <button mat-menu-item>30 days</button>
-              <button mat-menu-item>3 months</button>
-              <button mat-menu-item>9 months</button>
-            </mat-menu> -->
           </div>
         </div>
 
         <div
           class="flex flex-col gap-8 larger-screens:flex-row lg:items-center mx-6 mt-3 mb-8"
         >
-          <!-- Services Invoices Number -->
           <div>
             <div class="text-7xl font-bold tracking-tighter leading-tight">
               {{ totalServicesInvoiceForMonth | number : "1.0-0" }}
@@ -303,7 +297,6 @@
             </div>
           </div>
 
-          <!-- Sales Invoices Number -->
           <div class="">
             <div class="text-7xl font-bold tracking-tighter leading-tight">
               {{ totalSalesInvoiceForMonth | number : "1.0-0" }}
@@ -330,7 +323,6 @@
         </div>
       </div>
 
-      <!-- Customers overview -->
       <div
         class="sm:col-span-2 lg:col-span-3 dark flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden"
       >
@@ -401,6 +393,7 @@
       <!-- Services Customers New vs. Returning -->
       <div
         class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden p-6"
+        *ngIf="invoicesData"
       >
         <div class="flex items-start justify-between">
           <div>
@@ -492,6 +485,7 @@
       <!-- Top Makes -->
       <div
         class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden p-6"
+        *ngIf="invoicesData"
       >
         <div class="flex items-start justify-between">
           <div class="text-lg font-medium tracking-tight leading-6 truncate">
@@ -559,6 +553,7 @@
       <!-- Top services -->
       <div
         class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden p-6"
+        *ngIf="invoicesData"
       >
         <div class="flex items-start justify-between">
           <div class="text-lg font-medium tracking-tight leading-6 truncate">
@@ -632,6 +627,7 @@
       <!-- Sales Customers New vs. Returning -->
       <div
         class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden p-6"
+        *ngIf="invoicesData"
       >
         <div class="flex items-start justify-between">
           <div>

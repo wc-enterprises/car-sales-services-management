@@ -1,4 +1,10 @@
-import { CurrencyPipe, DatePipe, DecimalPipe, NgFor } from "@angular/common";
+import {
+  CurrencyPipe,
+  DatePipe,
+  DecimalPipe,
+  NgFor,
+  NgIf,
+} from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -52,6 +58,7 @@ export interface IChartData {
     MatProgressBarModule,
     CurrencyPipe,
     DatePipe,
+    NgIf,
   ],
 })
 export class AnalyticsComponent implements OnInit, OnDestroy {
@@ -933,6 +940,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     const pastDate = new Date(currentTime).setMonth(
       new Date(currentTime).getMonth() - months
     );
+    if (!this.invoicesData?.length) return [];
     return this.invoicesData.filter((invoice) => {
       const invoiceDate = invoice.date;
       return invoiceDate >= pastDate && invoiceDate <= currentTime;
