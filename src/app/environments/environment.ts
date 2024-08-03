@@ -1,12 +1,12 @@
 export const environment = {
   firebaseConfig: {
-    apiKey: "AIzaSyCX0HvwgAmUCSHkxWnDVbrAoQPp44tlsrE",
-    authDomain: "grace-autoservice.firebaseapp.com",
-    projectId: "grace-autoservice",
-    storageBucket: "grace-autoservice.appspot.com",
-    messagingSenderId: "813418870804",
-    appId: "1:813418870804:web:b566df7d2a9d72cdd08f01",
-    measurementId: "G-BXVYW61865",
-    databaseURL: "https://grace-autoservice-default-rtdb.asia-southeast1.firebasedatabase.app"
+    apiKey: "AIzaSyAmGvCTNOF0TTmZracSSBmWN-ZvG7bqJt8",
+    authDomain: "car-sales-service-management.firebaseapp.com",
+    databaseURL:
+      "https://car-sales-service-management-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "car-sales-service-management",
+    storageBucket: "car-sales-service-management.appspot.com",
+    messagingSenderId: "268044674385",
+    appId: "1:268044674385:web:a6b5930ea178eed2b21f70",
   },
 };
