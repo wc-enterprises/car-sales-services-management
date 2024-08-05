@@ -8,6 +8,7 @@ import {
   onValue,
   ref,
   set,
+  update,
 } from "@angular/fire/database";
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
 import {
@@ -26,6 +27,7 @@ import {
   tap,
   throwError,
 } from "rxjs";
+import { countries } from "../utils/util";
 
 @Injectable({ providedIn: "root" })
 export class ContactsService {
@@ -93,6 +95,7 @@ export class ContactsService {
 
   private frameContactsForComponent(dbContacts) {
     const contacts = [];
+    if (!dbContacts) return contacts;
     Object.keys(dbContacts).forEach((key) => {
       const val = dbContacts[key];
       contacts.push(val);
@@ -274,15 +277,38 @@ export class ContactsService {
     const unsubsriber = onValue(starCountRef, (snapshot) => {
       const data = snapshot.val();
       const countries = [];
-      Object.keys(data).forEach((key) => {
-        const val = data[key];
-        countries.push(val);
-      });
+
+      if (data)
+        Object.keys(data).forEach((key) => {
+          const val = data[key];
+          countries.push(val);
+        });
 
       this._countries.next(countries);
     });
 
     this._unsubscribers.push(unsubsriber);
+  }
+
+  /**
+   * Add countries if not already present
+   */
+  async addCountriesIfNotAlreadyPresent() {
+    const countriesRef = ref(this.db, "countries");
+
+    // Fetch the data once
+    const snapshot = await get(countriesRef);
+    const data = snapshot.val();
+
+    // If no data, add countries to db.
+    if (!data) {
+      const updates = {};
+      countries.forEach((item) => {
+        updates[`countries/${item.id}`] = item;
+      });
+
+      await update(ref(this.db), updates);
+    }
   }
 
   /**

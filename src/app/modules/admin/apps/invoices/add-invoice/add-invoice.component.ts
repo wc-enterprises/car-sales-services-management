@@ -162,7 +162,9 @@ export class InvoiceFormComponent {
       }),
       total: [""],
     });
+
     this.invoiceService.countInvoices().then((count) => {
+      console.log("count", count);
       this.form.get("invoiceNumber").setValue("#0000" + (count + 1));
     });
 

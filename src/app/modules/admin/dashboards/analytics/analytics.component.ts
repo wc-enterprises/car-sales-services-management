@@ -31,6 +31,8 @@ import { InvoicesService } from "../../apps/invoices/invoices.service";
 import { IInvoice, IInvoiceType } from "../../apps/invoices/invoices.types";
 import { DailySalesAnalytics, TTimeFilter } from "./analytics.type";
 import { DateTime } from "luxon";
+import { ContactsService } from "../../apps/contacts/contacts.service";
+import { CarsService } from "../../apps/cars/cars.service";
 
 export interface IChartData {
   total: number;
@@ -132,8 +134,12 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     private _analyticsService: AnalyticsService,
     private _router: Router,
     private _financeService: FinanceService,
-    private _invoiceService: InvoicesService
-  ) {}
+    private _invoiceService: InvoicesService,
+    private _contactService: ContactsService,
+    private _carsService: CarsService
+  ) {
+    this.checkIfDefaultDataPresent();
+  }
 
   // -----------------------------------------------------------------------------------------------------
   // @ Lifecycle hooks
@@ -862,10 +868,12 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     const endOfMonth = now.endOf("month");
 
     // Filter invoices from the current month
-    const invoicesThisMonth = this.invoicesData.filter((invoice) => {
-      const invoiceDate = DateTime.fromMillis(invoice.date);
-      return invoiceDate >= startOfMonth && invoiceDate <= endOfMonth;
-    });
+    const invoicesThisMonth = this.invoicesData
+      ? this.invoicesData.filter((invoice) => {
+          const invoiceDate = DateTime.fromMillis(invoice.date);
+          return invoiceDate >= startOfMonth && invoiceDate <= endOfMonth;
+        })
+      : [];
 
     // Calculate total sales for each day of the current month
     const salesData: { [key: string]: number } = {};
@@ -1127,5 +1135,11 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       case "9m":
         return "9 months";
     }
+  }
+
+  checkIfDefaultDataPresent() {
+    /** Check if default countries list present in db, else populate */
+    this._contactService.addCountriesIfNotAlreadyPresent();
+    this._carsService.addMakesIfNotPresent();
   }
 }

@@ -17,8 +17,10 @@ import {
   ref,
   set,
   Unsubscribe,
+  update,
 } from "@angular/fire/database";
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
+import { Makes } from "../utils/util";
 
 @Injectable({ providedIn: "root" })
 export class CarsService {
@@ -133,6 +135,8 @@ export class CarsService {
     return this.cars$.pipe(
       take(1),
       switchMap((cars) => {
+        if (!cars) cars = [];
+
         const newCar: ICar = {
           id: FuseMockApiUtils.guid(),
           customerId: "",
@@ -229,4 +233,19 @@ export class CarsService {
         console.error(error);
       });
   }
+
+  addMakesIfNotPresent = async () => {
+    const makesRef = ref(this.db, "Makes");
+    const snapshot = await get(makesRef);
+    const data = snapshot.val();
+
+    if (!data) {
+      const updates = {};
+      Object.keys(Makes).forEach((item) => {
+        updates[`Makes/${item}`] = Makes[item];
+      });
+
+      await update(ref(this.db), updates);
+    }
+  };
 }

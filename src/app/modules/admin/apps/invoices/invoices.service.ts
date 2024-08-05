@@ -144,20 +144,24 @@ export class InvoicesService {
   }
 
   async countInvoices(): Promise<number> {
-    const invoicesRef = ref(this.db, "invoices");
-    const snapshot = await get(invoicesRef);
-    const data = snapshot.val();
+    try {
+      const invoicesRef = await ref(this.db, "invoices");
+      const snapshot = await get(invoicesRef);
+      const data = snapshot.val();
 
-    let count = 0;
-    if (data) {
-      for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-          count++;
+      let count = 0;
+      if (data) {
+        for (const key in data) {
+          if (data.hasOwnProperty(key)) {
+            count++;
+          }
         }
       }
-    }
 
-    return count;
+      return count;
+    } catch (err) {
+      console.log(err, "errored in count invoices");
+    }
   }
 
   async getInvoiceByIdOnce(id: string) {
@@ -259,6 +263,8 @@ export class InvoicesService {
     // Fetch the data once
     const snapshot = await get(contactsRef);
     const data = snapshot.val();
+
+    if (!data) return [];
 
     // Clear the existing nameContact array
     let contact = [];
