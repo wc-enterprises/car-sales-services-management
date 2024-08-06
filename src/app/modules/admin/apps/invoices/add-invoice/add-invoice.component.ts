@@ -141,7 +141,7 @@ export class InvoiceFormComponent {
         addressLine1: ["", Validators.required],
         addressLine2: [""],
         postalCode: ["", Validators.required],
-        country: ["", Validators.required],
+        country: ["United Kingdom", Validators.required],
         city: ["", Validators.required],
         createdDate: [""],
       }),

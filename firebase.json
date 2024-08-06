@@ -4,11 +4,7 @@
   },
   "hosting": {
     "public": "dist/car-sales-services-management",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",

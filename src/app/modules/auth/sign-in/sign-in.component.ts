@@ -110,25 +110,25 @@ export class AuthSignInComponent implements OnInit {
 
       // Navigate to the redirect url
       this._router.navigateByUrl(redirectURL);
+    } else {
+      console.log(
+        "Errored received at component, Alert the error message and reset the form here",
+        signInRes
+      );
+      // Re-enable the form
+      this.signInForm.enable();
+
+      // Reset the form
+      this.signInNgForm.resetForm();
+
+      // Set the alert
+      this.alert = {
+        type: "error",
+        message: "Wrong email or password",
+      };
+
+      // Show the alert
+      this.showAlert = true;
     }
-
-    console.log(
-      "Errored received at component, Alert the error message and reset the form here",
-      signInRes
-    );
-    // Re-enable the form
-    this.signInForm.enable();
-
-    // Reset the form
-    this.signInNgForm.resetForm();
-
-    // Set the alert
-    this.alert = {
-      type: "error",
-      message: "Wrong email or password",
-    };
-
-    // Show the alert
-    this.showAlert = true;
   }
 }

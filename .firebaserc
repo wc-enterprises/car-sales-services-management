@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "car-sales-service-management"
+    "default": "car-sales-service-manage-8e836",
+    "carSalesAndServiceManagement": "car-sales-service-management",
+    "graceAutoService": "grace-auto-service"
   }
 }
