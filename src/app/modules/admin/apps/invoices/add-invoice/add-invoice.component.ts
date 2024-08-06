@@ -2,11 +2,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
-  HostListener,
-  QueryList,
-  ViewChild,
-  ViewChildren,
   ViewEncapsulation,
 } from "@angular/core";
 import { TextFieldModule } from "@angular/cdk/text-field";
@@ -29,11 +24,10 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/admin/apps/invoices/invoices.service";
 import { map, startWith } from "rxjs";
-import { IInvoiceType } from "../invoices.types";
 import { Contact } from "../../contacts/contacts.types";
 import { Invoice } from "app/modules/admin/pages/invoice/invoice.type";
 import { ContactsService } from "../../contacts/contacts.service";

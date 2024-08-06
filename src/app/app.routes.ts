@@ -46,18 +46,10 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
           import("app/modules/auth/forgot-password/forgot-password.routes"),
       },
-      {
-        path: "reset-password",
-        loadChildren: () =>
-          import("app/modules/auth/reset-password/reset-password.routes"),
-      },
+
       {
         path: "sign-in",
         loadChildren: () => import("app/modules/auth/sign-in/sign-in.routes"),
-      },
-      {
-        path: "sign-up",
-        loadChildren: () => import("app/modules/auth/sign-up/sign-up.routes"),
       },
     ],
   },
@@ -75,11 +67,6 @@ export const appRoutes: Route[] = [
       {
         path: "sign-out",
         loadChildren: () => import("app/modules/auth/sign-out/sign-out.routes"),
-      },
-      {
-        path: "unlock-session",
-        loadChildren: () =>
-          import("app/modules/auth/unlock-session/unlock-session.routes"),
       },
     ],
   },
@@ -122,7 +109,7 @@ export const appRoutes: Route[] = [
             path: "analytics",
             loadChildren: () =>
               import("app/modules/admin/dashboards/finance/finance.routes"),
-          }
+          },
         ],
       },
       {
