@@ -57,6 +57,7 @@ import { DateTime } from "luxon";
 import { PDFDocument, rgb } from "pdf-lib";
 import { drawTable, DrawTableOptions } from "pdf-lib-draw-table-beta";
 import { TableOptionsDeepPartial } from "pdf-lib-draw-table-beta/build/types";
+import { getNowAndPastDateBasedOnFilterVal } from "./utils/util";
 
 @Component({
   selector: "inventory-list",
@@ -449,9 +450,14 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const pdfForm = pdfDoc.getForm();
 
-    pdfForm
-      .getTextField("dateRange")
-      .setText("December 1, 2024 - December 24,2024");
+    const { now, pastDate } = getNowAndPastDateBasedOnFilterVal(
+      this.selectedTimePeriodFilter,
+      { dateRange: this.dateRange }
+    );
+    const endDate = DateTime.fromMillis(now).toFormat("LLLL dd, yyyy");
+    const startDate = DateTime.fromMillis(pastDate).toFormat("LLLL dd, yyyy");
+
+    pdfForm.getTextField("dateRange").setText(`${startDate} - ${endDate}`);
 
     pdfForm
       .getTextField("reportGeneratedOn")
@@ -485,174 +491,6 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     ];
 
     let tableContents = [
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
-      ...this.invoices.map((invoice, index) => [
-        DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
-          "dd/MM/yy"
-        ),
-        invoice.invoiceNumber,
-        invoice.services.map((item) => item.item).join(", "),
-        invoice.type,
-        invoice.billTo.name,
-        invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
-        invoice.total.toString(),
-      ]),
       ...this.invoices.map((invoice, index) => [
         DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
           "dd/MM/yy"
