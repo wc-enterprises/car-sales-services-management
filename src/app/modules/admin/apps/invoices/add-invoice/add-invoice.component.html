@@ -182,6 +182,7 @@
             </mat-form-field>
           </div>
         </div>
+
         <ul
           #dropdowned
           *ngIf="isDropdownOpened && filteredNames.length"
@@ -196,6 +197,7 @@
             {{ contactList }}
           </li>
         </ul>
+
         <ul
           *ngIf="isDropdownOpenedNumber && filteredPhoneNumber.length"
           class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-90 mobile-small:mt-[540px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
@@ -418,12 +420,20 @@
 
           <!-- Item Row -->
           <div
-            *ngFor="let service of services.controls; let i = index"
+            *ngFor="
+              let service of services.controls;
+              let i = index;
+              let first = first;
+              let last = last
+            "
             [formGroupName]="i"
             class="col-span-12 grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-4"
           >
             <mat-form-field
-              class="col-span-5 ss:col-span-12"
+              [ngClass]="{
+                'col-span-5 ss:col-span-12': services.length !== 1,
+                'col-span-6 ss:col-span-12': services.length === 1
+              }"
               [subscriptSizing]="'dynamic'"
             >
               <input
@@ -431,7 +441,7 @@
                 formControlName="item"
                 placeholder="Enter item"
                 class="w-full p-2 border rounded"
-                (input)="onInputChange($event.target.value, i)"
+                (input)="filterItems($event.target.value, i)"
                 (focus)="openDropdown(i)"
                 (blur)="closeDropdown(i)"
               />
@@ -441,16 +451,16 @@
 
             <ul
               #dropdown
-              *ngIf="filteredSuggestions[i]?.length > 0 && isDropdownOpen[i]"
+              *ngIf="filteredServices.length > 0 && isDropdownOpen[i]"
               class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 mt-12 z-10 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
               (mousedown)="preventClose($event)"
             >
               <li
-                *ngFor="let suggestion of filteredSuggestions[i]"
-                (click)="selectSuggestion(suggestion, i)"
+                *ngFor="let item of filteredServices"
+                (click)="selectSuggestion(item, i)"
                 class="p-2 cursor-pointer hover:bg-gray-200"
               >
-                {{ suggestion }}
+                {{ item.name }}
               </li>
             </ul>
 
@@ -491,31 +501,42 @@
                 disabled
               />
             </mat-form-field>
-            <div class="col-span-1 self-center">
-              <button
-                (click)="removeService(i)"
-                class="p-1 w-8 ss:w-6 rounded-md bg-red-600 self-center"
+            <!-- Remove button -->
+            <ng-container *ngIf="!(first && last)">
+              <div
+                class="flex items-center w-10 pl-2"
+                [ngClass]="{ 'mt-6': first }"
               >
-                <img
-                  class="w-6 h-6 ss:w-5 ss:h-5"
-                  src="/assets/images/logo/delete.svg"
-                />
-              </button>
-            </div>
+                <button
+                  class="w-8 h-8 min-h-8"
+                  mat-icon-button
+                  (click)="removeService(i)"
+                  matTooltip="Remove"
+                >
+                  <mat-icon
+                    class="icon-size-5"
+                    [svgIcon]="'heroicons_solid:trash'"
+                  ></mat-icon>
+                </button>
+              </div>
+            </ng-container>
           </div>
 
           <!-- Divider -->
           <div class="col-span-12 my-4 border-b"></div>
 
           <!-- Add Item Button -->
-          <div class="col-span-12 flex justify-end items-end mt-5">
-            <button
-              (click)="addService()"
-              type="button"
-              class="p-1 w-8 h-8 flex items-center justify-center rounded-md bg-blue-600"
+          <div
+            class="group w-50 inline-flex items-center mt-2 -ml-4 py-2 px-4 rounded cursor-pointer"
+            (click)="addService()"
+          >
+            <mat-icon
+              class="icon-size-5"
+              [svgIcon]="'heroicons_solid:plus-circle'"
+            ></mat-icon>
+            <span class="ml-2 font-medium text-secondary group-hover:underline"
+              >Add an item</span
             >
-              <img class="w-5 h-5" src="/assets/images/logo/cross.svg" />
-            </button>
           </div>
 
           <!-- Spacer -->

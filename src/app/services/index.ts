@@ -1,4 +1,3 @@
-import { ECommerceInventoryMockApi } from "app/services/apps/ecommerce/inventory/api";
 import { AuthMockApi } from "app/services/common/auth/api";
 import { MessagesMockApi } from "app/services/common/messages/api";
 import { NavigationMockApi } from "app/services/common/navigation/api";
@@ -12,7 +11,6 @@ import { ProjectMockApi } from "app/services/dashboards/project/api";
 export const mockApiServices = [
   AnalyticsMockApi,
   AuthMockApi,
-  ECommerceInventoryMockApi,
   FinanceMockApi,
   MessagesMockApi,
   NavigationMockApi,

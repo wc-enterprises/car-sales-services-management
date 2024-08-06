@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -16,6 +17,7 @@ import {
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  UntypedFormArray,
   Validators,
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -31,13 +33,14 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/admin/apps/invoices/invoices.service";
 import { map, startWith } from "rxjs";
-import { products } from "app/services/apps/ecommerce/inventory/data";
 import { IInvoiceType } from "../invoices.types";
 import { Contact } from "../../contacts/contacts.types";
 import { Invoice } from "app/modules/admin/pages/invoice/invoice.type";
 import { ContactsService } from "../../contacts/contacts.service";
 import { ICar } from "../../cars/cars.types";
 import { CarsService } from "../../cars/cars.service";
+import { InventoryService } from "../../spares-and-services/inventory.service";
+import { InventoryProduct } from "../../spares-and-services/inventory.types";
 
 @Component({
   selector: "invoice",
@@ -72,14 +75,12 @@ export class InvoiceFormComponent {
   invoiceData: any;
   filteredSuggestions: { [key: number]: string[] } = {};
   isDropdownOpen: { [key: number]: boolean } = {};
-  @ViewChild("dropdown", { static: false }) dropdown: ElementRef;
-  @ViewChildren("dropdown") dropdowns: QueryList<ElementRef>;
+
   contactList: string[] = [];
   numberList: string[] = [];
   filteredNames: string[] = [];
   selectedName: string = "";
   isDropdownOpened: boolean = false;
-  serviceNames: string[] = products.map((product) => product.name);
   // carRegNo
   regNoList: string[] = [];
   filteredRegNo: string[] = [];
@@ -116,22 +117,20 @@ export class InvoiceFormComponent {
     },
   ];
 
-  Nameandprice = products.reduce((acc, product) => {
-    acc[product.name] = [product.basePrice, product.taxPercent];
-    return acc;
-  }, {});
-
-  filteredServiceNames: string[];
-
   eRef: any;
   invoiceForm: any;
+
+  /** Service names */
+  filteredServices: InventoryProduct[] = [];
 
   constructor(
     private fb: FormBuilder,
     private invoiceService: InvoicesService,
     private contactService: ContactsService,
     private carService: CarsService,
-    private router: Router
+    private router: Router,
+    private _inventoryService: InventoryService,
+    private _changeDetectorRef: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       invoiceNumber: [""],
@@ -171,6 +170,60 @@ export class InvoiceFormComponent {
     this.form.get("date").patchValue(new Date());
   }
 
+  createServiceGroup(suggestion: string = ""): FormGroup {
+    const price = "";
+    const quantity = "";
+    return this.fb.group({
+      item: [suggestion, Validators.required],
+      price: [price],
+      quantity: [quantity],
+      total: [""],
+    });
+  }
+
+  addService(suggestion: string = ""): void {
+    this.services.push(this.createServiceGroup(suggestion));
+    this.calculateSubtotal();
+  }
+
+  filterItems(value: string, index: number): void {
+    this._inventoryService.products$.subscribe((products) => {
+      this.filteredServices = products.filter((item) =>
+        item.name.toLowerCase().includes(value.toLowerCase())
+      );
+    });
+  }
+
+  selectSuggestion(item: InventoryProduct, index: number): void {
+    const serviceGroup = this.services.at(index) as FormGroup;
+    serviceGroup.get("item").setValue(item.name);
+    const price = item.sellingPrice ?? "";
+    const tax = item.taxAmount ?? "";
+    serviceGroup.get("price").setValue(price);
+    serviceGroup.get("quantity").setValue("1");
+    serviceGroup.get("total").setValue("");
+    const existingTaxValue = this.form.get("tax.value").value;
+    this.form.get("tax.value").setValue(existingTaxValue + tax);
+
+    this.isDropdownOpen[index] = false;
+  }
+
+  /**
+   * Remove item
+   *
+   * @param index
+   */
+  removeService(index: number): void {
+    // Get form array for phone numbers
+    const servicesFormArray = this.form.get("services") as UntypedFormArray;
+
+    // Remove the phone number field
+    servicesFormArray.removeAt(index);
+
+    // Mark for check
+    this._changeDetectorRef.markForCheck();
+  }
+
   async ngOnInit(): Promise<void> {
     console.log(this.invoiceService.mapName(""));
     await this.getMakeForMaping();
@@ -186,11 +239,7 @@ export class InvoiceFormComponent {
     this.calculateSubtotal();
     this.setupTotalCalculation();
 
-    this.filteredServiceNames = this.serviceNames;
-    // Subscribe to the input changes
-    this.form.get("item")?.valueChanges.subscribe((value) => {
-      this.filterServiceNames(value);
-    });
+    this.filterItems("", 0);
 
     this.form.valueChanges.subscribe((data) => {
       console.log("Change in form data: ", data);
@@ -243,9 +292,11 @@ export class InvoiceFormComponent {
   }
   // CustomerNames
   filterNames() {
+    console.log("received request to filter names", this.selectedName);
     this.filteredNames = this.contactList.filter((name) =>
       name.toLowerCase().includes(this.selectedName.toLowerCase())
     );
+    console.log("filtered names:", this.filteredNames, this.isDropdownOpened);
   }
 
   selectName(name: string) {
@@ -295,18 +346,6 @@ export class InvoiceFormComponent {
     this.selectedPhoneNumber = phoneNumber;
     this.filteredPhoneNumber = [];
     this.isDropdownOpenedNumber = false;
-  }
-
-  // serivesNames
-  onInputChange(value: string, index: number): void {
-    this.filteredSuggestions[index] = this.filterServiceNames(value);
-    this.isDropdownOpen[index] = this.filteredSuggestions[index].length > 0;
-  }
-
-  filterServiceNames(value: string): string[] {
-    return this.serviceNames.filter((name) =>
-      name.toLowerCase().includes(value.toLowerCase())
-    );
   }
 
   // carRegNo
@@ -379,19 +418,6 @@ export class InvoiceFormComponent {
     this.selectedModelName = modelName;
   }
 
-  selectSuggestion(suggestion: string, index: number): void {
-    const serviceGroup = this.services.at(index) as FormGroup;
-    serviceGroup.get("item").setValue(suggestion);
-    const price = this.Nameandprice[suggestion][0] || "";
-    const tax = this.Nameandprice[suggestion][1] || "";
-    serviceGroup.get("price").setValue(price);
-    serviceGroup.get("quantity").setValue("1");
-    serviceGroup.get("total").setValue("");
-    const existingTaxValue = this.form.get("tax.value").value;
-    this.form.get("tax.value").setValue(existingTaxValue + tax);
-
-    this.isDropdownOpen[index] = false;
-  }
   openDropdown(index: number): void {
     this.isDropdownOpen[index] = true;
   }
@@ -400,54 +426,12 @@ export class InvoiceFormComponent {
     this.isDropdownOpen[index] = false;
   }
 
-  @HostListener("document:click", ["$event"])
-  clickout(event: Event): void {
-    setTimeout(() => {
-      this.dropdowns.forEach((dropdown, index) => {
-        if (!this.eRef.nativeElement.contains(event.target)) {
-          this.closeDropdown(index);
-        }
-      });
-    }, 100);
-  }
-
   preventClose(event: Event): void {
     event.preventDefault();
   }
 
   get services(): FormArray {
     return this.form.get("services") as FormArray;
-  }
-
-  createServiceGroup(suggestion: string = ""): FormGroup {
-    const price = this.Nameandprice[suggestion] || "";
-    const quantity = this.Nameandprice[suggestion] || "";
-    return this.fb.group({
-      item: [suggestion, Validators.required],
-      price: [price],
-      quantity: [quantity],
-      total: [""],
-    });
-  }
-
-  addService(suggestion: string = ""): void {
-    this.services.push(this.createServiceGroup(suggestion));
-    this.calculateSubtotal();
-  }
-
-  removeService(index: number): void {
-    if (this.services.length > 1) {
-      var a = 0;
-      const removedService = this.services.at(index).value;
-      const removedTax = this.Nameandprice[removedService.item][1] || 0;
-      const currentTax = this.form.get("tax.value").value;
-      this.form.get("tax.value").setValue(currentTax - removedTax);
-
-      this.services.removeAt(index);
-    } else {
-      alert("At least one service is required.");
-    }
-    this.calculateSubtotal();
   }
 
   calculateSubtotal(): void {
