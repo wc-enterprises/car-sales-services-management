@@ -7,17 +7,36 @@ import {
   sendPasswordResetEmail,
   signOut,
   User,
+  authState,
 } from "@angular/fire/auth";
-import { BehaviorSubject, of, throwError } from "rxjs";
+import { BehaviorSubject, map, Observable, of, throwError } from "rxjs";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
+  private _authChecked: BehaviorSubject<boolean> = new BehaviorSubject(false);
   public _user: BehaviorSubject<User> = new BehaviorSubject(null);
 
   constructor(private auth: Auth) {
     onAuthStateChanged(this.auth, (user) => {
       this._user.next(user);
+      this._authChecked.next(true); // Auth state has been checked
     });
+  }
+
+  get user$(): Observable<User> {
+    return this._user.asObservable();
+  }
+
+  get authChecked$(): Observable<boolean> {
+    return this._authChecked.asObservable();
+  }
+
+  isUserLoggedIn() {
+    return authState(this.auth).pipe(map((user) => !!user));
+  }
+
+  getLoggedInUserDetails() {
+    return authState(this.auth).pipe(map((user) => user));
   }
 
   signIn(email: string, password: string) {

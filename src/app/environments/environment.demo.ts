@@ -1,4 +1,10 @@
-export const environment = {
+import { EnvInterface } from "./types";
+
+export const environment: EnvInterface = {
+  environment: "demo",
+  theme: "444547",
+  navBarTheme: ["FFF3EB", "FEE2D3", "FDD0B9"],
+  logoUrl: "assets/logo/grace_logo.svg",
   firebaseConfig: {
     apiKey: "AIzaSyAmGvCTNOF0TTmZracSSBmWN-ZvG7bqJt8",
     authDomain: "car-sales-service-management.firebaseapp.com",
