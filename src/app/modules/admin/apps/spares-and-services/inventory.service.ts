@@ -134,11 +134,11 @@ export class InventoryService {
   /**
    * Create noop product
    */
-  createNoopProduct() {
+  createNoopProduct(productFromDraft?: InventoryProduct) {
     return this.products$.pipe(
       take(1),
       switchMap((products) => {
-        const newProduct: InventoryProduct = {
+        let newProduct: InventoryProduct = {
           id: generateUniqueId(),
           name: "",
           description: "",
@@ -159,6 +159,9 @@ export class InventoryService {
           active: true,
           date: Date.now(),
         };
+        if (productFromDraft) {
+          newProduct = { ...productFromDraft };
+        }
 
         this._products.next([newProduct, ...products]);
 
