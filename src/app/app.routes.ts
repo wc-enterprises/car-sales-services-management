@@ -21,7 +21,7 @@ export const appRoutes: Route[] = [
   {
     path: "signed-in-redirect",
     pathMatch: "full",
-    redirectTo: "customer-data/contacts",
+    redirectTo: "home/dashboard",
   },
 
   // Auth routes for guests

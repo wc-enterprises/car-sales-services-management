@@ -235,8 +235,15 @@ export class InvoiceFormComponent {
 
     this.filterItems("", 0);
 
+    /** Check for invoice draft */
+    const invoiceDraft = localStorage.getItem("invoiceDraft");
+    if (invoiceDraft) {
+      const parsedInvoice = JSON.parse(invoiceDraft);
+      this.form.patchValue({ ...parsedInvoice, date: new Date() });
+    }
+
     this.form.valueChanges.subscribe((data) => {
-      console.log("Change in form data: ", data);
+      localStorage.setItem("invoiceDraft", JSON.stringify(data));
     });
   }
 
@@ -571,6 +578,7 @@ export class InvoiceFormComponent {
 
       const invoiceId = await this.invoiceService.createInvoice(formData);
       console.log("Form data saved:", formData, invoiceId);
+      localStorage.removeItem("invoiceDraft");
       this.router.navigate([
         `/inventory-and-invoice/invoices/preview/${invoiceId}`,
       ]);
