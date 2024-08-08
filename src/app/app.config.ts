@@ -17,10 +17,7 @@ import { provideIcons } from "app/core/icons/icons.provider";
 import { mockApiServices } from "app/services";
 import { TranslocoHttpLoader } from "./core/transloco/transloco.http-loader";
 import { initializeApp, provideFirebaseApp } from "@angular/fire/app";
-import {
-  getDatabase,
-  provideDatabase,
-} from "@angular/fire/database";
+import { getDatabase, provideDatabase } from "@angular/fire/database";
 import { getAuth, provideAuth } from "@angular/fire/auth";
 import { environment } from "./environments/environment";
 
@@ -104,7 +101,7 @@ export const appConfig: ApplicationConfig = {
           lg: "1280px",
           xl: "1440px",
         },
-        theme: "theme-default",
+        theme: "theme-amber",
         themes: [
           {
             id: "theme-default",

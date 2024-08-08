@@ -60,7 +60,7 @@ const themes = {
     },
   },
   amber: {
-    primary: colors.amber,
+    primary: colors.yellow,
   },
 };
 
