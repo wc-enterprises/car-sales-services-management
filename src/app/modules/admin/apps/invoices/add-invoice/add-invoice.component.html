@@ -16,17 +16,18 @@
       </div>
       <!-- Actions -->
       <div class="flex gap-2 shrink-0 items-center mt-2 sm:mt-0 sm:ml-4">
-        <span
-          class="text-gray-600 ss:text-[16px] hover:text-gray-800 text-lg font-semibold cursor-pointer"
-          (click)="backToInvoices()"
-          >Invoices</span
-        >
-        <span class="text-gray-400 ss:text-[16px] text-lg font-semibold"
-          >></span
-        >
-        <span class="text-gray-400 ss:text-[16px] text-lg font-semibold"
-          >Invoice-form</span
-        >
+        <a mat-icon-button [matTooltip]="'Clear form'" (click)="clearForm()">
+          <mat-icon
+            class="text-black"
+            [svgIcon]="'heroicons_outline:paint-brush'"
+          ></mat-icon>
+        </a>
+        <a mat-icon-button [matTooltip]="'Close'" [routerLink]="['../']">
+          <mat-icon
+            class="text-black"
+            [svgIcon]="'heroicons_outline:x-mark'"
+          ></mat-icon>
+        </a>
       </div>
     </div>
     <div

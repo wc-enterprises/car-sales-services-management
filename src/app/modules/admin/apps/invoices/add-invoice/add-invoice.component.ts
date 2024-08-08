@@ -97,6 +97,8 @@ export class InvoiceFormComponent {
   selectedPhoneNumber: string = "";
   isDropdownOpenedNumber: boolean = false;
 
+  currentInvoiceNumber: string = "";
+
   invoiceTypes: {
     value: string;
     viewValue: string;
@@ -158,10 +160,27 @@ export class InvoiceFormComponent {
 
     this.invoiceService.countInvoices().then((count) => {
       console.log("count", count);
-      this.form.get("invoiceNumber").setValue("#0000" + (count + 1));
+      this.currentInvoiceNumber = this.frameInvoiceNumber(count);
+      this.form.get("invoiceNumber").setValue(this.currentInvoiceNumber);
     });
 
     this.form.get("date").patchValue(new Date());
+  }
+
+  frameInvoiceNumber(numberOfExistingInvoices: number) {
+    const nextInvoiceNumber = `${numberOfExistingInvoices + 1}`;
+    switch (nextInvoiceNumber.length) {
+      case 1:
+        return "#0000" + nextInvoiceNumber;
+      case 2:
+        return "#000" + nextInvoiceNumber;
+      case 3:
+        return "#00" + nextInvoiceNumber;
+      case 4:
+        return "#0" + nextInvoiceNumber;
+      default:
+        return "#" + nextInvoiceNumber;
+    }
   }
 
   createServiceGroup(suggestion: string = ""): FormGroup {
@@ -244,6 +263,17 @@ export class InvoiceFormComponent {
 
     this.form.valueChanges.subscribe((data) => {
       localStorage.setItem("invoiceDraft", JSON.stringify(data));
+    });
+  }
+
+  clearForm() {
+    console.log("Called clear form");
+    localStorage.removeItem("invoiceDraft");
+    this.form.reset();
+    this.form.patchValue({
+      invoiceNumber: this.currentInvoiceNumber,
+      type: "SERVICE",
+      date: new Date(),
     });
   }
 
