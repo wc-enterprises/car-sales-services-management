@@ -228,6 +228,7 @@ export class InventoryListComponent implements OnInit, OnDestroy {
       // Set the selected product
       this.selectedProduct = product;
 
+      this.selectedProductForm.reset();
       // Fill the form
       this.selectedProductForm.patchValue(product);
 
@@ -262,6 +263,7 @@ export class InventoryListComponent implements OnInit, OnDestroy {
         // Go to new product
         this.selectedProduct = newProduct;
 
+        this.selectedProductForm.reset();
         // Fill the form
         this.selectedProductForm.patchValue(newProduct);
 

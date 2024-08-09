@@ -1,3 +1,28 @@
+// Transmission
+export const TRANSMISSION = ["Manual", "Automatic"];
+// Fuel Type
+export const FUEL_TYPE = ["Petrol", "Diesel", "CNG", "Bio-Diesel", "LPG"];
+// Color
+export const COLOR = [
+  "Beige",
+  "Black",
+  "Blue",
+  "Bronze",
+  "Brown",
+  "Golden",
+  "Green",
+  "Grey",
+  "Maroon",
+  "Orange",
+  "Purple",
+  "Red",
+  "Silver",
+  "Violet",
+  "White",
+  "Wine",
+  "Yellow",
+];
+
 // Utility method to format the date to "YYYY-MM-DD"
 export function formatDate(date: Date): string {
   const d = new Date(date);

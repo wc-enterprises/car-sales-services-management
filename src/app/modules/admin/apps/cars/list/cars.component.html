@@ -40,39 +40,6 @@
         <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
         <span class="ml-2 mr-1">Add</span>
       </button>
-
-      <!-- Product Dialog Template -->
-      <ng-template #productDialog>
-        <h2 mat-dialog-title>Add New Product</h2>
-        <mat-dialog-content>
-          <form [formGroup]="productForm">
-            <!-- Image Upload Section -->
-            <div>
-              <input type="file" (change)="onFileSelected($event)" />
-              <img
-                *ngIf="selectedImage"
-                [src]="selectedImage"
-                alt="Product Image"
-              />
-              <button
-                mat-button
-                color="warn"
-                *ngIf="selectedImage"
-                (click)="deleteImage()"
-              >
-                Delete Image
-              </button>
-            </div>
-            <!-- Other form fields go here -->
-          </form>
-        </mat-dialog-content>
-        <mat-dialog-actions>
-          <button mat-button (click)="closeDialog()">Cancel</button>
-          <button mat-flat-button color="primary" (click)="createProduct()">
-            Save
-          </button>
-        </mat-dialog-actions>
-      </ng-template>
     </div>
   </div>
 
@@ -205,16 +172,6 @@
               </ng-container>
             </ng-container>
           </div>
-
-          <!-- <mat-paginator
-            class="sm:absolute sm:inset-x-0 sm:bottom-0 border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
-            [ngClass]="{ 'pointer-events-none': isLoading }"
-            [length]="pagination.length"
-            [pageIndex]="pagination.page"
-            [pageSize]="pagination.size"
-            [pageSizeOptions]="[5, 10, 25, 100]"
-            [showFirstLastButtons]="true"
-          ></mat-paginator> -->
         </ng-container>
       </ng-container>
 
@@ -227,74 +184,6 @@
               [formGroup]="selectedProductForm"
             >
               <div class="flex flex-col sm:flex-row p-8">
-                <!-- Product images and status -->
-                <!-- <div
-                  class="flex flex-col items-center sm:items-start mb-8 sm:mb-0"
-                > -->
-                <!-- <div class="flex flex-col items-center">
-                    <div class="w-32 h-44 border rounded overflow-hidden">
-                      <ng-container
-                        *ngIf="
-                          selectedProductForm.get('images').value.length;
-                          else noImage
-                        "
-                      >
-                        <img
-                          class="w-full h-full object-cover"
-                          [src]="
-                            selectedProductForm.get('images').value[
-                              selectedProductForm.get('currentImageIndex').value
-                            ]
-                          "
-                        />
-                      </ng-container>
-                      <ng-template #noImage>
-                        <span
-                          class="flex items-center min-h-20 text-lg font-semibold"
-                          >NO IMAGE</span
-                        >
-                      </ng-template>
-                    </div>
-                    <div
-                      class="flex items-center mt-2 whitespace-nowrap"
-                      *ngIf="selectedProductForm.get('images').value.length"
-                    >
-                      <button mat-icon-button (click)="cycleImages(false)">
-                        <mat-icon
-                          class="icon-size-5"
-                          [svgIcon]="'heroicons_mini:arrow-long-left'"
-                        ></mat-icon>
-                      </button>
-                      <span class="font-sm mx-2">
-                        {{
-                          selectedProductForm.get("currentImageIndex").value + 1
-                        }}
-                        of
-                        {{ selectedProductForm.get("images").value.length }}
-                      </span>
-                      <button mat-icon-button (click)="cycleImages(true)">
-                        <mat-icon
-                          class="icon-size-5"
-                          [svgIcon]="'heroicons_mini:arrow-long-right'"
-                        ></mat-icon>
-                      </button>
-                    </div>
-                  </div> -->
-                <!-- <div class="flex flex-col mt-8">
-                    <span class="font-semibold mb-2">Product status</span>
-                    <mat-slide-toggle
-                      [formControlName]="'active'"
-                      [color]="'primary'"
-                    >
-                      {{
-                        selectedProductForm.get("active").value === true
-                          ? "Active"
-                          : "Disabled"
-                      }}
-                    </mat-slide-toggle>
-                  </div> -->
-                <!-- </div> -->
-
                 <div class="flex flex-auto flex-wrap">
                   <!-- Car Details. -->
                   <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
@@ -304,53 +193,67 @@
                         <mat-label>Reg No</mat-label>
                         <input matInput [formControlName]="'regNo'" />
                       </mat-form-field>
-
-                      <!-- TODO: Implement Customer -->
-                      <!-- <mat-form-field class="w-1/2 pl-2">
-                        <mat-label>Customer</mat-label>
-                        <input
-                          matInput
-                          [(ngModel)]="searchQuery"
-                          (input)="filterCustomers()"
-                          [ngModelOptions]="{ standalone: true }"
-                        />
-                        <div class="mt-2">
-                          <ul
-                            *ngFor="
-                              let customer of filteredCustomers;
-                              let i = index
-                            "
-                          >
-                            <li (click)="selectCustomer(customer)">
-                              {{ customer.name }}
-                            </li>
-                          </ul>
-                        </div>
-                      </mat-form-field> -->
                     </div>
 
                     <!-- Make and Model -->
                     <div class="flex">
                       <mat-form-field class="w-1/2 pr-2">
                         <mat-label>Make</mat-label>
-                        <input matInput [formControlName]="'make'" />
+
+                        <mat-select [formControlName]="'make'">
+                          <ng-container *ngFor="let make of makes">
+                            <mat-option [value]="make">{{ make }}</mat-option>
+                          </ng-container>
+                        </mat-select>
                       </mat-form-field>
+
                       <mat-form-field class="w-1/2 pl-2">
                         <mat-label>Model</mat-label>
-                        <input matInput [formControlName]="'model'" />
+
+                        <mat-select [formControlName]="'model'">
+                          <ng-container
+                            *ngFor="let model of getModelsForAMake()"
+                          >
+                            <mat-option [value]="model">{{ model }}</mat-option>
+                          </ng-container>
+                        </mat-select>
                       </mat-form-field>
                     </div>
 
                     <!-- Next Service Date and Mot Valid Till date -->
                     <div class="flex">
                       <mat-form-field class="w-1/2 pr-2">
-                        <mat-label>Next Service Date</mat-label>
-                        <input matInput [formControlName]="'nextServiceDate'" />
+                        <mat-label>Next service date</mat-label>
+                        <input
+                          matInput
+                          [matDatepicker]="nextServiceDatepicker"
+                          (click)="nextServiceDatepicker.open()"
+                          [formControlName]="'nextServiceDate'"
+                          (keydown)="(false)"
+                        />
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="nextServiceDatepicker"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #nextServiceDatepicker></mat-datepicker>
                       </mat-form-field>
 
                       <mat-form-field class="w-1/2 pl-2">
                         <mat-label>Mot Valid Till</mat-label>
-                        <input matInput [formControlName]="'motValidTill'" />
+                        <input
+                          matInput
+                          [matDatepicker]="motValidTillDatepicker"
+                          (click)="motValidTillDatepicker.open()"
+                          [formControlName]="'motValidTill'"
+                          (keydown)="(false)"
+                        />
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="motValidTillDatepicker"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker
+                          #motValidTillDatepicker
+                        ></mat-datepicker>
                       </mat-form-field>
                     </div>
 
@@ -360,24 +263,49 @@
                         <mat-label>Insurance Valid Till</mat-label>
                         <input
                           matInput
+                          [matDatepicker]="insuranceValidTillDatepicker"
+                          (click)="insuranceValidTillDatepicker.open()"
                           [formControlName]="'insuranceValidTill'"
+                          (keydown)="(false)"
                         />
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="insuranceValidTillDatepicker"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker
+                          #insuranceValidTillDatepicker
+                        ></mat-datepicker>
                       </mat-form-field>
 
                       <mat-form-field class="w-1/2 pl-2">
                         <mat-label>Road Tax Valid Till</mat-label>
                         <input
                           matInput
+                          [matDatepicker]="roadTaxValidTillDatepicker"
+                          (click)="roadTaxValidTillDatepicker.open()"
                           [formControlName]="'roadTaxValidTill'"
+                          (keydown)="(false)"
                         />
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="roadTaxValidTillDatepicker"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker
+                          #roadTaxValidTillDatepicker
+                        ></mat-datepicker>
                       </mat-form-field>
                     </div>
 
-                    <!-- Stock and Reserved -->
+                    <!-- Fuel Type and Vin Number -->
                     <div class="flex">
                       <mat-form-field class="w-1/2 pr-2">
                         <mat-label>Fuel Type</mat-label>
-                        <input matInput [formControlName]="'fuelType'" />
+
+                        <mat-select [formControlName]="'fuelType'">
+                          <ng-container *ngFor="let type of fuelTypes">
+                            <mat-option [value]="type">{{ type }}</mat-option>
+                          </ng-container>
+                        </mat-select>
                       </mat-form-field>
 
                       <mat-form-field class="w-1/2 pl-2">
@@ -391,12 +319,23 @@
                   <div class="flex flex-col w-full lg:w-1/4 sm:pl-8">
                     <mat-form-field class="w-full">
                       <mat-label>Reg Year</mat-label>
+
+                      <mat-select [formControlName]="'regYear'">
+                        <ng-container *ngFor="let year of getRegYearList()">
+                          <mat-option [value]="year">{{ year }}</mat-option>
+                        </ng-container>
+                      </mat-select>
+
                       <input matInput [formControlName]="'regYear'" />
                     </mat-form-field>
 
                     <mat-form-field class="w-full">
                       <mat-label>Transmission</mat-label>
-                      <input matInput [formControlName]="'transmission'" />
+                      <mat-select [formControlName]="'transmission'">
+                        <ng-container *ngFor="let val of transmissionTypes">
+                          <mat-option [value]="val">{{ val }}</mat-option>
+                        </ng-container>
+                      </mat-select>
                     </mat-form-field>
 
                     <mat-form-field class="w-full">
@@ -406,7 +345,11 @@
 
                     <mat-form-field class="w-full">
                       <mat-label>Color</mat-label>
-                      <input matInput [formControlName]="'color'" />
+                      <mat-select [formControlName]="'color'">
+                        <ng-container *ngFor="let val of colors">
+                          <mat-option [value]="val">{{ val }}</mat-option>
+                        </ng-container>
+                      </mat-select>
                     </mat-form-field>
                   </div>
                 </div>

@@ -43,6 +43,9 @@ import { ICar } from "../cars.types";
 import { CarsService } from "../cars.service";
 import { ContactsService } from "../../contacts/contacts.service";
 import { Contact } from "../../contacts/contacts.types";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { DateTime } from "luxon";
+import { COLOR, FUEL_TYPE, TRANSMISSION } from "../../utils/util";
 
 @Component({
   selector: "inventory-list",
@@ -87,7 +90,7 @@ import { Contact } from "../../contacts/contacts.types";
     MatSortModule,
     NgFor,
     NgTemplateOutlet,
-    // MatPaginatorModule,
+    MatDatepickerModule,
     NgClass,
     MatSlideToggleModule,
     MatSelectModule,
@@ -99,7 +102,7 @@ import { Contact } from "../../contacts/contacts.types";
     DatePipe,
   ],
 })
-export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CarsListComponent implements OnInit, OnDestroy {
   //   @ViewChild(MatPaginator) private _paginator: MatPaginator;
   @ViewChild(MatSort) private _sort: MatSort;
 
@@ -112,6 +115,13 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedProductForm: UntypedFormGroup;
   tagsEditMode: boolean = false;
   searchQuery: string;
+
+  makesAndModels = {};
+  makes = [];
+  transmissionTypes = [];
+  fuelTypes = [];
+  colors = [];
+
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
   /**
@@ -156,43 +166,12 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
       roadTaxValidTill: [""],
     });
 
-    // // Get the brands
-    // this._carsService.brands$
-    //     .pipe(takeUntil(this._unsubscribeAll))
-    //     .subscribe((brands: InventoryBrand[]) => {
-    //         // Update the brands
-    //         this.brands = brands;
-
-    //         // Mark for check
-    //         this._changeDetectorRef.markForCheck();
-    //     });
-
-    // // Get the categories
-    // this._carsService.categories$
-    //     .pipe(takeUntil(this._unsubscribeAll))
-    //     .subscribe((categories: InventoryCategory[]) => {
-    //         // Update the categories
-    //         this.categories = categories;
-
-    //         // Mark for check
-    //         this._changeDetectorRef.markForCheck();
-    //     });
-
-    // Get the pagination
-    // this._carsService.pagination$
-    //   .pipe(takeUntil(this._unsubscribeAll))
-    //   .subscribe((pagination: InventoryPagination) => {
-    //     // Update the pagination
-    //     this.pagination = pagination;
-
-    //     // Mark for check
-    //     this._changeDetectorRef.markForCheck();
-    //   });
-
     // Get the products
     this.cars$ = this._carsService.cars$;
-    this.cars$.subscribe((cars) => {
-      console.log("cars", cars);
+
+    this._carsService.getMakesAndModels().then((data) => {
+      this.makesAndModels = data;
+      this.makes = Object.keys(this.makesAndModels);
     });
 
     // Subscribe to search input field value changes
@@ -209,49 +188,27 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
             this.isLoading = false;
           });
       });
+
+    this.transmissionTypes = TRANSMISSION;
+    this.fuelTypes = FUEL_TYPE;
+    this.colors = COLOR;
   }
 
-  /**
-   * After view init
-   */
-  ngAfterViewInit(): void {
-    // if (this._sort && this._paginator) {
-    //   // Set the initial sort
-    //   this._sort.sort({
-    //     id: "name",
-    //     start: "asc",
-    //     disableClear: true,
-    //   });
-    //   // Mark for check
-    //   this._changeDetectorRef.markForCheck();
-    //   // If the user changes the sort order...
-    //   this._sort.sortChange
-    //     .pipe(takeUntil(this._unsubscribeAll))
-    //     .subscribe(() => {
-    //       // Reset back to the first page
-    //       this._paginator.pageIndex = 0;
-    //       // Close the details
-    //       this.closeDetails();
-    //     });
-    // Get products if sort or page changes
-    //   merge(this._sort.sortChange, this._paginator.page)
-    //     .pipe(
-    //       switchMap(() => {
-    //         this.closeDetails();
-    //         this.isLoading = true;
-    //         return this._carsService.getCars(
-    //           this._paginator.pageIndex,
-    //           this._paginator.pageSize,
-    //           this._sort.active,
-    //           this._sort.direction
-    //         );
-    //       }),
-    //       map(() => {
-    //         this.isLoading = false;
-    //       })
-    //     )
-    //     .subscribe();
-    // }
+  getRegYearList() {
+    const currentYear = DateTime.local().get("year");
+    const regYearList = [];
+    for (let i = currentYear; i >= 2000; i--) {
+      regYearList.push(i);
+    }
+
+    return regYearList;
+  }
+
+  getModelsForAMake() {
+    const model = this.selectedProductForm.get("make").value;
+
+    if (!model) return [];
+    return this.makesAndModels[model];
   }
 
   /**
@@ -288,6 +245,17 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Get the product by id
     this._carsService.getCarById(carId).subscribe((product) => {
+      product.nextServiceDate = DateTime.fromMillis(
+        product.nextServiceDate
+      ) as any;
+      product.motValidTill = DateTime.fromMillis(product.motValidTill) as any;
+      product.roadTaxValidTill = DateTime.fromMillis(
+        product.roadTaxValidTill
+      ) as any;
+      product.insuranceValidTill = DateTime.fromMillis(
+        product.insuranceValidTill
+      ) as any;
+
       // Set the selected product
       this.selectedCar = product;
 
@@ -313,29 +281,6 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Cycle through images of selected product
-   */
-  cycleImages(forward: boolean = true): void {
-    // Get the image count and current image index
-    const count = this.selectedProductForm.get("images").value.length;
-    const currentIndex =
-      this.selectedProductForm.get("currentImageIndex").value;
-
-    // Calculate the next and previous index
-    const nextIndex = currentIndex + 1 === count ? 0 : currentIndex + 1;
-    const prevIndex = currentIndex - 1 < 0 ? count - 1 : currentIndex - 1;
-
-    // If cycling forward...
-    if (forward) {
-      this.selectedProductForm.get("currentImageIndex").setValue(nextIndex);
-    }
-    // If cycling backwards...
-    else {
-      this.selectedProductForm.get("currentImageIndex").setValue(prevIndex);
-    }
-  }
-
-  /**
    * Create product
    */
   createProduct(): void {
@@ -344,6 +289,7 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
       // Go to new product
       this.selectedCar = newCar;
 
+      this.selectedProductForm.reset();
       // Fill the form
       this.selectedProductForm.patchValue(newCar);
 
@@ -358,9 +304,10 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
   updateSelectedProduct(): void {
     // Get the product object
     const product = this.selectedProductForm.getRawValue();
-
-    // Remove the currentImageIndex field
-    delete product.currentImageIndex;
+    product.nextServiceDate = product.nextServiceDate.toMillis();
+    product.motValidTill = product.motValidTill.toMillis();
+    product.roadTaxValidTill = product.roadTaxValidTill.toMillis();
+    product.insuranceValidTill = product.insuranceValidTill.toMillis();
 
     // Update the product on the server
     this._carsService.updateCar(product.id, product).then(() => {
@@ -392,6 +339,7 @@ export class CarsListComponent implements OnInit, AfterViewInit, OnDestroy {
         // Get the product object
         const product = this.selectedProductForm.getRawValue();
 
+        console.log("Product to be deleted", product);
         // Delete the product on the server
         this._carsService.deleteProduct(product.id).then(() => {
           // Close the details

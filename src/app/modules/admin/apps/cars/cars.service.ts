@@ -36,6 +36,7 @@ export class CarsService {
    */
   constructor(private db: Database) {
     this.getCars();
+    this.getMakesAndModels();
   }
   destructor() {
     this._unsubscribers.forEach((item) => {
@@ -100,6 +101,15 @@ export class CarsService {
     });
 
     this._unsubscribers.push(unsubsriber);
+  }
+
+  async getMakesAndModels() {
+    const makeRef = ref(this.db, "Makes");
+    // Fetch the data once
+    const snapshot = await get(makeRef);
+    const data = snapshot.val();
+
+    return data;
   }
 
   /**
@@ -181,6 +191,7 @@ export class CarsService {
   async deleteProduct(id: string): Promise<boolean> {
     try {
       await set(ref(this.db, "cars/" + id), null);
+      await this.getCars();
       return true;
     } catch (err) {
       console.log("An error occured while deleting the car", err.message);
