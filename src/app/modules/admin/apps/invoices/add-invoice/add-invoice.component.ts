@@ -35,6 +35,12 @@ import { ICar } from "../../cars/cars.types";
 import { CarsService } from "../../cars/cars.service";
 import { InventoryService } from "../../spares-and-services/inventory.service";
 import { InventoryProduct } from "../../spares-and-services/inventory.types";
+import {
+  COLOR,
+  FUEL_TYPE,
+  getRegYearList,
+  TRANSMISSION,
+} from "../../utils/util";
 
 @Component({
   selector: "invoice",
@@ -115,6 +121,11 @@ export class InvoiceFormComponent {
 
   eRef: any;
   invoiceForm: any;
+
+  colors = [];
+  fuelTypes = [];
+  transmissionTypes = [];
+  regYearList = [];
 
   /** Service names */
   filteredServices: InventoryProduct[] = [];
@@ -264,6 +275,11 @@ export class InvoiceFormComponent {
     this.form.valueChanges.subscribe((data) => {
       localStorage.setItem("invoiceDraft", JSON.stringify(data));
     });
+
+    this.colors = COLOR;
+    this.fuelTypes = FUEL_TYPE;
+    this.transmissionTypes = TRANSMISSION;
+    this.regYearList = getRegYearList();
   }
 
   clearForm() {

@@ -160,10 +160,10 @@ export class CarsListComponent implements OnInit, OnDestroy {
       regYear: [""],
       transmission: [""],
       mileage: [""],
-      nextServiceDate: [""],
-      motValidTill: [""],
-      insuranceValidTill: [""],
-      roadTaxValidTill: [""],
+      nextServiceDate: [null],
+      motValidTill: [null],
+      insuranceValidTill: [null],
+      roadTaxValidTill: [null],
     });
 
     // Get the products
@@ -245,22 +245,25 @@ export class CarsListComponent implements OnInit, OnDestroy {
 
     // Get the product by id
     this._carsService.getCarById(carId).subscribe((product) => {
-      product.nextServiceDate = DateTime.fromMillis(
-        product.nextServiceDate
-      ) as any;
-      product.motValidTill = DateTime.fromMillis(product.motValidTill) as any;
-      product.roadTaxValidTill = DateTime.fromMillis(
-        product.roadTaxValidTill
-      ) as any;
-      product.insuranceValidTill = DateTime.fromMillis(
-        product.insuranceValidTill
-      ) as any;
-
       // Set the selected product
       this.selectedCar = product;
 
       // Fill the form
-      this.selectedProductForm.patchValue(product);
+      this.selectedProductForm.patchValue({
+        ...product,
+        nextServiceDate: product.nextServiceDate
+          ? DateTime.fromMillis(product.nextServiceDate)
+          : null,
+        motValidTill: product.motValidTill
+          ? DateTime.fromMillis(product.motValidTill)
+          : null,
+        roadTaxValidTill: product.roadTaxValidTill
+          ? DateTime.fromMillis(product.roadTaxValidTill)
+          : null,
+        insuranceValidTill: product.insuranceValidTill
+          ? DateTime.fromMillis(product.insuranceValidTill)
+          : null,
+      });
 
       // Mark for check
       this._changeDetectorRef.markForCheck();
@@ -304,10 +307,10 @@ export class CarsListComponent implements OnInit, OnDestroy {
   updateSelectedProduct(): void {
     // Get the product object
     const product = this.selectedProductForm.getRawValue();
-    product.nextServiceDate = product.nextServiceDate.toMillis();
-    product.motValidTill = product.motValidTill.toMillis();
-    product.roadTaxValidTill = product.roadTaxValidTill.toMillis();
-    product.insuranceValidTill = product.insuranceValidTill.toMillis();
+    product.nextServiceDate = product.nextServiceDate?.toMillis() ?? null;
+    product.motValidTill = product.motValidTill?.toMillis() ?? null;
+    product.roadTaxValidTill = product.roadTaxValidTill?.toMillis() ?? null;
+    product.insuranceValidTill = product.insuranceValidTill?.toMillis() ?? null;
 
     // Update the product on the server
     this._carsService.updateCar(product.id, product).then(() => {

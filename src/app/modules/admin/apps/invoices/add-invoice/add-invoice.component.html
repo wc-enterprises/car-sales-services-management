@@ -315,15 +315,23 @@
           >
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Color</mat-label>
-              <input matInput [formControlName]="'color'" placeholder="Color" />
+
+              <mat-select [formControlName]="'color'" placeholder="Color">
+                <ng-container *ngFor="let val of colors">
+                  <mat-option [value]="val">{{ val }}</mat-option>
+                </ng-container>
+              </mat-select>
             </mat-form-field>
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Fuel type</mat-label>
-              <input
-                matInput
+              <mat-select
                 [formControlName]="'fuelType'"
                 placeholder="Fuel type"
-              />
+              >
+                <ng-container *ngFor="let val of fuelTypes">
+                  <mat-option [value]="val">{{ val }}</mat-option>
+                </ng-container>
+              </mat-select>
             </mat-form-field>
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">VIN number</mat-label>
@@ -341,27 +349,20 @@
           >
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Reg year</mat-label>
-              <input
-                matInput
-                [formControlName]="'regYear'"
-                placeholder="Reg year"
-              />
-            </mat-form-field>
-            <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-              <mat-label class="text-gray-500">Engine type</mat-label>
-              <input
-                matInput
-                [formControlName]="'engineType'"
-                placeholder="Engine type"
-              />
+
+              <mat-select [formControlName]="'regYear'">
+                <ng-container *ngFor="let val of regYearList">
+                  <mat-option [value]="val">{{ val }}</mat-option>
+                </ng-container>
+              </mat-select>
             </mat-form-field>
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Transmission</mat-label>
-              <input
-                matInput
-                [formControlName]="'transmission'"
-                placeholder="Transmission"
-              />
+              <mat-select [formControlName]="'transmission'">
+                <ng-container *ngFor="let val of transmissionTypes">
+                  <mat-option [value]="val">{{ val }}</mat-option>
+                </ng-container>
+              </mat-select>
             </mat-form-field>
           </div>
 
@@ -383,8 +384,10 @@
               <input
                 matInput
                 [matDatepicker]="nextServiceDatepicker"
+                (click)="nextServiceDatepicker.open()"
                 [formControlName]="'nextServiceDate'"
                 placeholder="Next service date"
+                (keydown)="(false)"
               />
               <mat-datepicker-toggle
                 matSuffix

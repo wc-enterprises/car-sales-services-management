@@ -1,3 +1,15 @@
+import { DateTime } from "luxon";
+
+export function getRegYearList() {
+  const currentYear = DateTime.local().get("year");
+  const regYearList = [];
+  for (let i = currentYear; i >= 2000; i--) {
+    regYearList.push(i);
+  }
+
+  return regYearList;
+}
+
 // Transmission
 export const TRANSMISSION = ["Manual", "Automatic"];
 // Fuel Type
