@@ -17,6 +17,10 @@ export interface IInvoice {
       number: string;
     };
     email?: string;
+    addressLine1: string;
+    addressLine2?: string;
+    country: string;
+    postalCode: string;
     address?: IAddress;
     postCode?: string;
     city?: string;
@@ -56,7 +60,7 @@ export interface IInvoice {
     unit: "percentage" | "amount";
     value: number;
   };
-
+  subtotal?: number;
   total: number;
 }
 

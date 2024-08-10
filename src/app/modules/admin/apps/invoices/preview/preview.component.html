@@ -32,163 +32,158 @@
 >
   <!-- Main -->
   <div
-    class="inline-block p-6 mobile-small:pl-8 sm:p-10 text-left print:p-0 lg:overflow-y-scroll lg:h-full md:overflow-y-scroll md:h-full hide-scrollbar"
+    class="inline-block p-6 mobile-small:pl-8 sm:p-10 text-left xl:overflow-y-scroll lg:overflow-y-scroll lg:h-full md:overflow-y-scroll md:h-full hide-scrollbar"
   >
-    <!-- Invoice -->
-    <div
-      class="w-240 p-16 rounded-2xl shadow bg-card print:w-auto print:rounded-none print:shadow-none print:bg-transparent"
-    >
-      <!-- Head content -->
-      <div class="flex items-start justify-between">
-        <div class="grid grid-cols-2 gap-x-4 gap-y-1">
-          <div class="text-4xl tracking-tight text-secondary">INVOICE</div>
-          <div class="text-4xl">{{ invoiceData.invoiceNumber }}</div>
-          <div class="font-medium tracking-tight text-secondary">
-            INVOICE DATE
+    <!-- A4 -->
+    <div class="rounded-2xl shadow print:rounded-none print:overflow-visible">
+      <!-- Header -->
+      <img src="assets/images/invoice/invoice-header.svg" alt="header" />
+      <!-- Content -->
+      <div class="w-240 pl-16 pr-16">
+        <!-- Head content -->
+        <div class="flex items-start justify-between">
+          <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+            <div class="text-4xl tracking-tight text-secondary">INVOICE</div>
+            <div class="text-4xl">{{ invoiceData.invoiceNumber }}</div>
+            <div class="font-medium tracking-tight text-secondary">
+              INVOICE DATE
+            </div>
+            <div class="font-medium">{{ formatDate(invoiceData.date) }}</div>
+            <div class="font-medium tracking-tight text-secondary">
+              TOTAL DUE
+            </div>
+            <div class="font-medium">
+              {{ invoiceData.total | currency : "GBP" }}
+            </div>
           </div>
-          <div class="font-medium">{{ formatDate(invoiceData.date) }}</div>
-          <div class="font-medium tracking-tight text-secondary">TOTAL DUE</div>
-          <div class="font-medium">
+          <div
+            class="grid auto-cols-max grid-flow-col gap-x-8 -mr-16 py-6 px-8 rounded-l-2xl"
+          >
+            <div class="place-self-center w-24">
+              <img class="w-24" src="assets/images/logo/logo.svg" />
+            </div>
+            <div class="pl-10 border-l text-md">
+              <div class="font-medium">Grace Auto Service</div>
+              <div>78 Main Road</div>
+              <div>Highbridge, TA9, 3QX</div>
+              <div>+44 7574 173450</div>
+              <div>+44 1278 470492</div>
+              <div>info&#64;graceautoservice.co.uk</div>
+              <div>www.graceautoservice.co.uk</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Data -->
+        <div class="text-md">
+          <div class="text-xl font-medium">{{ invoiceData.billTo.name }}</div>
+          <div class="max-w-60">
+            {{
+              formatAddress(
+                invoiceData.billTo.addressLine1,
+                invoiceData.billTo.addressLine2,
+                invoiceData.billTo.city,
+                invoiceData.billTo.country,
+                invoiceData.billTo.postalCode
+              )
+            }}
+          </div>
+          <div>{{ formatNumber(invoiceData.billTo.phoneNumber) }}</div>
+        </div>
+
+        <!-- Table -->
+        <div class="grid grid-cols-12 gap-x-1 mt-12">
+          <!-- Columns -->
+          <div class="col-span-8 font-medium text-md text-secondary">
+            SERVICE
+          </div>
+          <div class="font-medium text-md text-right text-secondary">RATE</div>
+          <div class="font-medium text-md text-right text-secondary">QTY</div>
+          <div class="col-span-2 font-medium text-md text-right text-secondary">
+            TOTAL
+          </div>
+
+          <ng-container *ngFor="let service of invoiceData.services">
+            <!-- Divider -->
+            <div class="col-span-12 my-4 border-b"></div>
+
+            <!-- Item -->
+            <div class="col-span-8 text-lg font-medium">
+              {{ service.item }}
+            </div>
+            <div class="self-center text-right">
+              {{ service.price | currency : "GBP" }}
+            </div>
+            <div class="self-center text-right">{{ service.quantity }}</div>
+            <div class="col-span-2 self-center text-right">
+              {{
+                getTotalPerItem(service.price, service.quantity)
+                  | currency : "GBP"
+              }}
+            </div>
+          </ng-container>
+
+          <!-- Spacer -->
+          <div class="col-span-12 mt-16"></div>
+
+          <!-- Subtotal -->
+          <div
+            class="col-span-10 self-center font-medium tracking-tight text-secondary"
+          >
+            SUBTOTAL
+          </div>
+          <div class="col-span-2 text-right text-lg">
+            {{ invoiceData.subtotal | currency : "GBP" }}
+          </div>
+
+          <!-- Divider -->
+          <div class="col-span-12 my-3 border-b"></div>
+
+          <!-- Tax -->
+          <div
+            class="col-span-10 self-center font-medium tracking-tight text-secondary"
+          >
+            TAX
+          </div>
+          <div class="col-span-2 text-right text-lg">
+            {{ invoiceData.tax?.value }} %
+          </div>
+
+          <!-- Divider -->
+          <div class="col-span-12 my-3 border-b"></div>
+
+          <!-- Discount -->
+          <div
+            class="col-span-10 self-center font-medium tracking-tight text-secondary"
+          >
+            DISCOUNT
+          </div>
+          <div class="col-span-2 text-right text-lg">
+            {{ invoiceData.discount?.value | currency : "GBP" }}
+          </div>
+
+          <!-- Divider -->
+          <div class="col-span-12 my-3 border-b"></div>
+
+          <!-- Total -->
+          <div
+            class="col-span-10 self-center text-2xl font-medium tracking-tight text-secondary"
+          >
+            TOTAL
+          </div>
+          <div class="col-span-2 text-right text-2xl font-medium">
             {{ invoiceData.total | currency : "GBP" }}
           </div>
         </div>
-        <div
-          class="grid auto-cols-max grid-flow-col gap-x-8 -mr-16 py-6 px-8 rounded-l-2xl bg-accent dark"
-        >
-          <div class="place-self-center w-24">
-            <img
-              class="w-24"
-              src="assets/images/logo/logo-text-on-dark-3.svg"
-            />
-          </div>
-          <div class="pl-10 border-l text-md">
-            <div class="font-medium">Grace Auto Service</div>
-            <div>78 Main Road</div>
-            <div>Highbridge, TA9, 3QX</div>
-            <div>+44 7574 173450</div>
-            <div>+44 1278 470492</div>
-            <div>info&#64;graceautoservice.co.uk</div>
-            <div>www.graceautoservice.co.uk</div>
+
+        <div class="mt-16">
+          <div class="font-medium">
+            Please pay within 15 days. Thank you for your business.
           </div>
         </div>
       </div>
-
-      <!-- Customer Data -->
-      <div class="text-md">
-        <div class="text-xl font-medium">{{ invoiceData.billTo.name }}</div>
-        <div class="max-w-60">
-          {{
-            formatAddress(
-              invoiceData.billTo.addressLine1,
-              invoiceData.billTo.addressLine2,
-              invoiceData.billTo.city,
-              invoiceData.billTo.country,
-              invoiceData.billTo.postalCode
-            )
-          }}
-        </div>
-        <div>{{ formatNumber(invoiceData.billTo.phoneNumber) }}</div>
-      </div>
-
-      <div class="grid grid-cols-12 gap-x-1 mt-12">
-        <!-- Columns -->
-        <div class="col-span-8 font-medium text-md text-secondary">SERVICE</div>
-        <div class="font-medium text-md text-right text-secondary">RATE</div>
-        <div class="font-medium text-md text-right text-secondary">QTY</div>
-        <div class="col-span-2 font-medium text-md text-right text-secondary">
-          TOTAL
-        </div>
-
-        <ng-container *ngFor="let service of invoiceData.services">
-          <!-- Divider -->
-          <div class="col-span-12 my-4 border-b"></div>
-
-          <!-- Item -->
-          <div class="col-span-8 text-lg font-medium">
-            {{ service.item }}
-          </div>
-          <div class="self-center text-right">
-            {{ service.price | currency : "GBP" }}
-          </div>
-          <div class="self-center text-right">{{ service.quantity }}</div>
-          <div class="col-span-2 self-center text-right">
-            {{
-              getTotalPerItem(service.price, service.quantity)
-                | currency : "GBP"
-            }}
-          </div>
-        </ng-container>
-
-        <!-- Spacer -->
-        <div class="col-span-12 mt-16"></div>
-
-        <!-- Subtotal -->
-        <div
-          class="col-span-10 self-center font-medium tracking-tight text-secondary"
-        >
-          SUBTOTAL
-        </div>
-        <div class="col-span-2 text-right text-lg">
-          {{ invoiceData.subtotal | currency : "GBP" }}
-        </div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-3 border-b"></div>
-
-        <!-- Tax -->
-        <div
-          class="col-span-10 self-center font-medium tracking-tight text-secondary"
-        >
-          TAX
-        </div>
-        <div class="col-span-2 text-right text-lg">
-          {{ invoiceData.tax?.value }} %
-        </div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-3 border-b"></div>
-
-        <!-- Discount -->
-        <div
-          class="col-span-10 self-center font-medium tracking-tight text-secondary"
-        >
-          DISCOUNT
-        </div>
-        <div class="col-span-2 text-right text-lg">
-          {{ invoiceData.discount?.value | currency : "GBP" }}
-        </div>
-
-        <!-- Divider -->
-        <div class="col-span-12 my-3 border-b"></div>
-
-        <!-- Total -->
-        <div
-          class="col-span-10 self-center text-2xl font-medium tracking-tight text-secondary"
-        >
-          TOTAL
-        </div>
-        <div class="col-span-2 text-right text-2xl font-medium">
-          {{ invoiceData.total | currency : "GBP" }}
-        </div>
-      </div>
-
-      <div class="mt-16">
-        <div class="font-medium">
-          Please pay within 15 days. Thank you for your business.
-        </div>
-        <!-- <div class="flex items-start mt-4">
-          <img class="flex-0 w-10 mt-2" src="assets/images/logo/logo.svg" />
-          <div class="ml-6 text-sm text-secondary">
-            In condimentum malesuada efficitur. Mauris volutpat placerat auctor.
-            Ut ac congue dolor. Quisque scelerisque lacus sed feugiat fermentum.
-            Cras aliquet facilisis pellentesque. Nunc hendrerit quam at leo
-            commodo, a suscipit tellus dapibus. Etiam at felis volutpat est
-            mollis lacinia. Mauris placerat sem sit amet velit mollis, in
-            porttitor ex finibus. Proin eu nibh id libero tincidunt lacinia et
-            eget.
-          </div>
-        </div> -->
-      </div>
+      <!-- Footer -->
+      <img src="assets/images/invoice/grace-footer.svg" alt="footer" />
     </div>
   </div>
 </div>

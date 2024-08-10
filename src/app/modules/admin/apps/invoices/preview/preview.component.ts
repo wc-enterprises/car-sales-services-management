@@ -21,6 +21,7 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/admin/apps/invoices/invoices.service";
 import { formatDate } from "../../utils/util";
+import { IInvoice } from "../invoices.types";
 @Component({
   selector: "modern",
   templateUrl: "./preview.component.html",
@@ -84,7 +85,7 @@ import { formatDate } from "../../utils/util";
 })
 export class PreviewComponent {
   invoiceId: string;
-  invoiceData: any = null;
+  invoiceData: IInvoice = null;
   @ViewChild("invoice") invoiceElement: ElementRef;
 
   constructor(
@@ -99,7 +100,6 @@ export class PreviewComponent {
       this.invoiceData = await this.invoiceService.getInvoiceByIdOnce(
         this.invoiceId
       );
-      console.log("Invoice data", this.invoiceData);
     });
 
     if (!this.invoiceData) {
