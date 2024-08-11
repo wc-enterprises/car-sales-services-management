@@ -234,12 +234,12 @@
     </div>
 
     <!-- Top 10 cars whose next service date is imminent -->
-    <div
+    <!-- <div
       class="xl:col-span-2 flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden mt-8"
     >
       <div class="p-4">
         <div class="mr-4 text-lg font-medium tracking-tight leading-6 truncate">
-          Upcoming cars whose service date is around the corner
+          Upcoming cars whose service date is
         </div>
       </div>
       <div class="overflow-x-auto mx-6">
@@ -251,7 +251,7 @@
           [trackBy]="trackByFn"
           #recentTransactionsTable
         >
-          <!-- Transaction ID -->
+          
           <ng-container matColumnDef="invoiceId">
             <th mat-header-cell mat-sort-header *matHeaderCellDef>
               Invoice ID
@@ -265,7 +265,7 @@
             </td>
           </ng-container>
 
-          <!-- Date -->
+          
           <ng-container matColumnDef="date">
             <th mat-header-cell mat-sort-header *matHeaderCellDef>Date</th>
             <td mat-cell *matCellDef="let invoice">
@@ -275,7 +275,7 @@
             </td>
           </ng-container>
 
-          <!-- Name -->
+          
           <ng-container matColumnDef="type">
             <th mat-header-cell mat-sort-header *matHeaderCellDef>Type</th>
             <td mat-cell *matCellDef="let invoice">
@@ -285,7 +285,7 @@
             </td>
           </ng-container>
 
-          <!-- Customer Name -->
+          
           <ng-container matColumnDef="customerName">
             <th mat-header-cell mat-sort-header *matHeaderCellDef>
               Customer Name
@@ -297,7 +297,7 @@
             </td>
           </ng-container>
 
-          <!-- Amount -->
+          
           <ng-container matColumnDef="amount">
             <th mat-header-cell mat-sort-header *matHeaderCellDef>Amount</th>
             <td mat-cell *matCellDef="let invoice">
@@ -307,7 +307,7 @@
             </td>
           </ng-container>
 
-          <!-- Footer -->
+          
           <ng-container matColumnDef="recentOrdersTableFooter">
             <td
               class="py-6 px-0 border-0"
@@ -337,7 +337,7 @@
           ></tr>
         </table>
       </div>
-    </div>
+    </div> -->
 
     <div
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full mt-8"
