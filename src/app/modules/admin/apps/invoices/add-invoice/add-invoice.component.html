@@ -465,6 +465,7 @@
                 formControlName="price"
                 placeholder="Price"
                 [disabled]="!service.get('item').value"
+                type="number"
               />
             </mat-form-field>
             <mat-form-field
@@ -490,6 +491,7 @@
                 [value]="
                   service.get('price').value * service.get('quantity').value
                 "
+                type="number"
                 disabled
               />
             </mat-form-field>
@@ -549,6 +551,7 @@
               matInput
               [formControlName]="'subtotal'"
               placeholder="SubTotal"
+              type="number"
             />
           </mat-form-field>
 
@@ -566,7 +569,12 @@
             class="col-span-5 text-right text-lg"
             [subscriptSizing]="'dynamic'"
           >
-            <input matInput [formControlName]="'value'" placeholder="Tax" />
+            <input
+              matInput
+              [formControlName]="'value'"
+              placeholder="Tax"
+              type="number"
+            />
           </mat-form-field>
 
           <!-- Divider -->
@@ -587,6 +595,7 @@
               matInput
               [formControlName]="'value'"
               placeholder="Discount"
+              type="number"
             />
           </mat-form-field>
 
@@ -603,7 +612,12 @@
             class="col-span-5 text-right text-2xl font-medium"
             [subscriptSizing]="'dynamic'"
           >
-            <input matInput [formControlName]="'total'" placeholder="Total" />
+            <input
+              matInput
+              [formControlName]="'total'"
+              placeholder="Total"
+              type="number"
+            />
           </mat-form-field>
         </div>
 

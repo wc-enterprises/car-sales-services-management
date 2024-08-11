@@ -202,6 +202,8 @@ export class InvoiceFormComponent {
       price: [price],
       quantity: [quantity],
       total: [""],
+      discount: [""],
+      tax: [""],
     });
   }
 
@@ -222,12 +224,21 @@ export class InvoiceFormComponent {
     const serviceGroup = this.services.at(index) as FormGroup;
     serviceGroup.get("item").setValue(item.name);
     const price = item.sellingPrice ?? "";
-    const tax = item.taxAmount ?? "";
+
     serviceGroup.get("price").setValue(price);
     serviceGroup.get("quantity").setValue("1");
-    serviceGroup.get("total").setValue("");
+
+    // Tax for individual service
+    const tax = item.taxAmount ?? "";
     const existingTaxValue = this.form.get("tax.value").value;
     this.form.get("tax.value").setValue(existingTaxValue + tax);
+    serviceGroup.get("tax").setValue(tax);
+
+    // Discount for individual service
+    const discount = item.discount ?? "";
+    const existingDiscountVallue = this.form.get("discount.value").value;
+    this.form.get("discount.value").setValue(existingDiscountVallue + discount);
+    serviceGroup.get("discount").setValue(discount);
 
     this.isDropdownOpen[index] = false;
   }
@@ -241,8 +252,33 @@ export class InvoiceFormComponent {
     // Get form array for phone numbers
     const servicesFormArray = this.form.get("services") as UntypedFormArray;
 
+    const itemToBeRemoved = servicesFormArray.at(index).value;
+    console.log("Item to be removed", itemToBeRemoved);
+
     // Remove the phone number field
     servicesFormArray.removeAt(index);
+
+    // Subtract any added tax and discount and re-calcuate the total.
+    // Tax
+    const currentFormTax = this.form.get("tax").value;
+    console.log(itemToBeRemoved.tax, currentFormTax);
+    if (itemToBeRemoved.tax && currentFormTax.value >= itemToBeRemoved.tax) {
+      const newTaxVal = currentFormTax.value - itemToBeRemoved.tax;
+      console.log("New tax value", newTaxVal);
+      this.form.get("tax.value").setValue(newTaxVal);
+    }
+
+    const currentDiscount = this.form.get("discount").value;
+    if (
+      itemToBeRemoved.discount &&
+      currentDiscount.value >= itemToBeRemoved.discount
+    ) {
+      const newDiscount = currentDiscount.value - itemToBeRemoved.discount;
+      console.log("New Discount value", newDiscount);
+      this.form.get("discount.value").setValue(newDiscount);
+    }
+
+    this.calculateTotal();
 
     // Mark for check
     this._changeDetectorRef.markForCheck();
@@ -261,7 +297,6 @@ export class InvoiceFormComponent {
       this.form.patchValue(this.invoiceData);
     }
     this.calculateSubtotal();
-    this.setupTotalCalculation();
 
     this.filterItems("", 0);
 
@@ -500,38 +535,15 @@ export class InvoiceFormComponent {
       });
   }
 
-  setupTotalCalculation(): void {
-    const taxControl = this.form.get("tax.value");
-    const discountControl = this.form.get("discount.value");
-
-    taxControl.valueChanges.subscribe(() => this.calculateTotal());
-    discountControl.valueChanges.subscribe(() => this.calculateTotal());
-
-    this.form.valueChanges
-      .pipe(
-        startWith(this.form.value),
-        map((formValue) => {
-          const subtotal = formValue.subtotal;
-          const taxPercentage = formValue.tax.value;
-          const discount = formValue.discount.value;
-          const taxAmount = subtotal * (taxPercentage / 100);
-          const total = subtotal + taxAmount - discount;
-          return total;
-        })
-      )
-      .subscribe((total) => {
-        this.form
-          .get("total")
-          .setValue(total === 0 ? "" : total, { emitEvent: false });
-      });
-  }
-
   calculateTotal(): void {
     const subtotal = this.form.get("subtotal").value;
-    const taxPercentage = this.form.get("tax").get("value").value;
+    const taxAmount = this.form.get("tax").get("value").value;
     const discount = this.form.get("discount").get("value").value;
-    const taxAmount = subtotal * (taxPercentage / 100);
+
+    console.log("Values going into total calc", subtotal, taxAmount, discount);
+
     const total = subtotal + taxAmount - discount;
+    console.log("Calculated total", total);
     this.form.get("total").setValue(total, { emitEvent: false });
   }
 

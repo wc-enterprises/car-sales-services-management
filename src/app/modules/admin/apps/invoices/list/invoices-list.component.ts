@@ -468,11 +468,20 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     let totalTax = 0;
     let totalAmount = 0;
     this.invoices.forEach((invoice) => {
-      totalTax += invoice.tax.value;
+      console.log(
+        "Invoice:",
+        invoice.invoiceNumber,
+        "Tax type",
+        typeof invoice.tax?.value
+      );
+      if (invoice.tax && invoice.tax.value) totalTax += invoice.tax?.value;
       totalAmount += invoice.total;
     });
 
-    pdfForm.getTextField("totalTax").setText(`£ ${totalTax.toFixed(2)}`);
+    console.log("Total tax", totalTax);
+    pdfForm
+      .getTextField("totalTax")
+      .setText(`£ ${parseInt(totalTax as any).toFixed(2)}`);
     pdfForm.getTextField("total").setText(`£ ${totalAmount.toFixed(2)}`);
     pdfForm.flatten();
 
@@ -502,7 +511,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
         invoice.type,
         invoice.billTo.name,
         invoice.carInfo?.make ?? "-",
-        invoice.tax.value.toString(),
+        invoice.tax?.value ? invoice.tax.value.toString() : 0,
         invoice.total.toString(),
       ]),
     ];

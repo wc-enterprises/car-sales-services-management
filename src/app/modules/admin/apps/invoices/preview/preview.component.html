@@ -146,7 +146,7 @@
             TAX
           </div>
           <div class="col-span-2 text-right text-lg">
-            {{ invoiceData.tax?.value }} %
+            {{ invoiceData.tax?.value | currency : "GBP" }}
           </div>
 
           <!-- Divider -->
