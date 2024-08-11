@@ -941,6 +941,10 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     filterValue: TTimeFilter,
     invoiceType: IInvoiceType
   ) {
+    console.log(
+      "Received request to getCustomersNewVsReturningNumbers for : ",
+      { filterValue, invoiceType }
+    );
     let timeFilteredServiceInvoices: IInvoice[] = [];
     const now = Date.now();
 
@@ -1004,6 +1008,10 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     filterValue: TTimeFilter,
     dataToCollect: "make" | "service"
   ) {
+    console.log("Received request to get top make or service for : ", {
+      filterValue,
+      dataToCollect,
+    });
     let timeFilteredServiceInvoices: IInvoice[] = [];
     const now = Date.now();
 
@@ -1068,12 +1076,18 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     percentSplits: number[];
   } {
     const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    const sortedItems = Object.keys(counts).sort(
-      (a, b) => counts[b] - counts[a]
-    );
-    const labels = sortedItems;
-    const percentSplits = sortedItems.map((item) =>
+    const topItems = Object.keys(counts)
+      .sort((a, b) => counts[b] - counts[a])
+      .slice(0, 3);
+    const labels = [...topItems, "Others"];
+    const percentSplits = topItems.map((item) =>
       Math.round((counts[item] / total) * 100)
+    );
+    /**
+     * Calculate the 'Others' percentage
+     */
+    percentSplits.push(
+      100 - percentSplits.reduce((sum, count) => sum + count, 0)
     );
 
     return { labels, percentSplits };
@@ -1101,14 +1115,17 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
       case "topMake":
         this.topMakeFilter = value;
+        this.getTopMakeOrService(value, "make");
         break;
 
       case "topService":
         this.topServiceFilter = value;
+        this.getTopMakeOrService(value, "service");
         break;
 
       case "totalNoOfInvoices":
         this.totalNoOfInvoicesFilter = value;
+        this.totalInvoicesAndWeeklyNumbersBasedOnType(value);
         break;
     }
   }
