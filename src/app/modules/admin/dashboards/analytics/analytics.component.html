@@ -53,7 +53,7 @@
             <div
               class="mr-4 text-lg font-medium tracking-tight leading-6 truncate"
             >
-              Cash flow
+              Cash flow for {{ now | date : "MMMM" }}
             </div>
             <div class="text-secondary font-medium">
               Monthly cashflow summary
@@ -270,60 +270,6 @@
       *ngIf="invoicesData"
     >
       <div
-        class="sm:col-span-2 lg:col-span-3 flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden"
-      >
-        <div class="flex items-start justify-between m-6 mb-0">
-          <div class="text-lg font-medium tracking-tight leading-6 truncate">
-            Total Invoices
-          </div>
-          <div class="ml-2">
-            <button class="h-6 min-h-6 px-2 rounded-full bg-hover" mat-button>
-              <span class="font-medium text-sm text-secondary">30 days</span>
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="flex flex-col gap-8 larger-screens:flex-row lg:items-center mx-6 mt-3 mb-8"
-        >
-          <div>
-            <div class="text-7xl font-bold tracking-tighter leading-tight">
-              {{ totalServicesInvoiceForMonth | number : "1.0-0" }}
-            </div>
-            <div
-              class="flex items-center ml-1 lg:ml-0 lg:mt-0.5 text-md leading-none whitespace-nowrap text-secondary"
-            >
-              <span class="ml-1">Services Invoices</span>
-            </div>
-          </div>
-
-          <div class="">
-            <div class="text-7xl font-bold tracking-tighter leading-tight">
-              {{ totalSalesInvoiceForMonth | number : "1.0-0" }}
-            </div>
-            <div
-              class="flex items-center ml-1 lg:ml-0 lg:mt-0.5 text-md leading-none whitespace-nowrap text-secondary"
-            >
-              <span class="ml-1">Sales Invoices</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col flex-auto h-20">
-          <apx-chart
-            class="flex-auto w-full h-full"
-            [chart]="chartConversions.chart"
-            [colors]="chartConversions.colors"
-            [series]="chartConversions.series"
-            [stroke]="chartConversions.stroke"
-            [tooltip]="chartConversions.tooltip"
-            [xaxis]="chartConversions.xaxis"
-            [yaxis]="chartConversions.yaxis"
-          ></apx-chart>
-        </div>
-      </div>
-
-      <div
         class="sm:col-span-2 lg:col-span-3 dark flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden"
       >
         <div
@@ -333,10 +279,10 @@
             <div
               class="mr-4 text-2xl md:text-3xl font-semibold tracking-tight leading-7"
             >
-              Daily Sales
+              Daily Revenue
             </div>
             <div class="font-medium text-secondary">
-              Number of sales per day
+              Total revenue per day for week/month
             </div>
           </div>
           <div class="ml-2">
@@ -382,6 +328,101 @@
             [tooltip]="chartVisitors.tooltip"
             [xaxis]="chartVisitors.xaxis"
             [yaxis]="chartVisitors.yaxis"
+          ></apx-chart>
+        </div>
+      </div>
+
+      <div
+        class="sm:col-span-2 lg:col-span-3 flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden"
+      >
+        <div class="flex items-start justify-between m-6 mb-0">
+          <div class="text-lg font-medium tracking-tight leading-6 truncate">
+            Total Customers
+          </div>
+          <div class="ml-2">
+            <button
+              class="h-6 min-h-6 px-2 rounded-full bg-hover"
+              mat-button
+              [matMenuTriggerFor]="totalNumberOfInvoices"
+            >
+              <span class="font-medium text-sm text-secondary">{{
+                getDisplayValueForFilter(totalNoOfInvoicesFilter)
+              }}</span>
+            </button>
+            <mat-menu #totalNumberOfInvoices="matMenu">
+              <button
+                mat-menu-item
+                (click)="updateFilter('1m', 'totalNoOfInvoices')"
+                (click)="totalInvoicesAndWeeklyNumbersBasedOnType('1m')"
+              >
+                30 days
+              </button>
+              <button
+                mat-menu-item
+                (click)="updateFilter('3m', 'totalNoOfInvoices')"
+                (click)="totalInvoicesAndWeeklyNumbersBasedOnType('3m')"
+              >
+                3 months
+              </button>
+              <button
+                mat-menu-item
+                (click)="updateFilter('6m', 'totalNoOfInvoices')"
+                (click)="totalInvoicesAndWeeklyNumbersBasedOnType('6m')"
+              >
+                6 months
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col gap-8 larger-screens:flex-row lg:items-center mx-6 mt-3 mb-8"
+        >
+          <div>
+            <div class="text-7xl font-bold tracking-tighter leading-tight">
+              {{ totalNoOfServicesInvoice | number : "1.0-0" }}
+            </div>
+            <div
+              class="flex items-center ml-1 lg:ml-0 lg:mt-0.5 text-md leading-none whitespace-nowrap text-secondary"
+            >
+              <span class="ml-1">Services Customers</span>
+            </div>
+          </div>
+
+          <div class="">
+            <div class="text-7xl font-bold tracking-tighter leading-tight">
+              {{ totalNoOfSalesInvoice | number : "1.0-0" }}
+            </div>
+            <div
+              class="flex items-center ml-1 lg:ml-0 lg:mt-0.5 text-md leading-none whitespace-nowrap text-secondary"
+            >
+              <span class="ml-1">Sales Customers</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col flex-auto h-20">
+          <apx-chart
+            class="flex-auto w-full h-full"
+            [chart]="chartServicesBills.chart"
+            [colors]="chartServicesBills.colors"
+            [series]="chartServicesBills.series"
+            [stroke]="chartServicesBills.stroke"
+            [tooltip]="chartServicesBills.tooltip"
+            [xaxis]="chartServicesBills.xaxis"
+            [yaxis]="chartServicesBills.yaxis"
+          ></apx-chart>
+        </div>
+        <div class="flex flex-col flex-auto h-20">
+          <apx-chart
+            class="flex-auto w-full h-full"
+            [chart]="chartSalesBills.chart"
+            [colors]="chartSalesBills.colors"
+            [series]="chartSalesBills.series"
+            [stroke]="chartSalesBills.stroke"
+            [tooltip]="chartSalesBills.tooltip"
+            [xaxis]="chartSalesBills.xaxis"
+            [yaxis]="chartSalesBills.yaxis"
           ></apx-chart>
         </div>
       </div>

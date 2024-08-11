@@ -986,12 +986,6 @@ export const analytics = {
   conversions: {
     amount: 4123,
     labels: [
-      now.minus({ days: 47 }).toFormat("dd MMM") +
-        " - " +
-        now.minus({ days: 40 }).toFormat("dd MMM"),
-      now.minus({ days: 39 }).toFormat("dd MMM") +
-        " - " +
-        now.minus({ days: 32 }).toFormat("dd MMM"),
       now.minus({ days: 31 }).toFormat("dd MMM") +
         " - " +
         now.minus({ days: 24 }).toFormat("dd MMM"),
@@ -1008,7 +1002,7 @@ export const analytics = {
     series: [
       {
         name: "Conversions",
-        data: [4412, 4345, 4541, 4677, 4322, 4123],
+        data: [4412, 4345, 4541, 4677],
       },
     ],
   },
@@ -1613,7 +1607,7 @@ export const analytics = {
   topMakes: {
     uniqueVisitors: 46085,
     series: [32, 20, 18, 30],
-    labels: ['Nissan', 'Tesla', 'Toyota', 'Others'],
+    labels: ["Nissan", "Tesla", "Toyota", "Others"],
   },
   language: {
     uniqueVisitors: 46085,
@@ -1623,6 +1617,6 @@ export const analytics = {
   topServices: {
     uniqueVisitors: 46085,
     series: [31, 29, 19, 30],
-    labels: ['Car Wash', 'Car Repair', 'Mot Reg', 'Others'],
-  }
+    labels: ["Car Wash", "Car Repair", "Mot Reg", "Others"],
+  },
 };

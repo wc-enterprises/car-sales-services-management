@@ -66,9 +66,40 @@ export interface IChartData {
 export class AnalyticsComponent implements OnInit, OnDestroy {
   @ViewChild("recentTransactionsTable", { read: MatSort })
   recentTransactionsTableMatSort: MatSort;
+  now = DateTime.local();
 
   chartVisitors: ApexOptions;
-  chartConversions: ApexOptions;
+
+  chartServicesBills: ApexOptions;
+  chartSalesBills: ApexOptions;
+  /**
+   * Weekly no of service customers served for a month.
+   */
+  serviceBillsStats = {
+    series: [
+      {
+        name: "Service bills",
+        data: [0, 0, 0, 0],
+      },
+    ],
+    labels: [],
+  };
+  /**
+   * Weekly no of sales customers served for a month.
+   */
+  salesBillsStats = {
+    series: [
+      {
+        name: "Sales bills",
+        data: [0, 0, 0, 0],
+      },
+    ],
+    labels: [],
+  };
+  totalNoOfInvoicesFilter: TTimeFilter = "1m";
+  totalNoOfSalesInvoice: number = 0;
+  totalNoOfServicesInvoice: number = 0;
+
   chartImpressions: ApexOptions;
   chartVisits: ApexOptions;
   chartVisitorsVsPageViews: ApexOptions;
@@ -120,8 +151,6 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     "amount",
   ];
   latestFiveInvoices: IInvoice[] = [];
-  totalSalesInvoiceForMonth: number = 0;
-  totalServicesInvoiceForMonth: number = 0;
   totalSalesRevenueForMonth: number = 0;
   totalServicesRevenueForMonth: number = 0;
 
@@ -153,13 +182,17 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     this._invoiceService.invoices$
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((data) => {
+        console.log("Invoice Data", data);
         this.invoicesData = data;
 
         this.getCustomersNewVsReturningNumbers("1m", "SERVICE");
         this.getCustomersNewVsReturningNumbers("1m", "SALE");
         this.getTopMakeOrService("1m", "make");
         this.getTopMakeOrService("1m", "service");
-        this.getSalesDataForThisMonth();
+        this.getRevenuePerDayForThisMonthAndWeek();
+        this.totalInvoicesAndWeeklyNumbersBasedOnType(
+          this.totalNoOfInvoicesFilter
+        );
 
         const getInvoiceMetrics = (invoices: IInvoice[]) => {
           const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-based
@@ -172,8 +205,6 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
             )
             .slice(0, 5);
 
-          let totalSalesInvoiceForMonth = 0;
-          let totalServicesInvoiceForMonth = 0;
           let totalSalesRevenueForMonth = 0;
           let totalServicesRevenueForMonth = 0;
 
@@ -185,10 +216,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
             // Check if the invoice is from the current month and year
             if (invoiceMonth === currentMonth && invoiceYear === currentYear) {
               if (invoice.type === "SALE") {
-                totalSalesInvoiceForMonth++;
                 totalSalesRevenueForMonth += (invoice as any).total;
               } else if (invoice.type === "SERVICE") {
-                totalServicesInvoiceForMonth++;
                 totalServicesRevenueForMonth += (invoice as any).total;
               }
             }
@@ -196,8 +225,6 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
           return {
             latestFiveInvoices,
-            totalSalesInvoiceForMonth,
-            totalServicesInvoiceForMonth,
             totalSalesRevenueForMonth,
             totalServicesRevenueForMonth,
           };
@@ -206,25 +233,18 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         if (data && data.length) {
           const {
             latestFiveInvoices,
-            totalSalesInvoiceForMonth,
-            totalServicesInvoiceForMonth,
             totalSalesRevenueForMonth,
             totalServicesRevenueForMonth,
           } = getInvoiceMetrics(data);
 
           this.latestFiveInvoices = latestFiveInvoices;
-          this.totalSalesInvoiceForMonth = totalSalesInvoiceForMonth;
-          this.totalServicesInvoiceForMonth = totalServicesInvoiceForMonth;
           this.totalSalesRevenueForMonth = totalSalesRevenueForMonth;
           this.totalServicesRevenueForMonth = totalServicesRevenueForMonth;
-
           this.recentTransactionsDataSource.data = latestFiveInvoices;
 
           console.log(
             {
               latestFiveInvoices,
-              totalSalesInvoiceForMonth,
-              totalServicesInvoiceForMonth,
               totalSalesRevenueForMonth,
               totalServicesRevenueForMonth,
             },
@@ -347,7 +367,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
    * @private
    */
   private _prepareChartData(): void {
-    // Visitors
+    // Total Revenue
     this.chartVisitors = {
       chart: {
         animations: {
@@ -442,44 +462,6 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         max: (max): number => max + 250,
         tickAmount: 5,
         show: false,
-      },
-    };
-
-    // Conversions
-    this.chartConversions = {
-      chart: {
-        animations: {
-          enabled: false,
-        },
-        fontFamily: "inherit",
-        foreColor: "inherit",
-        height: "100%",
-        type: "area",
-        sparkline: {
-          enabled: true,
-        },
-      },
-      colors: ["#38BDF8"],
-      fill: {
-        colors: ["#38BDF8"],
-        opacity: 0.5,
-      },
-      series: this.data.conversions.series,
-      stroke: {
-        curve: "smooth",
-      },
-      tooltip: {
-        followCursor: true,
-        theme: "dark",
-      },
-      xaxis: {
-        type: "category",
-        categories: this.data.conversions.labels,
-      },
-      yaxis: {
-        labels: {
-          formatter: (val): string => val.toString(),
-        },
       },
     };
 
@@ -862,7 +844,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     };
   }
 
-  getSalesDataForThisMonth() {
+  getRevenuePerDayForThisMonthAndWeek() {
     const now = DateTime.local();
     const startOfMonth = now.startOf("month");
     const endOfMonth = now.endOf("month");
@@ -1104,6 +1086,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       | "saleCustomer"
       | "topMake"
       | "topService"
+      | "totalNoOfInvoices"
   ) {
     switch (filterToUpdate) {
       case "serviceCustomer":
@@ -1123,6 +1106,10 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       case "topService":
         this.topServiceFilter = value;
         break;
+
+      case "totalNoOfInvoices":
+        this.totalNoOfInvoicesFilter = value;
+        break;
     }
   }
 
@@ -1132,6 +1119,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         return "30 days";
       case "3m":
         return "3 months";
+      case "6m":
+        return "6 months";
       case "9m":
         return "9 months";
     }
@@ -1141,5 +1130,166 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     /** Check if default countries list present in db, else populate */
     this._contactService.addCountriesIfNotAlreadyPresent();
     this._carsService.addMakesIfNotPresent();
+  }
+
+  /**
+   * Total number of service and sales invoices
+   */
+  totalInvoicesAndWeeklyNumbersBasedOnType(timeFilter: TTimeFilter) {
+    console.log(
+      "Received request to calc total invoices and weekly numbers based on type for time: ",
+      timeFilter
+    );
+    // Get all invoices data
+    const invoiceData = this.invoicesData;
+
+    // Define how many weeks to consider based on the time filter
+    const weeksToConsider =
+      timeFilter === "1m"
+        ? 4
+        : timeFilter === "3m"
+        ? 12
+        : timeFilter === "6m"
+        ? 24
+        : 4;
+    console.log("weeksToConsider: ", weeksToConsider);
+
+    // Initialize the stats objects
+    const serviceBillsStats = {
+      series: [{ name: "Service bills", data: [] }],
+      labels: [],
+    };
+    const salesBillsStats = {
+      series: [{ name: "Sales bills", data: [] }],
+      labels: [],
+    };
+
+    // Calculate the starting point, aligning with the last full week
+    const now = this.now;
+    const startOfWeek = now.startOf("week");
+    const startDate = startOfWeek.minus({ weeks: weeksToConsider - 1 });
+    this.totalNoOfServicesInvoice = 0;
+    this.totalNoOfSalesInvoice = 0;
+
+    // Iterate through each week, counting invoices
+    for (let i = 0; i < weeksToConsider; i++) {
+      const weekStart = startDate.plus({ weeks: i });
+      const weekEnd = weekStart.endOf("week");
+
+      // Filter invoices for this week
+      const serviceInvoicesThisWeek = invoiceData.filter(
+        (invoice) =>
+          DateTime.fromMillis(invoice.date) >= weekStart &&
+          DateTime.fromMillis(invoice.date) <= weekEnd &&
+          invoice.type === "SERVICE"
+      );
+
+      const salesInvoicesThisWeek = invoiceData.filter(
+        (invoice) =>
+          DateTime.fromMillis(invoice.date) >= weekStart &&
+          DateTime.fromMillis(invoice.date) <= weekEnd &&
+          invoice.type === "SALE"
+      );
+
+      // Push the counts and labels into the respective arrays
+      serviceBillsStats.series[0].data.push(serviceInvoicesThisWeek.length);
+      this.totalNoOfServicesInvoice += serviceInvoicesThisWeek.length;
+      this.totalNoOfSalesInvoice += salesInvoicesThisWeek.length;
+      salesBillsStats.series[0].data.push(salesInvoicesThisWeek.length);
+
+      // Format and push the label (e.g., "01 Jan - 07 Jan")
+      serviceBillsStats.labels.push(
+        weekStart.toFormat("dd MMM") + " - " + weekEnd.toFormat("dd MMM")
+      );
+      salesBillsStats.labels.push(
+        weekStart.toFormat("dd MMM") + " - " + weekEnd.toFormat("dd MMM")
+      );
+    }
+
+    console.log("serviceBillsStatus", serviceBillsStats);
+    console.log("salesBillsStats", salesBillsStats);
+
+    // Assign the computed stats to the class properties
+    this.serviceBillsStats = serviceBillsStats;
+    this.salesBillsStats = salesBillsStats;
+    this._prepareTotalCustomersCharts();
+  }
+
+  _prepareTotalCustomersCharts() {
+    // Service Bills
+    this.chartServicesBills = {
+      chart: {
+        animations: {
+          enabled: false,
+        },
+        fontFamily: "inherit",
+        foreColor: "inherit",
+        height: "100%",
+        type: "line",
+        sparkline: {
+          enabled: true,
+        },
+      },
+      colors: ["#38BDF8"],
+      fill: {
+        colors: ["#ffffff"],
+        opacity: 1,
+      },
+      series: this.serviceBillsStats.series,
+      stroke: {
+        curve: "smooth",
+      },
+      tooltip: {
+        followCursor: true,
+        theme: "dark",
+      },
+      xaxis: {
+        type: "category",
+        categories: this.serviceBillsStats.labels,
+      },
+      yaxis: {
+        labels: {
+          formatter: (val): string => val.toString(),
+        },
+      },
+    };
+
+    // Sales Bills
+    this.chartSalesBills = {
+      chart: {
+        animations: {
+          enabled: false,
+        },
+        fontFamily: "inherit",
+        foreColor: "inherit",
+        height: "100%",
+        type: "line",
+        sparkline: {
+          enabled: true,
+        },
+      },
+      colors: ["#70FFE3"],
+      fill: {
+        colors: ["#ffffff"],
+        opacity: 1,
+      },
+      series: this.salesBillsStats.series,
+      stroke: {
+        curve: "smooth",
+      },
+      tooltip: {
+        followCursor: true,
+        theme: "dark",
+      },
+      xaxis: {
+        type: "category",
+        categories: this.salesBillsStats.labels,
+      },
+      yaxis: {
+        labels: {
+          formatter: (val): string => val.toString(),
+        },
+      },
+    };
   }
 }

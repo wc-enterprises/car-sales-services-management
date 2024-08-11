@@ -172,9 +172,9 @@
 
               <div
                 class="hidden sm:block md:block lg:block truncate"
-                [mat-sort-header]="'cost'"
+                [mat-sort-header]="'amount'"
               >
-                Cost
+                Amount
               </div>
 
               <div
@@ -182,6 +182,18 @@
                 [mat-sort-header]="'type'"
               >
                 Type
+              </div>
+              <div
+                class="hidden sm:hidden md:hidden lg:block truncate"
+                [mat-sort-header]="'date'"
+              >
+                Date
+              </div>
+              <div
+                class="hidden sm:hidden md:hidden lg:block truncate"
+                [mat-sort-header]="'nextServiceDate'"
+              >
+                Next Service Date
               </div>
 
               <div class="ml-9" [mat-sort-header]="'preview'">Preview</div>
@@ -239,6 +251,16 @@
                   <!-- Type -->
                   <div class="hidden sm:block md:block lg:block truncate">
                     {{ invoice.type }}
+                  </div>
+
+                  <!-- Date -->
+                  <div class="hidden sm:hidden md:hidden lg:block truncate">
+                    {{ invoice.date | date : "shortDate" }}
+                  </div>
+
+                  <!-- Next Service Date -->
+                  <div class="hidden sm:hidden md:hidden lg:block truncate">
+                    {{ invoice.carInfo?.nextServiceDate | date : "shortDate" }}
                   </div>
 
                   <!-- Invoice -->

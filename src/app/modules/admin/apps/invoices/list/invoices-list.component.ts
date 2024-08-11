@@ -1,6 +1,7 @@
 import {
   AsyncPipe,
   CurrencyPipe,
+  DatePipe,
   NgClass,
   NgFor,
   NgIf,
@@ -81,7 +82,7 @@ import { getNowAndPastDateBasedOnFilterVal } from "./utils/util";
 
         // Laptop medium
         @screen lg {
-          grid-template-columns: 48px 112px 112px 112px 112px auto 120px;
+          grid-template-columns: 48px 112px 112px 112px 112px 112px 112px auto 120px;
         }
       }
     `,
@@ -114,6 +115,7 @@ import { getNowAndPastDateBasedOnFilterVal } from "./utils/util";
     MatMenuModule,
     MatDatepickerModule,
     MatDialogModule,
+    DatePipe,
   ],
 })
 export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {

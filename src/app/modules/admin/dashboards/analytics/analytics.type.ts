@@ -1,4 +1,4 @@
-export type TTimeFilter = "1m" | "3m" | "9m" | "";
+export type TTimeFilter = "1m" | "3m" | "6m" | "9m" | "";
 
 export interface DailySalesAnalytics {
   series: {

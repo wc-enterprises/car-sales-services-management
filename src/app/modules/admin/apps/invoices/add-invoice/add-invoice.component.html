@@ -8,7 +8,7 @@
   >
     <!-- Header -->
     <div
-      class="relative w-full flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-0 md:px-0"
+      class="relative w-full flex flex-row flex-0 items-center justify-between py-8 px-0 md:px-0"
     >
       <!-- Title -->
       <div class="text-4xl ss:text-[26px] font-extrabold tracking-tight">
@@ -39,23 +39,9 @@
         (ngSubmit)="onSave()"
       >
         <div class="flex flex-col w-full">
-          <span class="text-gray-600 text-lg font-semibold w-full text-left">
-            INVOICE DETAILS:
+          <span class="text-gray-600 text-3xl font-regular w-full text-left">
+            INVOICE {{ form.get("invoiceNumber").value }}
           </span>
-
-          <!-- Invoice number -->
-          <div class="mt-5">
-            <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-              <mat-label class="text-gray-500">Invoice number</mat-label>
-
-              <input
-                matInput
-                formControlName="invoiceNumber"
-                placeholder="Invoice number"
-                disabled
-              />
-            </mat-form-field>
-          </div>
 
           <div
             class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0"
@@ -93,8 +79,8 @@
         <!-- Bill section -->
 
         <div formGroupName="billTo" class="flex flex-col mt-8 w-full">
-          <span class="text-gray-600 text-lg font-semibold w-full text-left">
-            BILL TO:
+          <span class="text-gray-600 text-3xl font-regular w-full text-left">
+            BILL TO
           </span>
 
           <!-- Row 1 -->
@@ -189,7 +175,7 @@
         <ul
           #dropdowned
           *ngIf="isDropdownOpened && filteredNames.length"
-          class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-90 mobile-small:mt-[450px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+          class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[292px] mobile-small:mt-[382px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
           (mousedown)="preventClose($event)"
         >
           <li
@@ -203,7 +189,7 @@
 
         <ul
           *ngIf="isDropdownOpenedNumber && filteredPhoneNumber.length"
-          class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-90 mobile-small:mt-[540px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+          class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[292px] mobile-small:mt-[472px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
           (mousedown)="preventClose($event)"
         >
           <li
@@ -220,8 +206,8 @@
           class="flex flex-col mt-8 w-full"
           *ngIf="showCarDetails()"
         >
-          <span class="text-gray-600 text-lg font-semibold w-full text-left">
-            CAR DETAILS:
+          <span class="text-gray-600 text-3xl font-regular w-full text-left">
+            CAR DETAILS
           </span>
 
           <!-- Row 1 -->
@@ -269,7 +255,7 @@
           <!-- regNo -->
           <ul
             *ngIf="isDropdownOpenedRegNo && filteredRegNo.length"
-            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-29 mobile-small:mt-[120px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-29 mobile-small:mt-[130px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
             (mousedown)="preventClose($event)"
           >
             <li
@@ -283,7 +269,7 @@
           <!-- makeName -->
           <ul
             *ngIf="isDropdownOpenedMakeName && filteredMakeName.length"
-            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-30 mobile-small:mt-[210px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[130px] mobile-small:mt-[220px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
             (mousedown)="preventClose($event)"
           >
             <li
@@ -297,7 +283,7 @@
           <!-- modelName -->
           <ul
             *ngIf="isDropdownOpenedModelName && filteredModelName.length"
-            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-30 mobile-small:mt-[299px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[130px] mobile-small:mt-[309px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
             (mousedown)="preventClose($event)"
           >
             <li
@@ -399,9 +385,9 @@
         </div>
 
         <span
-          class="text-gray-600 text-lg font-semibold w-full text-left mt-10"
+          class="text-gray-600 text-3xl font-regular w-full text-left mt-10"
         >
-          ITEMS:
+          ITEMS
         </span>
         <div
           formArrayName="services"
@@ -458,7 +444,7 @@
             <ul
               #dropdown
               *ngIf="filteredServices.length > 0 && isDropdownOpen[i]"
-              class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 mt-12 z-10 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+              class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 mt-13 z-10 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
               (mousedown)="preventClose($event)"
             >
               <li
