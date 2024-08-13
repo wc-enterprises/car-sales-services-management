@@ -71,21 +71,6 @@ export const appRoutes: Route[] = [
     ],
   },
 
-  // Landing routes
-  {
-    path: "",
-    component: LayoutComponent,
-    data: {
-      layout: "empty",
-    },
-    children: [
-      {
-        path: "home",
-        loadChildren: () => import("app/modules/landing/home/home.routes"),
-      },
-    ],
-  },
-
   // Admin routes
   {
     path: "",
@@ -103,12 +88,7 @@ export const appRoutes: Route[] = [
           {
             path: "dashboard",
             loadChildren: () =>
-              import("app/modules/admin/dashboards/analytics/analytics.routes"),
-          },
-          {
-            path: "analytics",
-            loadChildren: () =>
-              import("app/modules/admin/dashboards/finance/finance.routes"),
+              import("app/modules/analytics/analytics.routes"),
           },
         ],
       },
@@ -117,13 +97,11 @@ export const appRoutes: Route[] = [
         children: [
           {
             path: "contacts",
-            loadChildren: () =>
-              import("app/modules/admin/apps/contacts/contacts.routes"),
+            loadChildren: () => import("app/modules/contacts/contacts.routes"),
           },
           {
             path: "cars",
-            loadChildren: () =>
-              import("app/modules/admin/apps/cars/cars.routes"),
+            loadChildren: () => import("app/modules/cars/cars.routes"),
           },
         ],
       },
@@ -134,20 +112,16 @@ export const appRoutes: Route[] = [
         children: [
           {
             path: "contacts",
-            loadChildren: () =>
-              import("app/modules/admin/apps/contacts/contacts.routes"),
+            loadChildren: () => import("app/modules/contacts/contacts.routes"),
           },
           {
             path: "spares-and-services",
             loadChildren: () =>
-              import(
-                "app/modules/admin/apps/spares-and-services/ecommerce.routes"
-              ),
+              import("app/modules/spares-and-services/ecommerce.routes"),
           },
           {
             path: "invoices",
-            loadChildren: () =>
-              import("app/modules/admin/apps/invoices/invoices.routes"),
+            loadChildren: () => import("app/modules/invoices/invoices.routes"),
           },
         ],
       },
@@ -160,9 +134,7 @@ export const appRoutes: Route[] = [
           {
             path: "authentication",
             loadChildren: () =>
-              import(
-                "app/modules/admin/pages/authentication/authentication.routes"
-              ),
+              import("app/modules/pages/authentication/authentication.routes"),
           },
 
           // Error
@@ -172,16 +144,12 @@ export const appRoutes: Route[] = [
               {
                 path: "404",
                 loadChildren: () =>
-                  import(
-                    "app/modules/admin/pages/error/error-404/error-404.routes"
-                  ),
+                  import("app/modules/pages/error/error-404/error-404.routes"),
               },
               {
                 path: "500",
                 loadChildren: () =>
-                  import(
-                    "app/modules/admin/pages/error/error-500/error-500.routes"
-                  ),
+                  import("app/modules/pages/error/error-500/error-500.routes"),
               },
             ],
           },
@@ -197,14 +165,14 @@ export const appRoutes: Route[] = [
                     path: "compact",
                     loadChildren: () =>
                       import(
-                        "app/modules/admin/pages/invoice/printable/compact/compact.routes"
+                        "app/modules/pages/invoice/printable/compact/compact.routes"
                       ),
                   },
                   {
                     path: "modern",
                     loadChildren: () =>
                       import(
-                        "app/modules/admin/pages/invoice/printable/modern/modern.routes"
+                        "app/modules/pages/invoice/printable/modern/modern.routes"
                       ),
                   },
                 ],
@@ -212,9 +180,7 @@ export const appRoutes: Route[] = [
               {
                 path: "modern",
                 loadChildren: () =>
-                  import(
-                    "app/modules/admin/pages/invoice/modern/modern.routes"
-                  ),
+                  import("app/modules/pages/invoice/modern/modern.routes"),
               },
             ],
           },
@@ -223,14 +189,14 @@ export const appRoutes: Route[] = [
           {
             path: "profile",
             loadChildren: () =>
-              import("app/modules/admin/pages/profile/profile.routes"),
+              import("app/modules/pages/profile/profile.routes"),
           },
 
           // Settings
           {
             path: "settings",
             loadChildren: () =>
-              import("app/modules/admin/pages/settings/settings.routes"),
+              import("app/modules/pages/settings/settings.routes"),
           },
         ],
       },
@@ -243,16 +209,13 @@ export const appRoutes: Route[] = [
           {
             path: "advanced-search",
             loadChildren: () =>
-              import(
-                "app/modules/admin/ui/advanced-search/advanced-search.routes"
-              ),
+              import("app/modules/ui/advanced-search/advanced-search.routes"),
           },
 
           // Colors
           {
             path: "colors",
-            loadChildren: () =>
-              import("app/modules/admin/ui/colors/colors.routes"),
+            loadChildren: () => import("app/modules/ui/colors/colors.routes"),
           },
 
           // Confirmation Dialog
@@ -260,7 +223,7 @@ export const appRoutes: Route[] = [
             path: "confirmation-dialog",
             loadChildren: () =>
               import(
-                "app/modules/admin/ui/confirmation-dialog/confirmation-dialog.routes"
+                "app/modules/ui/confirmation-dialog/confirmation-dialog.routes"
               ),
           },
         ],
@@ -270,7 +233,7 @@ export const appRoutes: Route[] = [
         path: "404-not-found",
         pathMatch: "full",
         loadChildren: () =>
-          import("app/modules/admin/pages/error/error-404/error-404.routes"),
+          import("app/modules/pages/error/error-404/error-404.routes"),
       },
       { path: "**", redirectTo: "404-not-found" },
     ],
