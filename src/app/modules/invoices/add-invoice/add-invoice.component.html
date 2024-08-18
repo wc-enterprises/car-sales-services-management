@@ -51,7 +51,7 @@
               <mat-label class="text-gray-500">Invoice Type</mat-label>
               <mat-select [formControlName]="'type'">
                 <ng-container *ngFor="let type of invoiceTypes">
-                  <mat-option [value]="type.value">{{
+                  <mat-option [value]="type.value" (click)="typeChanged()">{{
                     type.viewValue
                   }}</mat-option>
                 </ng-container>
@@ -403,7 +403,7 @@
             ITEM
           </div>
           <div
-            class="col-span-5 font-medium text-md text-left text-secondary"
+            class="col-span-3 font-medium text-md text-left text-secondary"
             *ngIf="form.get('type')?.value === 'SALE'"
           >
             MAKE
@@ -417,7 +417,7 @@
             RATE
           </div>
           <div
-            class="col-span-2 font-medium text-md text-right text-secondary"
+            class="col-span-3 font-medium text-left text-md text-secondary"
             *ngIf="form.get('type')?.value === 'SALE'"
           >
             MODEL
@@ -431,7 +431,7 @@
             QTY
           </div>
           <div
-            class="col-span-2 font-medium text-md text-right text-secondary"
+            class="col-span-2 font-medium text-left text-md text-secondary"
             *ngIf="form.get('type')?.value === 'SALE'"
           >
             REG NO
@@ -445,7 +445,7 @@
             TOTAL
           </div>
           <div
-            class="col-span-2 font-medium text-md text-right text-secondary"
+            class="col-span-4 font-medium text-md text-center text-secondary"
             *ngIf="form.get('type')?.value === 'SALE'"
           >
             PRICE
@@ -486,7 +486,7 @@
             </mat-form-field>
 
             <mat-form-field
-              class="col-span-3 ss:col-span-7"
+              class="col-span-3 ss:col-span-12"
               [subscriptSizing]="'dynamic'"
               *ngIf="form.get('type')?.value === 'SALE'"
             >
@@ -523,13 +523,12 @@
                 matInput
                 formControlName="price"
                 placeholder="Price"
-                [disabled]="!service.get('item')?.value"
                 type="number"
               />
             </mat-form-field>
 
             <mat-form-field
-              class="col-span-3 ss:col-span-7"
+              class="col-span-2 ss:col-span-7"
               [subscriptSizing]="'dynamic'"
               *ngIf="form.get('type')?.value === 'SALE'"
             >
@@ -559,7 +558,7 @@
               />
             </mat-form-field>
             <mat-form-field
-              class="col-span-2 self-center ss:col-span-5"
+              class="col-span-3 self-center ss:col-span-5"
               [subscriptSizing]="'dynamic'"
               *ngIf="form.get('type')?.value === 'SALE'"
             >
@@ -588,6 +587,7 @@
                 'col-span-3 ss:col-span-12': services.length !== 1,
                 'col-span-4 ss:col-span-12': services.length === 1
               }"
+              class="ss:col-span-10"
               [subscriptSizing]="'dynamic'"
               *ngIf="form.get('type')?.value === 'SALE'"
             >
@@ -596,7 +596,6 @@
                 formControlName="price"
                 placeholder="Price"
                 type="number"
-                disabled
               />
             </mat-form-field>
 

@@ -199,8 +199,8 @@ export class InvoiceFormComponent {
 
   createServiceGroup(suggestion?: IService): FormGroup {
     const price = suggestion?.price ?? "";
-    const quantity = suggestion?.quantity ?? 1;
-    const total = suggestion?.total ?? +price * quantity;
+    const quantity = suggestion?.quantity ?? "";
+    const total = suggestion?.total ?? +price * +quantity;
 
     return this.fb.group({
       id: [suggestion?.id ?? ""],
@@ -328,14 +328,22 @@ export class InvoiceFormComponent {
     /** Check for invoice draft */
     const invoiceDraft = localStorage.getItem("invoiceDraft");
     if (invoiceDraft) {
-      const parsedInvoice: IInvoice = JSON.parse(invoiceDraft);
+      const parsedInvoice: Partial<IInvoice> = JSON.parse(invoiceDraft);
+      const services = parsedInvoice.services;
+
       this.form.patchValue({ ...parsedInvoice, date: new Date() });
-      parsedInvoice.services.forEach((item) => {
-        this.addService(item);
-      });
+
+      if (services && services.length) {
+        services.shift();
+        console.log("Adding following services to form: ", services);
+        services?.forEach((item) => {
+          this.addService(item);
+        });
+      }
     }
 
-    this.form.valueChanges.subscribe((data) => {
+    this.form.valueChanges.subscribe((data: IInvoice) => {
+      data.services = data.services.filter((item) => item.item);
       localStorage.setItem("invoiceDraft", JSON.stringify(data));
     });
 
@@ -381,6 +389,11 @@ export class InvoiceFormComponent {
       type: "SERVICE",
       date: new Date(),
     });
+  }
+
+  typeChanged() {
+    console.log("xxxxxxxxxxxxxx Type changed xxxxxxxxxxxxxx");
+    this.form.get("services")?.reset();
   }
 
   showCarDetails() {
