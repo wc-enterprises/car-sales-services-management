@@ -27,9 +27,9 @@ export class InventoryService {
   // Private
 
   private _product: BehaviorSubject<InventoryProduct | null> =
-    new BehaviorSubject(null);
+    new BehaviorSubject<InventoryProduct | null>(null);
   private _products: BehaviorSubject<InventoryProduct[] | null> =
-    new BehaviorSubject(null);
+    new BehaviorSubject<InventoryProduct[] | null>(null);
   private _unsubscribers: Unsubscribe[] = [];
 
   /**
@@ -50,14 +50,14 @@ export class InventoryService {
    * Getter for product
    */
   get product$(): Observable<InventoryProduct> {
-    return this._product.asObservable();
+    return this._product.asObservable() as Observable<InventoryProduct>;
   }
 
   /**
    * Getter for products
    */
   get products$(): Observable<InventoryProduct[]> {
-    return this._products.asObservable();
+    return this._products.asObservable() as Observable<InventoryProduct[]>;
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -70,12 +70,9 @@ export class InventoryService {
   getProducts() {
     // TODO: Include pagination to this function
 
-    console.log("Get products called");
-
     const productsRef = ref(this.db, "products");
     const unsubsriber = onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
-      console.log("Fetched products from db:", data);
 
       const products: InventoryProduct[] = [];
       if (!data) {
@@ -104,7 +101,9 @@ export class InventoryService {
       take(1),
       map((products) => {
         // Find the product
-        const product = products.find((item) => item.id === id) || null;
+        const product = products
+          ? products.find((item) => item.id === id) || null
+          : null;
 
         // Update the product
         this._product.next(product);
@@ -208,7 +207,7 @@ export class InventoryService {
       await this.getProducts();
 
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.log("An error occured while deleting the product", err.message);
       return false;
     }

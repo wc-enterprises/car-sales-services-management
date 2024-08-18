@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import {
   BehaviorSubject,
+  filter,
   map,
   Observable,
   of,
@@ -26,8 +27,12 @@ import { Makes } from "../utils/util";
 export class CarsService {
   //   private _pagination: BehaviorSubject<InventoryPagination | null> =
   //     new BehaviorSubject(null);
-  private _car: BehaviorSubject<ICar | null> = new BehaviorSubject(null);
-  private _cars: BehaviorSubject<ICar[] | null> = new BehaviorSubject(null);
+  private _car: BehaviorSubject<ICar | null> = new BehaviorSubject<ICar | null>(
+    null
+  );
+  private _cars: BehaviorSubject<ICar[] | null> = new BehaviorSubject<
+    ICar[] | null
+  >(null);
 
   private _unsubscribers: Unsubscribe[] = [];
 
@@ -59,14 +64,16 @@ export class CarsService {
    * Getter for product
    */
   get car$(): Observable<ICar> {
-    return this._car.asObservable();
+    return this._car.asObservable().pipe(filter((v): v is ICar => v !== null));
   }
 
   /**
    * Getter for products
    */
   get cars$(): Observable<ICar[]> {
-    return this._cars.asObservable();
+    return this._cars
+      .asObservable()
+      .pipe(filter((v): v is ICar[] => v !== null));
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -90,7 +97,7 @@ export class CarsService {
       const data = snapshot.val();
 
       // Frame cars for component
-      const cars = [];
+      const cars: ICar[] = [];
       if (!data || data.length === 0) return cars;
       Object.keys(data).forEach((key) => {
         const val = data[key];
@@ -120,7 +127,9 @@ export class CarsService {
       take(1),
       map((products) => {
         // Find the product
-        const product = products.find((item) => item.id === id) || null;
+        const product = products
+          ? products.find((item) => item.id === id) || null
+          : null;
 
         // Update the product
         this._car.next(product);
@@ -193,7 +202,7 @@ export class CarsService {
       await set(ref(this.db, "cars/" + id), null);
       await this.getCars();
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.log("An error occured while deleting the car", err.message);
       return false;
     }
@@ -251,7 +260,7 @@ export class CarsService {
     const data = snapshot.val();
 
     if (!data) {
-      const updates = {};
+      const updates: Record<string, string[]> = {};
       Object.keys(Makes).forEach((item) => {
         updates[`Makes/${item}`] = Makes[item];
       });

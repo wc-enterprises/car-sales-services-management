@@ -13,7 +13,14 @@ export function getRegYearList() {
 // Transmission
 export const TRANSMISSION = ["Manual", "Automatic"];
 // Fuel Type
-export const FUEL_TYPE = ["Petrol", "Diesel", "CNG", "Bio-Diesel", "LPG"];
+export const FUEL_TYPE = [
+  "Petrol",
+  "Diesel",
+  "CNG",
+  "Bio-Diesel",
+  "LPG",
+  "Electric",
+];
 // Color
 export const COLOR = [
   "Beige",
@@ -1718,7 +1725,7 @@ export const countries = [
   },
 ];
 
-export const Makes = {
+export const Makes: Record<string, string[]> = {
   Abarth: ["124 Spider", "500", "595", "695"],
   "Alfa Romeo": ["Giulia", "Giulietta", "Junior", "Stelvio", "Tonale"],
   Alpine: ["A110"],

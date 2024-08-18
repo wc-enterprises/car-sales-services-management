@@ -13,7 +13,7 @@
   <div class="flex items-center ml-6">
     <button
       class="sm:inline-flex ml-3"
-      mat-flat-button
+      mat-flat-buttonz
       [color]="'primary'"
       (click)="exportInvoice()"
     >
@@ -32,12 +32,22 @@
 >
   <!-- Main -->
   <div
+    *ngIf="invoiceData"
     class="inline-block p-6 mobile-small:pl-8 sm:p-10 text-left xl:overflow-y-scroll lg:overflow-y-scroll lg:h-full md:overflow-y-scroll md:h-full hide-scrollbar"
   >
     <!-- A4 -->
     <div class="rounded-2xl shadow print:rounded-none print:overflow-visible">
       <!-- Header -->
-      <img src="assets/images/invoice/invoice-header.svg" alt="header" />
+      <img
+        *ngIf="invoiceData.type === 'SERVICE'"
+        src="assets/images/invoice/invoice-header.svg"
+        alt="header"
+      />
+      <img
+        *ngIf="invoiceData.type === 'SALE'"
+        src="assets/images/invoice/grace-cars-ltd-header.svg"
+        alt="header"
+      />
       <!-- Content -->
       <div class="w-240 pl-16 pr-16">
         <!-- Head content -->
@@ -91,35 +101,134 @@
           <div>{{ formatNumber(invoiceData.billTo.phoneNumber) }}</div>
         </div>
 
-        <!-- Table -->
-        <div class="grid grid-cols-12 gap-x-1 mt-12">
-          <!-- Columns -->
-          <div class="col-span-8 font-medium text-md text-secondary">
+        <!-- Table Columns -->
+        <div
+          class="grid grid-cols-12 gap-x-1 mt-12 bg-[#1E5482] h-[50px] include-color-head rounded-[5px]"
+        >
+          <!-- First Column -->
+          <div
+            class="col-span-8 font-medium text-md text-secondary text-white pl-4"
+            *ngIf="invoiceData.type === 'SERVICE'"
+          >
             SERVICE
           </div>
-          <div class="font-medium text-md text-right text-secondary">RATE</div>
-          <div class="font-medium text-md text-right text-secondary">QTY</div>
-          <div class="col-span-2 font-medium text-md text-right text-secondary">
-            TOTAL
+          <div
+            class="col-span-3 font-medium text-md text-secondary text-white pl-4"
+            *ngIf="invoiceData.type === 'SALE'"
+          >
+            MAKE
           </div>
 
-          <ng-container *ngFor="let service of invoiceData.services">
-            <!-- Divider -->
-            <div class="col-span-12 my-4 border-b"></div>
+          <!-- Second Column -->
+          <div
+            class="font-medium text-md text-right text-secondary text-white"
+            *ngIf="invoiceData.type === 'SERVICE'"
+          >
+            RATE
+          </div>
+          <div
+            class="col-span-5 font-medium text-md text-secondary text-white"
+            *ngIf="invoiceData.type === 'SALE'"
+          >
+            MODEL
+          </div>
 
-            <!-- Item -->
-            <div class="col-span-8 text-lg font-medium">
+          <!-- Third Column -->
+          <div
+            class="font-medium text-md text-right text-secondary text-white"
+            *ngIf="invoiceData.type === 'SERVICE'"
+          >
+            QTY
+          </div>
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary text-white"
+            *ngIf="invoiceData.type === 'SALE'"
+          >
+            REG NO
+          </div>
+
+          <!-- Fourth Column -->
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary pr-4 text-white"
+            *ngIf="invoiceData.type === 'SERVICE'"
+          >
+            TOTAL
+          </div>
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary pr-4 text-white"
+            *ngIf="invoiceData.type === 'SALE'"
+          >
+            PRICE
+          </div>
+        </div>
+
+        <!-- Table Data-->
+        <div class="grid grid-cols-12 gap-x-1">
+          <ng-container
+            *ngFor="let service of invoiceData.services; let i = index"
+          >
+            <!-- Spacer if above first row -->
+            <div class="col-span-12 my-4" *ngIf="i === 0"></div>
+            <!-- Divider -->
+            <div class="col-span-12 my-4 border-b" *ngIf="i !== 0"></div>
+
+            <!-- Column 1 Item -->
+            <div
+              class="col-span-8 text-lg font-medium pl-3"
+              *ngIf="invoiceData.type === 'SERVICE'"
+            >
               {{ service.item }}
             </div>
-            <div class="self-center text-right">
+            <div
+              class="col-span-3 text-lg font-medium pl-3"
+              *ngIf="invoiceData.type === 'SALE'"
+            >
+              {{ service.id }}
+            </div>
+
+            <!-- Column 2 Item -->
+            <div
+              class="self-center text-right"
+              *ngIf="invoiceData.type === 'SERVICE'"
+            >
               {{ service.price | currency : "GBP" }}
             </div>
-            <div class="self-center text-right">{{ service.quantity }}</div>
-            <div class="col-span-2 self-center text-right">
+            <div
+              class="col-span-5 self-center"
+              *ngIf="invoiceData.type === 'SALE'"
+            >
+              {{ service.item }}
+            </div>
+
+            <!-- Column 3 Item -->
+            <div
+              class="self-center text-right"
+              *ngIf="invoiceData.type === 'SERVICE'"
+            >
+              {{ service.quantity }}
+            </div>
+            <div
+              class="col-span-2 self-center text-right"
+              *ngIf="invoiceData.type === 'SALE'"
+            >
+              {{ service.total }}
+            </div>
+
+            <!-- Column 4 Item -->
+            <div
+              class="col-span-2 self-center text-right pr-3"
+              *ngIf="invoiceData.type === 'SERVICE'"
+            >
               {{
                 getTotalPerItem(service.price, service.quantity)
                   | currency : "GBP"
               }}
+            </div>
+            <div
+              class="col-span-2 self-center text-right pr-3"
+              *ngIf="invoiceData.type === 'SALE'"
+            >
+              {{ service.price | currency : "GBP" }}
             </div>
           </ng-container>
 
@@ -128,11 +237,11 @@
 
           <!-- Subtotal -->
           <div
-            class="col-span-10 self-center font-medium tracking-tight text-secondary"
+            class="col-span-10 self-center font-medium tracking-tight text-secondary pl-3"
           >
             SUBTOTAL
           </div>
-          <div class="col-span-2 text-right text-lg">
+          <div class="col-span-2 text-right text-lg pr-3">
             {{ invoiceData.subtotal | currency : "GBP" }}
           </div>
 
@@ -141,11 +250,11 @@
 
           <!-- Tax -->
           <div
-            class="col-span-10 self-center font-medium tracking-tight text-secondary"
+            class="col-span-10 self-center font-medium tracking-tight text-secondary pl-3"
           >
             TAX
           </div>
-          <div class="col-span-2 text-right text-lg">
+          <div class="col-span-2 text-right text-lg pr-3">
             {{ invoiceData.tax?.value | currency : "GBP" }}
           </div>
 
@@ -154,25 +263,34 @@
 
           <!-- Discount -->
           <div
-            class="col-span-10 self-center font-medium tracking-tight text-secondary"
+            class="col-span-10 self-center font-medium tracking-tight text-secondary pl-3"
           >
             DISCOUNT
           </div>
-          <div class="col-span-2 text-right text-lg">
+          <div class="col-span-2 text-right text-lg pr-3">
             {{ invoiceData.discount?.value | currency : "GBP" }}
           </div>
 
           <!-- Divider -->
           <div class="col-span-12 my-3 border-b"></div>
+        </div>
 
+        <div class="grid grid-cols-12 h-[50px] pt-4">
           <!-- Total -->
+          <div class="col-span-8 self-center"></div>
           <div
-            class="col-span-10 self-center text-2xl font-medium tracking-tight text-secondary"
+            class="col-span-4 bg-[#1E5482] flex justify-between include-color rounded-[5px]"
           >
-            TOTAL
-          </div>
-          <div class="col-span-2 text-right text-2xl font-medium">
-            {{ invoiceData.total | currency : "GBP" }}
+            <div
+              class="self-center text-xl font-medium tracking-tight text-secondary h-[35px] text-white pl-2"
+            >
+              TOTAL
+            </div>
+            <div
+              class="text-right text-xl font-medium text-white h-[35px] pr-2"
+            >
+              {{ invoiceData.total | currency : "GBP" }}
+            </div>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import {
   BehaviorSubject,
+  filter,
   map,
   Observable,
   of,
@@ -12,7 +13,7 @@ import {
   IInvoice,
   TInvoiceTimeFilter,
   TInvoiceTypeFilter,
-} from "./invoices.types";
+} from "./utils/invoices.types";
 import {
   Database,
   get,
@@ -24,18 +25,17 @@ import {
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
 import { Contact } from "../contacts/contacts.types";
 import { ICar } from "../cars/cars.types";
-import { getNowAndPastDateBasedOnFilterVal } from "./list/utils/util";
+import { getNowAndPastDateBasedOnFilterVal } from "./utils/util";
 
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
   //   private _pagination: BehaviorSubject<InventoryPagination | null> =
   //     new BehaviorSubject(null);
-  private _invoice: BehaviorSubject<IInvoice | null> = new BehaviorSubject(
-    null
-  );
-  private _invoices: BehaviorSubject<IInvoice[] | null> = new BehaviorSubject(
-    null
-  );
+  private _invoice: BehaviorSubject<IInvoice | null> =
+    new BehaviorSubject<IInvoice | null>(null);
+  private _invoices: BehaviorSubject<IInvoice[] | null> = new BehaviorSubject<
+    IInvoice[] | null
+  >(null);
 
   private _unsubscribers: Unsubscribe[] = [];
   private invoiceData: any;
@@ -73,14 +73,18 @@ export class InvoicesService {
    * Getter for product
    */
   get invoice$(): Observable<IInvoice> {
-    return this._invoice.asObservable();
+    return this._invoice
+      .asObservable()
+      .pipe(filter((invoices): invoices is IInvoice => invoices !== null));
   }
 
   /**
    * Getter for products
    */
   get invoices$(): Observable<IInvoice[]> {
-    return this._invoices.asObservable();
+    return this._invoices
+      .asObservable()
+      .pipe(filter((v): v is IInvoice[] => v !== null));
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -161,6 +165,7 @@ export class InvoicesService {
       return count;
     } catch (err) {
       console.log(err, "errored in count invoices");
+      return 0;
     }
   }
 
@@ -178,7 +183,9 @@ export class InvoicesService {
       take(1),
       map((invoices) => {
         // Find the product
-        const invoice = invoices.find((item) => item.id === id) || null;
+        const invoice = invoices
+          ? invoices.find((item) => item.id === id) || null
+          : null;
 
         // Update the product
         this._invoice.next(invoice);
@@ -228,16 +235,16 @@ export class InvoicesService {
     try {
       await set(ref(this.db, "invoices/" + id), null);
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.log("An error occured while deleting the invoice", err.message);
       return false;
     }
   }
   private invoiceDataSubject = new BehaviorSubject<any>(null);
 
-  nameOfContact = [];
-  numberOfConcatact = [];
-  nameOfMake = [];
+  nameOfContact: string[] = [];
+  numberOfConcatact: string[] = [];
+  nameOfMake: string[] = [];
   async getNameOfContacts() {
     const contactsRef = ref(this.db, "contacts");
     // Fetch the data once
@@ -257,7 +264,7 @@ export class InvoicesService {
     return this.nameOfContact;
   }
 
-  async getNumberOfContacts() {
+  async getNumberOfContacts(): Promise<string[]> {
     const contactsRef = ref(this.db, "contacts");
 
     // Fetch the data once
@@ -267,31 +274,25 @@ export class InvoicesService {
     if (!data) return [];
 
     // Clear the existing nameContact array
-    let contact = [];
-    let numbers = [];
+    const contacts: Contact[] = [];
 
     // Iterate through the data and push contacts to nameContact array
     Object.keys(data).forEach((key) => {
       const val = data[key];
-      contact.push(val);
+      contacts.push(val);
     });
 
-    // Push phone numbers into the Numbers array
-    for (let i = 0; i < contact.length; i++) {
-      if (contact[i].phoneNumbers) numbers.push(contact[i].phoneNumbers);
-    }
-
-    // Clear the NumberOfConcatact array
-    this.numberOfConcatact = [];
-    let flatNumbers = numbers.flat();
-
-    for (let i = 0; i < flatNumbers.length; i++) {
-      this.numberOfConcatact.push(flatNumbers[i].phoneNumber);
-    }
-
-    // Return the NumberOfConcatact array
-    return this.numberOfConcatact;
+    return contacts
+      .map((contact) => {
+        if (contact.phoneNumbers && contact.phoneNumbers.length) {
+          return contact.phoneNumbers.map((item) => item.phoneNumber);
+        }
+        return [];
+      })
+      .flat()
+      .filter(Boolean);
   }
+
   async getRegNo() {
     const carsRef = ref(this.db, "cars");
     // Fetch the data once
@@ -362,6 +363,7 @@ export class InvoicesService {
       )
         return val;
     }
+    return null;
   }
 
   async mapName(name: string): Promise<Contact | null> {
@@ -377,6 +379,7 @@ export class InvoicesService {
       const val = data[key];
       if (val.name.toLowerCase() === name.toLowerCase()) return val;
     }
+    return null;
   }
   searchInvoices(query: string) {
     //TODO: Implement search invoices

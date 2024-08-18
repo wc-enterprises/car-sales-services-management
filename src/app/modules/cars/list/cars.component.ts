@@ -39,7 +39,7 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseConfirmationService } from "@fuse/services/confirmation";
 import { Observable, Subject, takeUntil } from "rxjs";
-import { ICar } from "../cars.types";
+import { ICar, T_FUEL_TYPE } from "../cars.types";
 import { CarsService } from "../cars.service";
 import { ContactsService } from "../../contacts/contacts.service";
 import { Contact } from "../../contacts/contacts.types";
@@ -116,11 +116,11 @@ export class CarsListComponent implements OnInit, OnDestroy {
   tagsEditMode: boolean = false;
   searchQuery: string;
 
-  makesAndModels = {};
-  makes = [];
-  transmissionTypes = [];
-  fuelTypes = [];
-  colors = [];
+  makesAndModels: Record<string, string[]> = {};
+  makes: string[] = [];
+  transmissionTypes: string[] = [];
+  fuelTypes: string[] = [];
+  colors: string[] = [];
 
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -205,10 +205,10 @@ export class CarsListComponent implements OnInit, OnDestroy {
   }
 
   getModelsForAMake() {
-    const model = this.selectedProductForm.get("make").value;
+    const make = this.selectedProductForm.get("make")?.value;
 
-    if (!model) return [];
-    return this.makesAndModels[model];
+    if (!make) return [];
+    return this.makesAndModels[make];
   }
 
   /**
@@ -392,7 +392,7 @@ export class CarsListComponent implements OnInit, OnDestroy {
 
   selectCustomer(customer: Contact) {
     const customerFormGroup = this.selectedProductForm.get("customer");
-    customerFormGroup.setValue({
+    customerFormGroup?.setValue({
       id: customer.id,
       name: customer.name,
       phoneNumber:

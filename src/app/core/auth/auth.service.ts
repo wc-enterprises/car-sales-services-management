@@ -9,12 +9,14 @@ import {
   User,
   authState,
 } from "@angular/fire/auth";
-import { BehaviorSubject, map, Observable, of, throwError } from "rxjs";
+import { BehaviorSubject, map, Observable, filter } from "rxjs";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
   private _authChecked: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public _user: BehaviorSubject<User> = new BehaviorSubject(null);
+  public _user: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(
+    null
+  );
 
   constructor(private auth: Auth) {
     onAuthStateChanged(this.auth, (user) => {
@@ -24,7 +26,7 @@ export class AuthService {
   }
 
   get user$(): Observable<User> {
-    return this._user.asObservable();
+    return this._user.asObservable().pipe(filter((v): v is User => v !== null));
   }
 
   get authChecked$(): Observable<boolean> {

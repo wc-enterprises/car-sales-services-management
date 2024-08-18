@@ -9,14 +9,14 @@ export interface InventoryProduct {
   barcode?: string | null;
   brand?: string | null;
   vendor: string | null;
-  stock: number;
+  stock: number | null;
 
-  basePrice: number;
-  taxAmount: number;
-  discount: number;
-  sellingPrice: number;
+  basePrice: number | null;
+  taxAmount: number | null;
+  discount: number | null;
+  sellingPrice: number | null;
 
-  weight: number;
+  weight: number | null;
   thumbnail: string;
   images: string[];
   active: boolean;

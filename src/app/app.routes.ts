@@ -125,117 +125,14 @@ export const appRoutes: Route[] = [
           },
         ],
       },
-
-      // Pages
-      {
-        path: "pages",
-        children: [
-          // Authentication
-          {
-            path: "authentication",
-            loadChildren: () =>
-              import("app/modules/pages/authentication/authentication.routes"),
-          },
-
-          // Error
-          {
-            path: "error",
-            children: [
-              {
-                path: "404",
-                loadChildren: () =>
-                  import("app/modules/pages/error/error-404/error-404.routes"),
-              },
-              {
-                path: "500",
-                loadChildren: () =>
-                  import("app/modules/pages/error/error-500/error-500.routes"),
-              },
-            ],
-          },
-
-          // Invoice
-          {
-            path: "invoice",
-            children: [
-              {
-                path: "printable",
-                children: [
-                  {
-                    path: "compact",
-                    loadChildren: () =>
-                      import(
-                        "app/modules/pages/invoice/printable/compact/compact.routes"
-                      ),
-                  },
-                  {
-                    path: "modern",
-                    loadChildren: () =>
-                      import(
-                        "app/modules/pages/invoice/printable/modern/modern.routes"
-                      ),
-                  },
-                ],
-              },
-              {
-                path: "modern",
-                loadChildren: () =>
-                  import("app/modules/pages/invoice/modern/modern.routes"),
-              },
-            ],
-          },
-
-          // Profile
-          {
-            path: "profile",
-            loadChildren: () =>
-              import("app/modules/pages/profile/profile.routes"),
-          },
-
-          // Settings
-          {
-            path: "settings",
-            loadChildren: () =>
-              import("app/modules/pages/settings/settings.routes"),
-          },
-        ],
-      },
-
-      // User Interface
-      {
-        path: "ui",
-        children: [
-          // Advanced Search
-          {
-            path: "advanced-search",
-            loadChildren: () =>
-              import("app/modules/ui/advanced-search/advanced-search.routes"),
-          },
-
-          // Colors
-          {
-            path: "colors",
-            loadChildren: () => import("app/modules/ui/colors/colors.routes"),
-          },
-
-          // Confirmation Dialog
-          {
-            path: "confirmation-dialog",
-            loadChildren: () =>
-              import(
-                "app/modules/ui/confirmation-dialog/confirmation-dialog.routes"
-              ),
-          },
-        ],
-      },
       // 404 & Catch all
-      {
-        path: "404-not-found",
-        pathMatch: "full",
-        loadChildren: () =>
-          import("app/modules/pages/error/error-404/error-404.routes"),
-      },
-      { path: "**", redirectTo: "404-not-found" },
+      // {
+      //   path: "404-not-found",
+      //   pathMatch: "full",
+      //   loadChildren: () =>
+      //     import("app/modules/pages/error/error-404/error-404.routes"),
+      // },
+      // { path: "**", redirectTo: "404-not-found" },
     ],
   },
 ];

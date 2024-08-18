@@ -254,7 +254,9 @@ export class InventoryListComponent implements OnInit, OnDestroy {
   createProduct(): void {
     localStorage.setItem("newServiceAddingBro", "true");
     const serviceDraft = localStorage.getItem("newService");
-    const parsedServiceFromDraft = JSON.parse(serviceDraft);
+    const parsedServiceFromDraft = serviceDraft
+      ? JSON.parse(serviceDraft)
+      : null;
 
     // Create the product
     this._inventoryService

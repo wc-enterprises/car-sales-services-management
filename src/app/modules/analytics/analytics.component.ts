@@ -28,12 +28,12 @@ import { MatSort } from "@angular/material/sort";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 
-import { DailySalesAnalytics, TTimeFilter } from "./analytics.type";
+import { DailySalesAnalytics, IBillStats, TTimeFilter } from "./analytics.type";
 import { DateTime } from "luxon";
 import { CarsService } from "../cars/cars.service";
 import { ContactsService } from "../contacts/contacts.service";
 import { InvoicesService } from "../invoices/invoices.service";
-import { IInvoice, IInvoiceType } from "../invoices/invoices.types";
+import { IInvoice, IInvoiceType } from "../invoices/utils/invoices.types";
 import { AnalyticsService } from "./analytics.service";
 
 export interface IChartData {
@@ -77,7 +77,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   /**
    * Weekly no of service customers served for a month.
    */
-  serviceBillsStats = {
+  serviceBillsStats: IBillStats = {
     series: [
       {
         name: "Service bills",
@@ -89,7 +89,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   /**
    * Weekly no of sales customers served for a month.
    */
-  salesBillsStats = {
+  salesBillsStats: IBillStats = {
     series: [
       {
         name: "Sales bills",
@@ -267,7 +267,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       });
 
     // Attach SVG fill fixer to all ApexCharts
-    window["Apex"] = {
+    (window as any)["Apex"] = {
       chart: {
         events: {
           mounted: (chart: any, options?: any): void => {
@@ -343,12 +343,12 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     // 2. Filter out the ones that doesn't have cross reference so we only left with the ones that use the 'url(#id)' syntax
     // 3. Insert the 'currentURL' at the front of the 'fill' attribute value
     Array.from(element.querySelectorAll("*[fill]"))
-      .filter((el) => el.getAttribute("fill").indexOf("url(") !== -1)
+      .filter((el) => el.getAttribute("fill")?.indexOf("url(") !== -1)
       .forEach((el) => {
         const attrVal = el.getAttribute("fill");
         el.setAttribute(
           "fill",
-          `url(${currentURL}${attrVal.slice(attrVal.indexOf("#"))}`
+          `url(${currentURL}${attrVal?.slice(attrVal.indexOf("#"))}`
         );
       });
   }
@@ -862,7 +862,9 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     }
 
     invoicesThisMonth.forEach((invoice) => {
-      const invoiceDate = DateTime.fromMillis(invoice.date).toISODate();
+      const invoiceDate: string = DateTime.fromMillis(
+        invoice.date
+      ).toISODate() as string;
       if (salesData[invoiceDate] !== undefined) {
         salesData[invoiceDate] += invoice.services.reduce(
           (sum, service) => sum + service.price * service.quantity,
@@ -896,7 +898,9 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     }
 
     invoicesThisWeek.forEach((invoice) => {
-      const invoiceDate = DateTime.fromMillis(invoice.date).toISODate();
+      const invoiceDate: string = DateTime.fromMillis(
+        invoice.date
+      ).toISODate() as string;
       if (weeklySalesData[invoiceDate] !== undefined) {
         weeklySalesData[invoiceDate] += invoice.services.reduce(
           (sum, service) => sum + service.price * service.quantity,
@@ -1027,7 +1031,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
     if (dataToCollect === "make") {
       const totalMakesServiced = serviceInvoices.map(
-        (invoice) => invoice.carInfo.make
+        (invoice) => invoice.carInfo?.make
       );
 
       const makeCounts = this.countOccurrences(totalMakesServiced);
@@ -1056,7 +1060,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private countOccurrences(items: string[]): { [key: string]: number } {
+  private countOccurrences(items: any[]): { [key: string]: number } {
     return items.reduce((acc, item) => {
       acc[item] = (acc[item] || 0) + 1;
       return acc;
@@ -1164,11 +1168,11 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     console.log("weeksToConsider: ", weeksToConsider);
 
     // Initialize the stats objects
-    const serviceBillsStats = {
+    const serviceBillsStats: IBillStats = {
       series: [{ name: "Service bills", data: [] }],
       labels: [],
     };
-    const salesBillsStats = {
+    const salesBillsStats: IBillStats = {
       series: [{ name: "Sales bills", data: [] }],
       labels: [],
     };

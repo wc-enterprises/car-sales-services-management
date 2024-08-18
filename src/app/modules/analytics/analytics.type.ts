@@ -16,3 +16,8 @@ export interface DailySalesAnalytics {
     ];
   };
 }
+
+export interface IBillStats {
+  series: { name: string; data: number[] }[];
+  labels: string[];
+}

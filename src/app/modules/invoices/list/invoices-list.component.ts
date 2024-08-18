@@ -23,7 +23,6 @@ import {
   UntypedFormBuilder,
   UntypedFormControl,
   UntypedFormGroup,
-  Validators,
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -38,27 +37,25 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseConfirmationService } from "@fuse/services/confirmation";
-import { Observable, Subject, takeUntil } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { ContactsService } from "../../contacts/contacts.service";
 import { Contact } from "../../contacts/contacts.types";
 import {
   IInvoice,
   TInvoiceTimeFilter,
   TInvoiceTypeFilter,
-} from "../invoices.types";
+} from "../utils/invoices.types";
 import { InvoicesService } from "../invoices.service";
 import { Router } from "@angular/router";
-import { MatMenu, MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { MatMenuModule } from "@angular/material/menu";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { DateRangeDialogComponent } from "./utils/date-range-dialog.component";
 import { DateTime } from "luxon";
 import { PDFDocument, rgb } from "pdf-lib";
 import { drawTable, DrawTableOptions } from "pdf-lib-draw-table-beta";
 import { TableOptionsDeepPartial } from "pdf-lib-draw-table-beta/build/types";
-import { getNowAndPastDateBasedOnFilterVal } from "./utils/util";
+import { DateRangeDialogComponent } from "../utils/date-range-dialog.component";
+import { getNowAndPastDateBasedOnFilterVal } from "../utils/util";
 
 @Component({
   selector: "inventory-list",
@@ -319,29 +316,6 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Cycle through images of selected product
-   */
-  cycleImages(forward: boolean = true): void {
-    // Get the image count and current image index
-    const count = this.selectedProductForm.get("images").value.length;
-    const currentIndex =
-      this.selectedProductForm.get("currentImageIndex").value;
-
-    // Calculate the next and previous index
-    const nextIndex = currentIndex + 1 === count ? 0 : currentIndex + 1;
-    const prevIndex = currentIndex - 1 < 0 ? count - 1 : currentIndex - 1;
-
-    // If cycling forward...
-    if (forward) {
-      this.selectedProductForm.get("currentImageIndex").setValue(nextIndex);
-    }
-    // If cycling backwards...
-    else {
-      this.selectedProductForm.get("currentImageIndex").setValue(prevIndex);
-    }
-  }
-
-  /**
    * Update the selected product using the form data
    */
   updateSelectedProduct(): void {
@@ -430,14 +404,15 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   selectCustomer(customer: Contact) {
     const customerFormGroup = this.selectedProductForm.get("customer");
-    customerFormGroup.setValue({
-      id: customer.id,
-      name: customer.name,
-      phoneNumber:
-        customer.phoneNumbers && customer.phoneNumbers.length
-          ? customer.phoneNumbers[0]
-          : null,
-    });
+    if (customerFormGroup)
+      customerFormGroup.setValue({
+        id: customer.id,
+        name: customer.name,
+        phoneNumber:
+          customer.phoneNumbers && customer.phoneNumbers.length
+            ? customer.phoneNumbers[0]
+            : null,
+      });
     this.searchQuery = customer.name;
   }
 
@@ -501,7 +476,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
       ],
     ];
 
-    let tableContents = [
+    let tableContents: string[][] = [
       ...this.invoices.map((invoice, index) => [
         DateTime.fromISO(new Date(invoice.date).toISOString()).toFormat(
           "dd/MM/yy"
@@ -511,7 +486,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
         invoice.type,
         invoice.billTo.name,
         invoice.carInfo?.make ?? "-",
-        invoice.tax?.value ? invoice.tax.value.toString() : 0,
+        invoice.tax?.value ? invoice.tax.value.toString() : "0",
         invoice.total.toString(),
       ]),
     ];
@@ -583,7 +558,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           console.log("Table dimensions:", tableDimensions);
-        } catch (error) {
+        } catch (error: any) {
           /**
            * When drawTable throws with table height exceeded error, create a new page and add it to doc.
            */

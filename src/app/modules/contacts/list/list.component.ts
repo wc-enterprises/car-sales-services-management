@@ -78,7 +78,7 @@ export class ContactsListComponent implements OnInit, OnDestroy {
   countries: Country[];
   drawerMode: "side" | "over";
   searchInputControl: UntypedFormControl = new UntypedFormControl();
-  selectedContact: Contact;
+  selectedContact: Contact | null;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
   /**

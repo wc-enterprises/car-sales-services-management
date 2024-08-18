@@ -89,7 +89,7 @@ export class AuthForgotPasswordComponent implements OnInit {
 
     // Forgot password
     this._authService
-      .sendPasswordResetEmail(this.forgotPasswordForm.get("email").value)
+      .sendPasswordResetEmail(this.forgotPasswordForm.get("email")?.value)
       .then(() => {
         // Re-enable the form
         this.forgotPasswordForm.enable();

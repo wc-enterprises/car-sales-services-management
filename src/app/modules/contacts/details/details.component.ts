@@ -300,14 +300,16 @@ export class ContactsDetailsComponent
    */
   updateContact(): void {
     // Get the contact object
-    const contact = this.contactForm.getRawValue();
+    const contact: Contact = this.contactForm.getRawValue();
 
     // Go through the contact object and clear empty values
-    contact.emails = contact.emails.filter((email) => email.email);
+    contact.emails = contact.emails
+      ? contact.emails.filter((email) => email.email)
+      : [];
 
-    contact.phoneNumbers = contact.phoneNumbers.filter(
-      (phoneNumber) => phoneNumber.phoneNumber
-    );
+    contact.phoneNumbers = contact.phoneNumbers
+      ? contact.phoneNumbers.filter((phoneNumber) => phoneNumber.phoneNumber)
+      : [];
 
     // Update the contact on the server
     this._contactsService.updateContact(contact.id, contact).then(() => {
@@ -412,7 +414,7 @@ export class ContactsDetailsComponent
     const avatarFormControl = this.contactForm.get("avatar");
 
     // Set the avatar as null
-    avatarFormControl.setValue(null);
+    avatarFormControl?.setValue(null);
 
     // Set the file input value as null
     this._avatarFileInput.nativeElement.value = null;
@@ -501,7 +503,7 @@ export class ContactsDetailsComponent
     console.log("Received request to getcountrybyiso for iso:", iso);
     const countryFound = this.countries.find((country) => country.iso === iso);
     console.log("Found country", countryFound);
-    return countryFound;
+    return countryFound as Country;
   }
 
   /**

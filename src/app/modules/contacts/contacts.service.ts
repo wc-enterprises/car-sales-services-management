@@ -28,13 +28,14 @@ import { countries } from "../utils/util";
 @Injectable({ providedIn: "root" })
 export class ContactsService {
   // Private
-  private _contact: BehaviorSubject<Contact | null> = new BehaviorSubject(null);
-  private _contacts: BehaviorSubject<Contact[] | null> = new BehaviorSubject(
-    null
-  );
-  private _countries: BehaviorSubject<Country[] | null> = new BehaviorSubject(
-    null
-  );
+  private _contact: BehaviorSubject<Contact | null> =
+    new BehaviorSubject<Contact | null>(null);
+  private _contacts: BehaviorSubject<Contact[] | null> = new BehaviorSubject<
+    Contact[] | null
+  >(null);
+  private _countries: BehaviorSubject<Country[] | null> = new BehaviorSubject<
+    Country[] | null
+  >(null);
 
   private _unsubscribers: Unsubscribe[] = [];
 
@@ -60,21 +61,27 @@ export class ContactsService {
    * Getter for contact
    */
   get contact$(): Observable<Contact> {
-    return this._contact.asObservable();
+    return this._contact
+      .asObservable()
+      .pipe(filter((v): v is Contact => v !== null));
   }
 
   /**
    * Getter for contacts
    */
   get contacts$(): Observable<Contact[]> {
-    return this._contacts.asObservable();
+    return this._contacts
+      .asObservable()
+      .pipe(filter((v): v is Contact[] => v !== null));
   }
 
   /**
    * Getter for countries
    */
   get countries$(): Observable<Country[]> {
-    return this._countries.asObservable();
+    return this._countries
+      .asObservable()
+      .pipe(filter((v): v is Country[] => v !== null));
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -89,8 +96,8 @@ export class ContactsService {
   //   );
   // }
 
-  private frameContactsForComponent(dbContacts) {
-    const contacts = [];
+  private frameContactsForComponent(dbContacts: Record<string, Contact>) {
+    const contacts: Contact[] = [];
     if (!dbContacts) return contacts;
     Object.keys(dbContacts).forEach((key) => {
       const val = dbContacts[key];
@@ -204,16 +211,13 @@ export class ContactsService {
   /**
    * Get contact by id
    */
-  getContactById(id: string): Observable<Contact> {
-    console.log("Get contact by id called with id: ", id);
+  getContactById(id: string | null): Observable<Contact> {
     return this._contacts.pipe(
       take(1),
       map((contacts) => {
-        console.log("Fetched contacts", contacts);
         if (!contacts) return;
         // Find the contact
         const contact = contacts.find((item) => item.id === id) || null;
-        console.log("Fetched contact", contact);
         // Update the contact
         this._contact.next(contact);
 
@@ -259,7 +263,7 @@ export class ContactsService {
     try {
       await set(ref(this.db, "contacts/" + id), null);
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.log("An error occured while deleting the record", err.message);
       return false;
     }
@@ -272,7 +276,7 @@ export class ContactsService {
     const starCountRef = ref(this.db, "countries");
     const unsubsriber = onValue(starCountRef, (snapshot) => {
       const data = snapshot.val();
-      const countries = [];
+      const countries: Country[] = [];
 
       if (data)
         Object.keys(data).forEach((key) => {
@@ -298,7 +302,7 @@ export class ContactsService {
 
     // If no data, add countries to db.
     if (!data) {
-      const updates = {};
+      const updates: Record<string, object> = {};
       countries.forEach((item) => {
         updates[`countries/${item.id}`] = item;
       });

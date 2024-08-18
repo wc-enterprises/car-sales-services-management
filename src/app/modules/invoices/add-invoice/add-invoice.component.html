@@ -39,8 +39,8 @@
         (ngSubmit)="onSave()"
       >
         <div class="flex flex-col w-full">
-          <span class="text-gray-600 text-3xl font-regular w-full text-left">
-            INVOICE {{ form.get("invoiceNumber").value }}
+          <span class="text-gray-600 text-2xl font-regular w-full text-left">
+            INVOICE {{ form.get("invoiceNumber")?.value }}
           </span>
 
           <div
@@ -79,7 +79,7 @@
         <!-- Bill section -->
 
         <div formGroupName="billTo" class="flex flex-col mt-8 w-full">
-          <span class="text-gray-600 text-3xl font-regular w-full text-left">
+          <span class="text-gray-600 text-2xl font-regular w-full text-left">
             BILL TO
           </span>
 
@@ -206,7 +206,7 @@
           class="flex flex-col mt-8 w-full"
           *ngIf="showCarDetails()"
         >
-          <span class="text-gray-600 text-3xl font-regular w-full text-left">
+          <span class="text-gray-600 text-2xl font-regular w-full text-left">
             CAR DETAILS
           </span>
 
@@ -385,7 +385,7 @@
         </div>
 
         <span
-          class="text-gray-600 text-3xl font-regular w-full text-left mt-10"
+          class="text-gray-600 text-2xl font-regular w-full text-left mt-10"
         >
           ITEMS
         </span>
@@ -394,17 +394,61 @@
           class="grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-5"
         >
           <!-- Column Headers -->
-          <div class="col-span-5 font-medium text-md text-left text-secondary">
+
+          <!-- Column One -->
+          <div
+            class="col-span-5 font-medium text-md text-left text-secondary"
+            *ngIf="form.get('type')?.value === 'SERVICE'"
+          >
             ITEM
           </div>
-          <div class="col-span-2 font-medium text-md text-right text-secondary">
+          <div
+            class="col-span-5 font-medium text-md text-left text-secondary"
+            *ngIf="form.get('type')?.value === 'SALE'"
+          >
+            MAKE
+          </div>
+
+          <!-- Column Two -->
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary"
+            *ngIf="form.get('type')?.value === 'SERVICE'"
+          >
             RATE
           </div>
-          <div class="col-span-2 font-medium text-md text-right text-secondary">
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary"
+            *ngIf="form.get('type')?.value === 'SALE'"
+          >
+            MODEL
+          </div>
+
+          <!-- Column Three -->
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary"
+            *ngIf="form.get('type')?.value === 'SERVICE'"
+          >
             QTY
           </div>
-          <div class="col-span-2 font-medium text-md text-right text-secondary">
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary"
+            *ngIf="form.get('type')?.value === 'SALE'"
+          >
+            REG NO
+          </div>
+
+          <!-- Column Four -->
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary"
+            *ngIf="form.get('type')?.value === 'SERVICE'"
+          >
             TOTAL
+          </div>
+          <div
+            class="col-span-2 font-medium text-md text-right text-secondary"
+            *ngIf="form.get('type')?.value === 'SALE'"
+          >
+            PRICE
           </div>
 
           <!-- Divider -->
@@ -421,12 +465,14 @@
             [formGroupName]="i"
             class="col-span-12 grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-4"
           >
+            <!-- Column 1 Value -->
             <mat-form-field
               [ngClass]="{
                 'col-span-5 ss:col-span-12': services.length !== 1,
                 'col-span-6 ss:col-span-12': services.length === 1
               }"
               [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SERVICE'"
             >
               <input
                 matInput
@@ -439,8 +485,19 @@
               />
             </mat-form-field>
 
-            <!-- Dropdown with z-index -->
+            <mat-form-field
+              class="col-span-3 ss:col-span-7"
+              [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SALE'"
+            >
+              <mat-select [formControlName]="'id'" placeholder="Enter make">
+                <ng-container *ngFor="let make of makes">
+                  <mat-option [value]="make">{{ make }}</mat-option>
+                </ng-container>
+              </mat-select>
+            </mat-form-field>
 
+            <!-- Dropdown with z-index -->
             <ul
               #dropdown
               *ngIf="filteredServices.length > 0 && isDropdownOpen[i]"
@@ -456,21 +513,42 @@
               </li>
             </ul>
 
+            <!-- Column 2 Value -->
             <mat-form-field
               class="col-span-2 ss:col-span-7"
               [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SERVICE'"
             >
               <input
                 matInput
                 formControlName="price"
                 placeholder="Price"
-                [disabled]="!service.get('item').value"
+                [disabled]="!service.get('item')?.value"
                 type="number"
               />
             </mat-form-field>
+
+            <mat-form-field
+              class="col-span-3 ss:col-span-7"
+              [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SALE'"
+            >
+              <mat-select [formControlName]="'item'" placeholder="Model">
+                <ng-container
+                  *ngFor="
+                    let model of getModelsForAMake(service.get('id')?.value)
+                  "
+                >
+                  <mat-option [value]="model">{{ model }}</mat-option>
+                </ng-container>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Column 3 Value -->
             <mat-form-field
               class="col-span-2 self-center ss:col-span-5"
               [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SERVICE'"
             >
               <input
                 matInput
@@ -481,20 +559,47 @@
               />
             </mat-form-field>
             <mat-form-field
+              class="col-span-2 self-center ss:col-span-5"
+              [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SALE'"
+            >
+              <input matInput formControlName="total" placeholder="Reg No" />
+            </mat-form-field>
+
+            <!-- Column 4 Value -->
+            <mat-form-field
               class="col-span-2 self-center ss:col-span-11"
               [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SERVICE'"
             >
               <input
                 matInput
                 formControlName="total"
                 placeholder="Total"
                 [value]="
-                  service.get('price').value * service.get('quantity').value
+                  service.get('price')?.value * service.get('quantity')?.value
                 "
+                type="number"
+                [readonly]="true"
+              />
+            </mat-form-field>
+            <mat-form-field
+              [ngClass]="{
+                'col-span-3 ss:col-span-12': services.length !== 1,
+                'col-span-4 ss:col-span-12': services.length === 1
+              }"
+              [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SALE'"
+            >
+              <input
+                matInput
+                formControlName="price"
+                placeholder="Price"
                 type="number"
                 disabled
               />
             </mat-form-field>
+
             <!-- Remove button -->
             <ng-container *ngIf="!(first && last)">
               <div
@@ -552,6 +657,7 @@
               [formControlName]="'subtotal'"
               placeholder="SubTotal"
               type="number"
+              [readonly]="true"
             />
           </mat-form-field>
 

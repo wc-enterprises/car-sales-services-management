@@ -29,7 +29,6 @@ import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/invoices/invoices.service";
 import { map, startWith } from "rxjs";
 import { Contact } from "../../contacts/contacts.types";
-import { Invoice } from "app/modules/pages/invoice/invoice.type";
 import { ContactsService } from "../../contacts/contacts.service";
 import { ICar } from "../../cars/cars.types";
 import { CarsService } from "../../cars/cars.service";
@@ -41,6 +40,7 @@ import {
   getRegYearList,
   TRANSMISSION,
 } from "../../utils/util";
+import { IInvoice, IService } from "../utils/invoices.types";
 
 @Component({
   selector: "invoice",
@@ -105,6 +105,9 @@ export class InvoiceFormComponent {
 
   currentInvoiceNumber: string = "";
 
+  makesAndModels: Record<string, string[]> = {};
+  makes: string[] = [];
+
   invoiceTypes: {
     value: string;
     viewValue: string;
@@ -122,10 +125,10 @@ export class InvoiceFormComponent {
   eRef: any;
   invoiceForm: any;
 
-  colors = [];
-  fuelTypes = [];
-  transmissionTypes = [];
-  regYearList = [];
+  colors: string[] = [];
+  fuelTypes: string[] = [];
+  transmissionTypes: string[] = [];
+  regYearList: number[] = [];
 
   /** Service names */
   filteredServices: InventoryProduct[] = [];
@@ -158,7 +161,7 @@ export class InvoiceFormComponent {
         city: ["", Validators.required],
         createdDate: [""],
       }),
-      services: this.fb.array([this.createServiceGroup()]),
+      services: this.fb.array([this.createServiceGroup()]) as FormArray,
       subtotal: [""],
       tax: this.fb.group({
         value: [],
@@ -172,10 +175,10 @@ export class InvoiceFormComponent {
     this.invoiceService.countInvoices().then((count) => {
       console.log("count", count);
       this.currentInvoiceNumber = this.frameInvoiceNumber(count);
-      this.form.get("invoiceNumber").setValue(this.currentInvoiceNumber);
+      this.form.get("invoiceNumber")?.setValue(this.currentInvoiceNumber);
     });
 
-    this.form.get("date").patchValue(new Date());
+    this.form.get("date")?.patchValue(new Date());
   }
 
   frameInvoiceNumber(numberOfExistingInvoices: number) {
@@ -194,22 +197,30 @@ export class InvoiceFormComponent {
     }
   }
 
-  createServiceGroup(suggestion: string = ""): FormGroup {
-    const price = "";
-    const quantity = "";
+  createServiceGroup(suggestion?: IService): FormGroup {
+    const price = suggestion?.price ?? "";
+    const quantity = suggestion?.quantity ?? 1;
+    const total = suggestion?.total ?? +price * quantity;
+
     return this.fb.group({
-      item: [suggestion, Validators.required],
+      id: [suggestion?.id ?? ""],
+      item: [suggestion?.item ?? "", Validators.required],
       price: [price],
       quantity: [quantity],
-      total: [""],
+      total: [total || ""],
       discount: [""],
       tax: [""],
     });
   }
 
-  addService(suggestion: string = ""): void {
-    this.services.push(this.createServiceGroup(suggestion));
-    this.calculateSubtotal();
+  addService(suggestion?: IService): void {
+    (this.form.get("services") as FormArray).push(
+      this.createServiceGroup(suggestion)
+    );
+  }
+
+  get services() {
+    return this.form.get("services") as FormArray;
   }
 
   filterItems(value: string, index: number): void {
@@ -221,24 +232,28 @@ export class InvoiceFormComponent {
   }
 
   selectSuggestion(item: InventoryProduct, index: number): void {
-    const serviceGroup = this.services.at(index) as FormGroup;
-    serviceGroup.get("item").setValue(item.name);
+    const serviceGroup = (this.form.get("services") as FormArray).at(
+      index
+    ) as FormGroup;
+    serviceGroup.get("item")?.setValue(item.name);
     const price = item.sellingPrice ?? "";
 
-    serviceGroup.get("price").setValue(price);
-    serviceGroup.get("quantity").setValue("1");
+    serviceGroup.get("price")?.setValue(price);
+    serviceGroup.get("quantity")?.setValue("1");
 
     // Tax for individual service
     const tax = item.taxAmount ?? "";
-    const existingTaxValue = this.form.get("tax.value").value;
-    this.form.get("tax.value").setValue(existingTaxValue + tax);
-    serviceGroup.get("tax").setValue(tax);
+    const existingTaxValue = this.form.get("tax.value")?.value;
+    this.form.get("tax.value")?.setValue(existingTaxValue + tax);
+    serviceGroup.get("tax")?.setValue(tax);
 
     // Discount for individual service
     const discount = item.discount ?? "";
-    const existingDiscountVallue = this.form.get("discount.value").value;
-    this.form.get("discount.value").setValue(existingDiscountVallue + discount);
-    serviceGroup.get("discount").setValue(discount);
+    const existingDiscountVallue = this.form.get("discount.value")?.value;
+    this.form
+      .get("discount.value")
+      ?.setValue(existingDiscountVallue + discount);
+    serviceGroup.get("discount")?.setValue(discount);
 
     this.isDropdownOpen[index] = false;
   }
@@ -260,22 +275,22 @@ export class InvoiceFormComponent {
 
     // Subtract any added tax and discount and re-calcuate the total.
     // Tax
-    const currentFormTax = this.form.get("tax").value;
+    const currentFormTax = this.form.get("tax")?.value;
     console.log(itemToBeRemoved.tax, currentFormTax);
     if (itemToBeRemoved.tax && currentFormTax.value >= itemToBeRemoved.tax) {
       const newTaxVal = currentFormTax.value - itemToBeRemoved.tax;
       console.log("New tax value", newTaxVal);
-      this.form.get("tax.value").setValue(newTaxVal);
+      this.form.get("tax.value")?.setValue(newTaxVal);
     }
 
-    const currentDiscount = this.form.get("discount").value;
+    const currentDiscount = this.form.get("discount")?.value;
     if (
       itemToBeRemoved.discount &&
       currentDiscount.value >= itemToBeRemoved.discount
     ) {
       const newDiscount = currentDiscount.value - itemToBeRemoved.discount;
       console.log("New Discount value", newDiscount);
-      this.form.get("discount.value").setValue(newDiscount);
+      this.form.get("discount.value")?.setValue(newDiscount);
     }
 
     this.calculateTotal();
@@ -284,8 +299,19 @@ export class InvoiceFormComponent {
     this._changeDetectorRef.markForCheck();
   }
 
+  getModelsForAMake(make: string) {
+    if (!make) return [];
+    return this.makesAndModels[make];
+  }
+
   async ngOnInit(): Promise<void> {
-    console.log(this.invoiceService.mapName(""));
+    /** Fetch makes and function to get model for make */
+    this.carService.getMakesAndModels().then((data) => {
+      this.makesAndModels = data;
+      this.makes = Object.keys(this.makesAndModels);
+    });
+    /************************** */
+
     await this.getMakeForMaping();
     this.makeModelMapping = this.mapForMake;
     this.getMakeName();
@@ -296,19 +322,48 @@ export class InvoiceFormComponent {
       this.invoiceData = history.state.data;
       this.form.patchValue(this.invoiceData);
     }
-    this.calculateSubtotal();
 
     this.filterItems("", 0);
 
     /** Check for invoice draft */
     const invoiceDraft = localStorage.getItem("invoiceDraft");
     if (invoiceDraft) {
-      const parsedInvoice = JSON.parse(invoiceDraft);
+      const parsedInvoice: IInvoice = JSON.parse(invoiceDraft);
       this.form.patchValue({ ...parsedInvoice, date: new Date() });
+      parsedInvoice.services.forEach((item) => {
+        this.addService(item);
+      });
     }
 
     this.form.valueChanges.subscribe((data) => {
       localStorage.setItem("invoiceDraft", JSON.stringify(data));
+    });
+
+    (this.form.get("services") as FormArray).valueChanges
+      .pipe(
+        startWith((this.form.get("services") as FormArray).value),
+        map((services: IService[]) => {
+          return services.reduce((acc, service) => {
+            return acc + service.price * (service.quantity ?? 1);
+          }, 0);
+        })
+      )
+      .subscribe((subtotal) => {
+        this.form
+          .get("subtotal")
+          ?.setValue(subtotal || "", { emitEvent: false });
+        const total = this.calculateTotal();
+        this.form.get("total")?.setValue(total);
+      });
+
+    this.form.get("tax")?.valueChanges.subscribe((data) => {
+      const total = this.calculateTotal();
+      this.form.get("total")?.setValue(total);
+    });
+
+    this.form.get("discount")?.valueChanges.subscribe((data) => {
+      const total = this.calculateTotal();
+      this.form.get("total")?.setValue(total);
     });
 
     this.colors = COLOR;
@@ -404,7 +459,7 @@ export class InvoiceFormComponent {
 
         const phoneNumberControl = billToGroup.get("phoneNumber");
         if (phoneNumberControl) {
-          if (data.phoneNumbers.length)
+          if (data.phoneNumbers && data.phoneNumbers.length)
             phoneNumberControl.patchValue({
               code: data.phoneNumbers[0].country ?? null,
               number: data.phoneNumbers[0].phoneNumber,
@@ -512,39 +567,15 @@ export class InvoiceFormComponent {
     event.preventDefault();
   }
 
-  get services(): FormArray {
-    return this.form.get("services") as FormArray;
-  }
-
-  calculateSubtotal(): void {
-    this.services.valueChanges
-      .pipe(
-        startWith(this.services.value),
-        map((services) => {
-          return services.reduce(
-            (acc, service) => acc + service.price * service.quantity,
-            0
-          );
-        })
-      )
-      .subscribe((subtotal) => {
-        this.form
-          .get("subtotal")
-          .setValue(subtotal || "", { emitEvent: false });
-        this.calculateTotal();
-      });
-  }
-
-  calculateTotal(): void {
-    const subtotal = this.form.get("subtotal").value;
-    const taxAmount = this.form.get("tax").get("value").value;
-    const discount = this.form.get("discount").get("value").value;
+  calculateTotal(): number {
+    const subtotal = this.form.get("subtotal")?.value;
+    const taxAmount = this.form.get("tax")?.get("value")?.value;
+    const discount = this.form.get("discount")?.get("value")?.value;
 
     console.log("Values going into total calc", subtotal, taxAmount, discount);
 
     const total = subtotal + taxAmount - discount;
-    console.log("Calculated total", total);
-    this.form.get("total").setValue(total, { emitEvent: false });
+    return total;
   }
 
   // Utility method to format the date to "YYYY-MM-DD"
@@ -561,12 +592,12 @@ export class InvoiceFormComponent {
       const formData = this.form.value;
       const now = Date.now();
 
-      let customerId: string;
+      let customerId: string = "";
       if (!formData.billTo.id) {
         // Save the contact
         // There will be no code in phone. Hardcode it to Great Britan.
 
-        const billToCustomer = formData.billTo as Invoice["billTo"];
+        const billToCustomer = formData.billTo as IInvoice["billTo"];
         const contact: Omit<Contact, "id"> = {
           name: billToCustomer.name,
           address: {
@@ -592,10 +623,10 @@ export class InvoiceFormComponent {
         formData.billTo.createdDate = now;
       }
 
-      if (formData.carInfo && !formData.carInfo.id) {
+      const carInfoFromForm = formData.carInfo;
+      if (carInfoFromForm && !carInfoFromForm.id) {
         console.log("Saving car block called", formData.carInfo);
         // Save the car
-        const carInfoFromForm = formData.carInfo as Invoice["carInfo"];
 
         const car: Omit<ICar, "id"> = {
           regNo: carInfoFromForm.regNo,
@@ -605,19 +636,19 @@ export class InvoiceFormComponent {
           fuelType: carInfoFromForm.fuelType,
           mileage: carInfoFromForm.mileage
             ? parseInt(carInfoFromForm.mileage)
-            : null,
+            : undefined,
           insuranceValidTill: carInfoFromForm.insuranceValidTill
             ? new Date(carInfoFromForm.insuranceValidTill).getTime()
-            : null,
+            : undefined,
           motValidTill: carInfoFromForm.motValidTill
             ? new Date(carInfoFromForm.motValidTill).getTime()
-            : null,
+            : undefined,
           nextServiceDate: carInfoFromForm.nextServiceDate
             ? new Date(carInfoFromForm.nextServiceDate).getTime()
-            : null,
+            : undefined,
           roadTaxValidTill: carInfoFromForm.roadTaxValidTill
             ? new Date(carInfoFromForm.roadTaxValidTill).getTime()
-            : null,
+            : undefined,
           regYear: carInfoFromForm.regYear,
           transmission: carInfoFromForm.transmission,
           vinNumber: carInfoFromForm.vin,

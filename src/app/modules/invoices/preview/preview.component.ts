@@ -21,7 +21,7 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/invoices/invoices.service";
 import { formatDate } from "../../utils/util";
-import { IInvoice } from "../invoices.types";
+import { IInvoice } from "../utils/invoices.types";
 @Component({
   selector: "modern",
   templateUrl: "./preview.component.html",
@@ -56,6 +56,18 @@ import { IInvoice } from "../invoices.types";
         }
       }
     `,
+    `
+      .include-color {
+        print-color-adjust: exact;
+        padding-top: 15px;
+      }
+    `,
+    `
+      .include-color-head {
+        print-color-adjust: exact;
+        padding-top: 18px;
+      }
+    `,
   ],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,7 +97,7 @@ import { IInvoice } from "../invoices.types";
 })
 export class PreviewComponent {
   invoiceId: string;
-  invoiceData: IInvoice = null;
+  invoiceData: IInvoice;
   @ViewChild("invoice") invoiceElement: ElementRef;
 
   constructor(
@@ -100,24 +112,24 @@ export class PreviewComponent {
       this.invoiceData = await this.invoiceService.getInvoiceByIdOnce(
         this.invoiceId
       );
-    });
 
-    if (!this.invoiceData) {
-      // Handle the case where invoiceData is not available
-      console.error("No invoice data available");
-      return;
-    }
+      if (!this.invoiceData) {
+        // Handle the case where invoiceData is not available
+        console.error("No invoice data available");
+        return;
+      }
+    });
   }
 
-  formatDate(timestamp) {
+  formatDate(timestamp: Date) {
     return formatDate(timestamp);
   }
 
-  formatAddress(l1, l2, ci, c, p) {
+  formatAddress(l1: string, l2: string, ci: string, c: string, p: string) {
     return [l1, l2, ci, c, p].filter(Boolean).join(", ");
   }
 
-  formatNumber(p) {
+  formatNumber(p: { number: string }) {
     return `${p.number}`;
   }
 
