@@ -126,13 +126,13 @@ export const appRoutes: Route[] = [
         ],
       },
       // 404 & Catch all
-      // {
-      //   path: "404-not-found",
-      //   pathMatch: "full",
-      //   loadChildren: () =>
-      //     import("app/modules/pages/error/error-404/error-404.routes"),
-      // },
-      // { path: "**", redirectTo: "404-not-found" },
+      {
+        path: "404-not-found",
+        pathMatch: "full",
+        loadChildren: () =>
+          import("app/modules/utils/error-404/error-404.routes"),
+      },
+      { path: "**", redirectTo: "404-not-found" },
     ],
   },
 ];

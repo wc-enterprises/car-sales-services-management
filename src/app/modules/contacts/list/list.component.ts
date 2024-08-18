@@ -34,13 +34,9 @@ import {
 } from "@angular/router";
 import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 import {
-  filter,
-  fromEvent,
   Observable,
   Subject,
-  switchMap,
   takeUntil,
-  tap,
 } from "rxjs";
 import { ContactsService } from "../contacts.service";
 import { Contact, Country } from "../contacts.types";
@@ -107,10 +103,6 @@ export class ContactsListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((contacts: Contact[]) => {
         if (!contacts) return;
-        console.log(
-          "ContactListComponent: GetContact: ContactCount:",
-          contacts
-        );
         // Update the counts
         this.contactsCount = contacts.length;
 
@@ -144,7 +136,6 @@ export class ContactsListComponent implements OnInit, OnDestroy {
     this.searchInputControl.valueChanges
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((query) => {
-        console.log("search form input change", query);
         this._contactsService.searchContacts(query);
       });
 

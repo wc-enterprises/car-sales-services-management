@@ -262,6 +262,7 @@ export class ContactsService {
   async deleteContact(id: string): Promise<boolean> {
     try {
       await set(ref(this.db, "contacts/" + id), null);
+      this.getContacts();
       return true;
     } catch (err: any) {
       console.log("An error occured while deleting the record", err.message);

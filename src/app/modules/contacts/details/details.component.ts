@@ -230,8 +230,9 @@ export class ContactsDetailsComponent
           );
         });
 
+        if (contact.name === "New Contact") this.toggleEditMode(true);
         // Toggle the edit mode off
-        this.toggleEditMode(false);
+        else this.toggleEditMode(false);
 
         // Mark for check
         this._changeDetectorRef.markForCheck();
@@ -338,6 +339,7 @@ export class ContactsDetailsComponent
     confirmation.afterClosed().subscribe((result) => {
       // If the confirm button pressed...
       if (result === "confirmed") {
+        console.log("Contact to be deleted", this.contact);
         // Get the current contact's id
         const id = this.contact.id;
 
@@ -500,9 +502,7 @@ export class ContactsDetailsComponent
    * @param iso
    */
   getCountryByIso(iso: string): Country {
-    console.log("Received request to getcountrybyiso for iso:", iso);
     const countryFound = this.countries.find((country) => country.iso === iso);
-    console.log("Found country", countryFound);
     return countryFound as Country;
   }
 
