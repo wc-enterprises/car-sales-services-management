@@ -449,8 +449,8 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
         "Tax type",
         typeof invoice.tax?.value
       );
-      if (invoice.tax && invoice.tax.value) totalTax += invoice.tax?.value;
-      totalAmount += invoice.total;
+      if (invoice.tax && invoice.tax.value) totalTax += +invoice.tax?.value;
+      totalAmount += +invoice.total;
     });
 
     console.log("Total tax", totalTax);
