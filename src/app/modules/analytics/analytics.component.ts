@@ -35,6 +35,7 @@ import { ContactsService } from "../contacts/contacts.service";
 import { InvoicesService } from "../invoices/invoices.service";
 import { IInvoice, IInvoiceType } from "../invoices/utils/invoices.types";
 import { AnalyticsService } from "./analytics.service";
+import { countries } from "../utils/util";
 
 export interface IChartData {
   total: number;
@@ -152,6 +153,19 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     "customerName",
     "amount",
   ];
+
+  /** Next service date imminent  */
+  thisMonthServiceCustomersDataSource: MatTableDataSource<any> =
+    new MatTableDataSource();
+  thisMonthServiceCustomerTableColumns: string[] = [
+    "name",
+    "phone",
+    "regNo",
+    "makeModel",
+    "nextServiceDate",
+  ];
+  /************ */
+
   latestFiveInvoices: IInvoice[] = [];
   totalSalesRevenueForMonth: number = 0;
   totalServicesRevenueForMonth: number = 0;
@@ -194,6 +208,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         this.totalInvoicesAndWeeklyNumbersBasedOnType(
           this.totalNoOfInvoicesFilter
         );
+        this.getCustomersWhoNeedServiceThisMonth();
 
         const getInvoiceMetrics = (invoices: IInvoice[]) => {
           const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-based
@@ -1305,4 +1320,73 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       },
     };
   }
+
+  getCustomersWhoNeedServiceThisMonth(): IServiceThisMonth[] {
+    const now = DateTime.local();
+    const startOfMonth = now.startOf("month");
+    const endOfMonth = now.endOf("month");
+
+    const serviceCustomers: IServiceThisMonth[] = this.invoicesData
+      .filter((invoice) => {
+        const nextServiceDate = invoice.carInfo?.nextServiceDate;
+        if (nextServiceDate) {
+          const serviceDate = DateTime.fromMillis(parseInt(nextServiceDate));
+          return serviceDate >= startOfMonth && serviceDate <= endOfMonth;
+        }
+        return false;
+      })
+      .map((invoice) => {
+        const nextServiceDate = DateTime.fromMillis(
+          parseInt(invoice.carInfo!.nextServiceDate!)
+        );
+        const daysDifference = nextServiceDate.diff(now, "days").days;
+
+        let formattedNextServiceDate = "";
+        if (daysDifference < 0) {
+          formattedNextServiceDate = `${Math.abs(
+            Math.ceil(daysDifference)
+          )} days ago`;
+        } else {
+          formattedNextServiceDate = `in ${Math.ceil(daysDifference)} days`;
+        }
+
+        return {
+          name: invoice.billTo.name,
+          phone: `${
+            countries.find(
+              (item) => item.iso === invoice.billTo.phoneNumber.code
+            )?.code ?? ""
+          } ${invoice.billTo.phoneNumber.number}`,
+          regNo: invoice.carInfo!.regNo,
+          makeModel: `${invoice.carInfo!.make} ${invoice.carInfo!.model}`,
+          nextServiceDate: formattedNextServiceDate,
+        };
+      })
+      .sort((a, b) => {
+        // Sort past dates to the bottom (negative days should be at the bottom)
+        if (
+          a.nextServiceDate.includes("ago") &&
+          !b.nextServiceDate.includes("ago")
+        ) {
+          return 1;
+        } else if (
+          !a.nextServiceDate.includes("ago") &&
+          b.nextServiceDate.includes("ago")
+        ) {
+          return -1;
+        }
+        return 0;
+      });
+
+    this.thisMonthServiceCustomersDataSource.data = serviceCustomers;
+    return serviceCustomers;
+  }
+}
+
+export interface IServiceThisMonth {
+  name: string;
+  phone: string;
+  regNo: string;
+  makeModel: string;
+  nextServiceDate: string;
 }
