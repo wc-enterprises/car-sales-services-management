@@ -5,8 +5,7 @@ export type IInvoiceType = "SALE" | "SERVICE";
 export interface IInvoice {
   id: string;
   invoiceNumber: string;
-  invoiceDate: string;
-
+  invoiceDate: number;
   date: number;
   type: IInvoiceType;
 

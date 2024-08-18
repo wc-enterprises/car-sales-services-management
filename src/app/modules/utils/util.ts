@@ -43,7 +43,7 @@ export const COLOR = [
 ];
 
 // Utility method to format the date to "YYYY-MM-DD"
-export function formatDate(date: Date): string {
+export function formatDate(date: number): string {
   const d = new Date(date);
   const year = d.getFullYear();
   const month = ("0" + (d.getMonth() + 1)).slice(-2);

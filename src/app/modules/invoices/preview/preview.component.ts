@@ -22,6 +22,7 @@ import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/invoices/invoices.service";
 import { formatDate } from "../../utils/util";
 import { IInvoice } from "../utils/invoices.types";
+import { MatMenuModule } from "@angular/material/menu";
 @Component({
   selector: "modern",
   templateUrl: "./preview.component.html",
@@ -93,6 +94,7 @@ import { IInvoice } from "../utils/invoices.types";
     FuseFindByKeyPipe,
     DatePipe,
     CurrencyPipe,
+    MatMenuModule
   ],
 })
 export class PreviewComponent {
@@ -121,11 +123,17 @@ export class PreviewComponent {
     });
   }
 
-  formatDate(timestamp: Date) {
+  formatDate(timestamp: number) {
     return formatDate(timestamp);
   }
 
-  formatAddress(l1: string, l2: string, ci: string, c: string, p: string) {
+  formatAddress(
+    l1: string,
+    l2: string | undefined,
+    ci: string,
+    c: string,
+    p: string
+  ) {
     return [l1, l2, ci, c, p].filter(Boolean).join(", ");
   }
 
