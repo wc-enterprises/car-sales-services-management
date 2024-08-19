@@ -130,11 +130,11 @@ export class ContactsDetailsComponent
       emails: this._formBuilder.array([]),
       phoneNumbers: this._formBuilder.array([]),
       address: this._formBuilder.group({
-        addressLine1: ["", Validators.required],
+        addressLine1: [""],
         addressLine2: [""],
-        city: ["", Validators.required],
-        country: ["", Validators.required],
-        postalCode: ["", Validators.required],
+        city: [""],
+        country: [""],
+        postalCode: [""],
       }),
       notes: [null],
     });
@@ -216,7 +216,7 @@ export class ContactsDetailsComponent
           // Create a phone number form group
           phoneNumbersFormGroups.push(
             this._formBuilder.group({
-              country: ["us"],
+              country: ["gb"],
               phoneNumber: [""],
               label: [""],
             })
@@ -253,6 +253,11 @@ export class ContactsDetailsComponent
 
   frameAddress(address: IAddress) {
     return Object.values(address).filter(Boolean).join(", ");
+  }
+
+  isAddressThereMate(address: IAddress) {
+    if (!address) return false;
+    return Object.values(address)?.filter(Boolean).length;
   }
 
   /**
@@ -464,7 +469,7 @@ export class ContactsDetailsComponent
   addPhoneNumberField(): void {
     // Create an empty phone number form group
     const phoneNumberFormGroup = this._formBuilder.group({
-      country: ["us"],
+      country: ["gb"],
       phoneNumber: [""],
       label: [""],
     });

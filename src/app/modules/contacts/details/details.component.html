@@ -54,6 +54,15 @@
           </div>
           <!-- Actions -->
           <div class="flex items-center ml-auto mb-1">
+            <!-- Delete -->
+            <button
+              mat-button
+              [color]="'warn'"
+              [matTooltip]="'Delete'"
+              (click)="deleteContact()"
+            >
+              Delete
+            </button>
             <button mat-stroked-button (click)="toggleEditMode(true)">
               <mat-icon
                 class="icon-size-5"
@@ -142,7 +151,7 @@
           </ng-container>
 
           <!-- Address -->
-          <ng-container *ngIf="contact.address">
+          <ng-container *ngIf="isAddressThereMate(contact.address)">
             <div class="flex sm:items-center">
               <mat-icon [svgIcon]="'heroicons_outline:map-pin'"></mat-icon>
               <div class="ml-6 leading-6">
