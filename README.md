@@ -13,4 +13,4 @@ Commands to deploy to different environments.
 ## to deploy to default environment
 
 1. ng build
-2. firebase deploy --default carSalesAndServiceManagement --only hosting
+2. firebase deploy --project default --only hosting
