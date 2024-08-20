@@ -30,9 +30,7 @@ export class CarsService {
   private _car: BehaviorSubject<ICar | null> = new BehaviorSubject<ICar | null>(
     null
   );
-  private _cars: BehaviorSubject<ICar[] | null> = new BehaviorSubject<
-    ICar[] | null
-  >(null);
+  private _cars: BehaviorSubject<ICar[]> = new BehaviorSubject<ICar[]>([]);
 
   private _unsubscribers: Unsubscribe[] = [];
 
@@ -187,6 +185,9 @@ export class CarsService {
 
   async createCar(car: Omit<ICar, "id">) {
     const id = FuseMockApiUtils.guid();
+    const carToBeSaved = { id, ...car };
+
+    console.log("car to be saved", carToBeSaved);
     await this.updateCar(id, { id, ...car });
     console.log("Car created successfully", { id, ...car });
     return id;

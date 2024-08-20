@@ -5,7 +5,7 @@ export interface ICar {
   model: string; // TODO: Make type of all models in UK
 
   customerId: string;
-  nextServiceDate?: number;
+  nextServiceDate?: number | null;
   motValidTill?: number;
   insuranceValidTill?: number;
   roadTaxValidTill?: number;
@@ -15,7 +15,7 @@ export interface ICar {
   vinNumber?: string; // Chasis number
   regYear?: string;
   transmission?: string;
-  mileage?: number;
+  mileage?: number | null;
 }
 
 export type T_FUEL_TYPE =

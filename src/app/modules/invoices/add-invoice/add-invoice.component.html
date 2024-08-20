@@ -576,7 +576,10 @@
                 formControlName="total"
                 placeholder="Total"
                 [value]="
-                  service.get('price')?.value * service.get('quantity')?.value
+                  getServiceItemTotal(
+                    service.get('price')?.value,
+                    service.get('quantity')?.value
+                  )
                 "
                 type="number"
                 [readonly]="true"

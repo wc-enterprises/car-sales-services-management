@@ -131,6 +131,15 @@ export class InventoryService {
   }
 
   /**
+   * Get products once
+   */
+  async getProductsOnce(): Promise<InventoryProduct[]> {
+    const productsRef = ref(this.db, "products");
+    const snapshot = await get(productsRef);
+    return snapshot.val();
+  }
+
+  /**
    * Create noop product
    */
   createNoopProduct(productFromDraft?: InventoryProduct) {

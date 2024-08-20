@@ -108,6 +108,8 @@ export class InvoiceFormComponent {
   makesAndModels: Record<string, string[]> = {};
   makes: string[] = [];
 
+  allServices: InventoryProduct[] = [];
+
   invoiceTypes: {
     value: string;
     viewValue: string;
@@ -207,7 +209,7 @@ export class InvoiceFormComponent {
       item: [suggestion?.item ?? "", Validators.required],
       price: [price],
       quantity: [quantity],
-      total: [total || ""],
+      total: [total || 0],
       discount: [""],
       tax: [""],
     });
@@ -351,6 +353,7 @@ export class InvoiceFormComponent {
       .pipe(
         startWith((this.form.get("services") as FormArray).value),
         map((services: IService[]) => {
+          console.log("Services", services);
           return services.reduce((acc, service) => {
             return acc + service.price * (service.quantity ?? 1);
           }, 0);
@@ -361,6 +364,7 @@ export class InvoiceFormComponent {
           .get("subtotal")
           ?.setValue(subtotal || "", { emitEvent: false });
         const total = this.calculateTotal();
+        console.log("received total", total);
         this.form.get("total")?.setValue(total);
       });
 
@@ -378,6 +382,18 @@ export class InvoiceFormComponent {
     this.fuelTypes = FUEL_TYPE;
     this.transmissionTypes = TRANSMISSION;
     this.regYearList = getRegYearList();
+
+    this._inventoryService
+      .getProductsOnce()
+      .then((data) => {
+        this.allServices = data;
+      })
+      .catch((err) => {
+        console.error(
+          "Errored while fetching services in add invoice component"
+        );
+        this.allServices = [];
+      });
   }
 
   clearForm() {
@@ -575,11 +591,21 @@ export class InvoiceFormComponent {
   }
 
   calculateTotal(): number {
-    const subtotal = this.form.get("subtotal")?.value;
-    const taxAmount = this.form.get("tax")?.get("value")?.value;
-    const discount = this.form.get("discount")?.get("value")?.value;
+    const subtotal: number = this.form.get("subtotal")?.value;
+    let taxAmount: number = parseInt(this.form.get("tax")?.get("value")?.value);
+    let discount: number = parseInt(
+      this.form.get("discount")?.get("value")?.value
+    );
 
-    console.log("Values going into total calc", subtotal, taxAmount, discount);
+    if (isNaN(taxAmount)) taxAmount = 0;
+    if (isNaN(discount)) discount = 0;
+
+    console.log(
+      "Values going into total calc",
+      subtotal,
+      typeof taxAmount,
+      typeof discount
+    );
 
     const total = subtotal + taxAmount - discount;
     return total;
@@ -643,10 +669,10 @@ export class InvoiceFormComponent {
           fuelType: carInfoFromForm.fuelType,
           mileage: carInfoFromForm.mileage
             ? parseInt(carInfoFromForm.mileage)
-            : undefined,
+            : null,
           nextServiceDate: carInfoFromForm.nextServiceDate
             ? new Date(carInfoFromForm.nextServiceDate).getTime()
-            : undefined,
+            : null,
           regYear: carInfoFromForm.regYear,
           transmission: carInfoFromForm.transmission,
           vinNumber: carInfoFromForm.vin,
@@ -663,8 +689,9 @@ export class InvoiceFormComponent {
           formData.carInfo.nextServiceDate
         ).getTime();
 
+      console.log("Form data saved:", formData);
       const invoiceId = await this.invoiceService.createInvoice(formData);
-      console.log("Form data saved:", formData, invoiceId);
+
       localStorage.removeItem("invoiceDraft");
       this.router.navigate([
         `/inventory-and-invoice/invoices/preview/${invoiceId}`,
@@ -681,5 +708,17 @@ export class InvoiceFormComponent {
 
   onCancel() {
     this.router.navigate(["inventory-and-invoice/invoices"]);
+  }
+
+  getServiceItemTotal(a: string, b: string) {
+    console.log("Called, ", a, b);
+    let i = parseInt(a);
+    let j = parseInt(b);
+
+    i = isNaN(i) ? 0 : i;
+    j = isNaN(j) ? 0 : j;
+
+    console.log("Returning", i * j);
+    return i * j;
   }
 }
