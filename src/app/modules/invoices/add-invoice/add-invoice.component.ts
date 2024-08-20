@@ -200,7 +200,7 @@ export class InvoiceFormComponent {
   createServiceGroup(suggestion?: IService): FormGroup {
     const price = suggestion?.price ?? "";
     const quantity = suggestion?.quantity ?? "";
-    const total = suggestion?.total ?? +price * +quantity;
+    const total = suggestion?.total || +price * +quantity;
 
     return this.fb.group({
       id: [suggestion?.id ?? ""],
