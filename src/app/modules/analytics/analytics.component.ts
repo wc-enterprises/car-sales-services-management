@@ -1321,10 +1321,14 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     };
   }
 
+  /**
+   * This was first designed to include customers who need service for the current month. But changed it
+   * to figure out customers who need service in the next 30 days.
+   */
   getCustomersWhoNeedServiceThisMonth(): IServiceThisMonth[] {
     const now = DateTime.local();
-    const startOfMonth = now.startOf("month");
-    const endOfMonth = now.endOf("month");
+    const startOfMonth = now;
+    const endOfMonth = now.plus({ days: 30 });
 
     const serviceCustomers: IServiceThisMonth[] = this.invoicesData
       .filter((invoice) => {
@@ -1363,19 +1367,9 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         };
       })
       .sort((a, b) => {
-        // Sort past dates to the bottom (negative days should be at the bottom)
-        if (
-          a.nextServiceDate.includes("ago") &&
-          !b.nextServiceDate.includes("ago")
-        ) {
-          return 1;
-        } else if (
-          !a.nextServiceDate.includes("ago") &&
-          b.nextServiceDate.includes("ago")
-        ) {
-          return -1;
-        }
-        return 0;
+        return (
+          +a.nextServiceDate.split(" ")[1] - +b.nextServiceDate.split(" ")[1]
+        );
       });
 
     this.thisMonthServiceCustomersDataSource.data = serviceCustomers;

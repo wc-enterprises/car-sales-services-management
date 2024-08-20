@@ -185,12 +185,12 @@ export class InventoryListComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.selectedProductForm.valueChanges.subscribe((data) => {
-      if (localStorage.getItem("newServiceAddingBro") === "true") {
-        console.log("data", data);
-        localStorage.setItem("newService", JSON.stringify(data));
-      }
-    });
+    // this.selectedProductForm.valueChanges.subscribe((data) => {
+    //   if (localStorage.getItem("newServiceAddingBro") === "true") {
+    //     console.log("data", data);
+    //     localStorage.setItem("newService", JSON.stringify(data));
+    //   }
+    // });
   }
 
   /**
@@ -252,26 +252,24 @@ export class InventoryListComponent implements OnInit, OnDestroy {
    * Create product
    */
   createProduct(): void {
-    localStorage.setItem("newServiceAddingBro", "true");
-    const serviceDraft = localStorage.getItem("newService");
-    const parsedServiceFromDraft = serviceDraft
-      ? JSON.parse(serviceDraft)
-      : null;
+    // localStorage.setItem("newServiceAddingBro", "true");
+    // const serviceDraft = localStorage.getItem("newService");
+    // const parsedServiceFromDraft = serviceDraft
+    //   ? JSON.parse(serviceDraft)
+    //   : null;
 
     // Create the product
-    this._inventoryService
-      .createNoopProduct(parsedServiceFromDraft)
-      .subscribe((newProduct) => {
-        // Go to new product
-        this.selectedProduct = newProduct;
+    this._inventoryService.createNoopProduct().subscribe((newProduct) => {
+      // Go to new product
+      this.selectedProduct = newProduct;
 
-        this.selectedProductForm.reset();
-        // Fill the form
-        this.selectedProductForm.patchValue(newProduct);
+      this.selectedProductForm.reset();
+      // Fill the form
+      this.selectedProductForm.patchValue(newProduct);
 
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
-      });
+      // Mark for check
+      this._changeDetectorRef.markForCheck();
+    });
   }
 
   /**
@@ -289,8 +287,8 @@ export class InventoryListComponent implements OnInit, OnDestroy {
     /**
      * Delete draft if it's a new product that is being updated.
      */
-    localStorage.removeItem("newService");
-    localStorage.removeItem("newServiceAddingBro");
+    // localStorage.removeItem("newService");
+    // localStorage.removeItem("newServiceAddingBro");
 
     // Remove the currentImageIndex field
     delete product.currentImageIndex;
