@@ -412,9 +412,6 @@ export class InvoiceFormComponent {
         color: [""],
         vin: [""],
         nextServiceDate: ["", Validators.required],
-        motValidTill: [""],
-        insuranceValidTill: [""],
-        roadTaxValidTill: [""],
       });
 
       this.form.addControl("carInfo", carInfo);
@@ -526,9 +523,6 @@ export class InvoiceFormComponent {
           color: data.color ?? null,
           vin: data.vinNumber ?? null,
           nextServiceDate: data.nextServiceDate ?? null,
-          motValidTill: data.motValidTill ?? null,
-          insuranceValidTill: data.insuranceValidTill ?? null,
-          roadTaxValidTill: data.roadTaxValidTill ?? null,
         });
       }
     });
@@ -650,17 +644,8 @@ export class InvoiceFormComponent {
           mileage: carInfoFromForm.mileage
             ? parseInt(carInfoFromForm.mileage)
             : undefined,
-          insuranceValidTill: carInfoFromForm.insuranceValidTill
-            ? new Date(carInfoFromForm.insuranceValidTill).getTime()
-            : undefined,
-          motValidTill: carInfoFromForm.motValidTill
-            ? new Date(carInfoFromForm.motValidTill).getTime()
-            : undefined,
           nextServiceDate: carInfoFromForm.nextServiceDate
             ? new Date(carInfoFromForm.nextServiceDate).getTime()
-            : undefined,
-          roadTaxValidTill: carInfoFromForm.roadTaxValidTill
-            ? new Date(carInfoFromForm.roadTaxValidTill).getTime()
             : undefined,
           regYear: carInfoFromForm.regYear,
           transmission: carInfoFromForm.transmission,
