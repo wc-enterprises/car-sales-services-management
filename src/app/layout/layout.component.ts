@@ -13,7 +13,6 @@ import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 import { FusePlatformService } from "@fuse/services/platform";
 import { FUSE_VERSION } from "@fuse/version";
 import { combineLatest, filter, map, Subject, takeUntil } from "rxjs";
-import { SettingsComponent } from "./common/settings/settings.component";
 import { ClassyLayoutComponent } from "./layouts/vertical/classy/classy.component";
 import { EmptyLayoutComponent } from "./layouts/empty/empty.component";
 
@@ -23,7 +22,7 @@ import { EmptyLayoutComponent } from "./layouts/empty/empty.component";
   styleUrls: ["./layout.component.scss"],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [NgIf, ClassyLayoutComponent, SettingsComponent, EmptyLayoutComponent],
+  imports: [NgIf, ClassyLayoutComponent, EmptyLayoutComponent],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
   config: FuseConfig;

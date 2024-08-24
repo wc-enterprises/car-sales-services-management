@@ -14,7 +14,6 @@ import { provideTransloco, TranslocoService } from "@ngneat/transloco";
 import { firstValueFrom } from "rxjs";
 import { appRoutes } from "app/app.routes";
 import { provideIcons } from "app/core/icons/icons.provider";
-import { mockApiServices } from "app/services";
 import { TranslocoHttpLoader } from "./core/transloco/transloco.http-loader";
 import { initializeApp, provideFirebaseApp } from "@angular/fire/app";
 import { getDatabase, provideDatabase } from "@angular/fire/database";
@@ -88,10 +87,6 @@ export const appConfig: ApplicationConfig = {
     // provideAuth(),
     provideIcons(),
     provideFuse({
-      mockApi: {
-        delay: 0,
-        services: mockApiServices,
-      },
       fuse: {
         layout: "classy",
         scheme: "light",
