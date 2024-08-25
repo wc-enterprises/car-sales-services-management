@@ -37,7 +37,7 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseConfirmationService } from "@fuse/services/confirmation";
-import { Observable, Subject } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 import { ContactsService } from "../../contacts/contacts.service";
 import { Contact } from "../../contacts/contacts.types";
 import {
@@ -131,7 +131,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   searchQuery: string;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-  selectedTimePeriodFilter: TInvoiceTimeFilter = "1m";
+  selectedTimePeriodFilter: TInvoiceTimeFilter = "";
   selectedInvoiceTypeFilter: TInvoiceTypeFilter = "";
   dateRange = {
     startDate: Date.now(),
@@ -151,13 +151,14 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (filterType === "TIME_PERIOD") {
-      if (actualValue === "1m") return "30 days";
-      if (actualValue === "3m") return "3 months";
-      if (actualValue === "6m") return "6 months";
+      if (actualValue === "1m") return "Last 30 days";
+      if (actualValue === "3m") return "Last 3 months";
+      if (actualValue === "6m") return "Last 6 months";
       if (actualValue === "cfy") return "Current financial year";
       if (actualValue === "lfy") return "Last financial year";
       if (actualValue === "dr") return this.selectedDateRange;
       if (actualValue === "") return "Filter by time";
+      if (actualValue === "all") return "All";
     }
   }
 
@@ -245,6 +246,22 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
     this._invoicesService.invoices$.subscribe((data) => {
       this.invoices = data;
     });
+
+    this.searchInputControl.valueChanges
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe((query) => {
+        this.isLoading = true;
+        this._invoicesService
+          .searchInvoices(query)
+          .then((data) => {
+            this.isLoading = false;
+            this._changeDetectorRef.detectChanges();
+          })
+          .catch((err) => {
+            console.log(err);
+            this.isLoading = false;
+          });
+      });
   }
 
   /**
@@ -471,7 +488,7 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
         "Type",
         "Customer Name",
         "Car Name",
-        "Tax Amount",
+        "Vat Amount",
         "Total",
       ],
     ];

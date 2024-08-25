@@ -5,7 +5,7 @@ import {
   ViewEncapsulation,
 } from "@angular/core";
 import { TextFieldModule } from "@angular/cdk/text-field";
-import { DatePipe, NgClass, NgFor, NgIf } from "@angular/common";
+import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from "@angular/common";
 import {
   FormArray,
   FormBuilder,
@@ -17,6 +17,7 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatOptionModule, MatRippleModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -27,8 +28,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/invoices/invoices.service";
-import { map, startWith } from "rxjs";
-import { Contact } from "../../contacts/contacts.types";
+import { map, Observable, startWith } from "rxjs";
+import { Contact, Country } from "../../contacts/contacts.types";
 import { ContactsService } from "../../contacts/contacts.service";
 import { ICar } from "../../cars/cars.types";
 import { CarsService } from "../../cars/cars.service";
@@ -36,11 +37,14 @@ import { InventoryService } from "../../spares-and-services/inventory.service";
 import { InventoryProduct } from "../../spares-and-services/inventory.types";
 import {
   COLOR,
+  countries,
   FUEL_TYPE,
   getRegYearList,
   TRANSMISSION,
 } from "../../utils/util";
 import { IInvoice, IService } from "../utils/invoices.types";
+import { DateTime } from "luxon";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 
 @Component({
   selector: "invoice",
@@ -68,9 +72,13 @@ import { IInvoice, IService } from "../utils/invoices.types";
     TextFieldModule,
     FuseFindByKeyPipe,
     DatePipe,
+    MatAutocompleteModule,
+    AsyncPipe,
+    MatSlideToggleModule,
   ],
 })
 export class InvoiceFormComponent {
+  countries = countries;
   form: FormGroup;
   invoiceData: any;
   filteredSuggestions: { [key: number]: string[] } = {};
@@ -107,6 +115,10 @@ export class InvoiceFormComponent {
 
   makesAndModels: Record<string, string[]> = {};
   makes: string[] = [];
+  filteredMakes: string[];
+  filteredMakes$: Observable<string[]>[] = [];
+
+  filteredColors: string[];
 
   allServices: InventoryProduct[] = [];
 
@@ -152,15 +164,15 @@ export class InvoiceFormComponent {
         id: [""],
         name: ["", Validators.required],
         phoneNumber: this.fb.group({
-          code: [""],
-          number: ["", Validators.required],
+          code: ["gb"],
+          number: [""],
         }),
         email: [""],
-        addressLine1: ["", Validators.required],
+        addressLine1: [""],
         addressLine2: [""],
-        postalCode: ["", Validators.required],
+        postalCode: [""],
         country: ["United Kingdom", Validators.required],
-        city: ["", Validators.required],
+        city: [""],
         createdDate: [""],
       }),
       services: this.fb.array([this.createServiceGroup()]) as FormArray,
@@ -172,15 +184,27 @@ export class InvoiceFormComponent {
         value: [],
       }),
       total: [""],
+      hasWarranty: [true],
     });
 
-    this.invoiceService.countInvoices().then((count) => {
-      console.log("count", count);
+    this.form.controls.billTo.get("phoneNumber.code")?.patchValue("gb");
+
+    this.invoiceService.totalInvoicesCreatedSoFar().then((count) => {
       this.currentInvoiceNumber = this.frameInvoiceNumber(count);
       this.form.get("invoiceNumber")?.setValue(this.currentInvoiceNumber);
     });
 
     this.form.get("date")?.patchValue(new Date());
+  }
+
+  /**
+   * Get country info by iso code
+   *
+   * @param iso
+   */
+  getCountryByIso(iso: string): Country {
+    const countryFound = countries.find((country) => country.iso === iso);
+    return countryFound as Country;
   }
 
   frameInvoiceNumber(numberOfExistingInvoices: number) {
@@ -204,8 +228,17 @@ export class InvoiceFormComponent {
     const quantity = suggestion?.quantity ?? "";
     const total = suggestion?.total || +price * +quantity;
 
+    const control = this.fb.control(suggestion?.id ?? "");
+
+    this.filteredMakes$.push(
+      control.valueChanges.pipe(
+        startWith(""),
+        map((value) => this._filter(value as string))
+      )
+    );
+
     return this.fb.group({
-      id: [suggestion?.id ?? ""],
+      id: control,
       item: [suggestion?.item ?? "", Validators.required],
       price: [price],
       quantity: [quantity],
@@ -213,6 +246,13 @@ export class InvoiceFormComponent {
       discount: [""],
       tax: [""],
     });
+  }
+
+  _filter(value: string): string[] {
+    const filterValue = value?.toLowerCase();
+    return this.makes.filter((make) =>
+      make.toLowerCase().includes(filterValue)
+    );
   }
 
   addService(suggestion?: IService): void {
@@ -249,14 +289,6 @@ export class InvoiceFormComponent {
     this.form.get("tax.value")?.setValue(existingTaxValue + tax);
     serviceGroup.get("tax")?.setValue(tax);
 
-    // Discount for individual service
-    const discount = item.discount ?? "";
-    const existingDiscountVallue = this.form.get("discount.value")?.value;
-    this.form
-      .get("discount.value")
-      ?.setValue(existingDiscountVallue + discount);
-    serviceGroup.get("discount")?.setValue(discount);
-
     this.isDropdownOpen[index] = false;
   }
 
@@ -270,29 +302,18 @@ export class InvoiceFormComponent {
     const servicesFormArray = this.form.get("services") as UntypedFormArray;
 
     const itemToBeRemoved = servicesFormArray.at(index).value;
-    console.log("Item to be removed", itemToBeRemoved);
 
     // Remove the phone number field
     servicesFormArray.removeAt(index);
 
-    // Subtract any added tax and discount and re-calcuate the total.
+    // Subtract any added tax and re-calcuate the total.
     // Tax
     const currentFormTax = this.form.get("tax")?.value;
-    console.log(itemToBeRemoved.tax, currentFormTax);
+
     if (itemToBeRemoved.tax && currentFormTax.value >= itemToBeRemoved.tax) {
       const newTaxVal = currentFormTax.value - itemToBeRemoved.tax;
-      console.log("New tax value", newTaxVal);
-      this.form.get("tax.value")?.setValue(newTaxVal);
-    }
 
-    const currentDiscount = this.form.get("discount")?.value;
-    if (
-      itemToBeRemoved.discount &&
-      currentDiscount.value >= itemToBeRemoved.discount
-    ) {
-      const newDiscount = currentDiscount.value - itemToBeRemoved.discount;
-      console.log("New Discount value", newDiscount);
-      this.form.get("discount.value")?.setValue(newDiscount);
+      this.form.get("tax.value")?.setValue(newTaxVal);
     }
 
     this.calculateTotal();
@@ -301,9 +322,16 @@ export class InvoiceFormComponent {
     this._changeDetectorRef.markForCheck();
   }
 
-  getModelsForAMake(make: string) {
+  getModelsForAMakeWithoutParam() {
+    const make = this.form.controls.carInfo?.get("make")?.value;
     if (!make) return [];
     return this.makesAndModels[make];
+  }
+
+  getModelsForAMake(make: string) {
+    if (!make) return [];
+    const modelsOfMake = this.makesAndModels[make];
+    return modelsOfMake;
   }
 
   async ngOnInit(): Promise<void> {
@@ -320,10 +348,6 @@ export class InvoiceFormComponent {
     this.numberInformation();
     this.getContactList();
     this.getRegno();
-    if (history.state.data) {
-      this.invoiceData = history.state.data;
-      this.form.patchValue(this.invoiceData);
-    }
 
     this.filterItems("", 0);
 
@@ -337,7 +361,6 @@ export class InvoiceFormComponent {
 
       if (services && services.length) {
         services.shift();
-        console.log("Adding following services to form: ", services);
         services?.forEach((item) => {
           this.addService(item);
         });
@@ -345,6 +368,7 @@ export class InvoiceFormComponent {
     }
 
     this.form.valueChanges.subscribe((data: IInvoice) => {
+      if (!data.billTo?.phoneNumber?.code) data.billTo.phoneNumber.code = "gb";
       data.services = data.services.filter((item) => item.item);
       localStorage.setItem("invoiceDraft", JSON.stringify(data));
     });
@@ -353,9 +377,8 @@ export class InvoiceFormComponent {
       .pipe(
         startWith((this.form.get("services") as FormArray).value),
         map((services: IService[]) => {
-          console.log("Services", services);
           return services.reduce((acc, service) => {
-            return acc + service.price * (service.quantity ?? 1);
+            return acc + service.price * (service.quantity || 1);
           }, 0);
         })
       )
@@ -364,16 +387,11 @@ export class InvoiceFormComponent {
           .get("subtotal")
           ?.setValue(subtotal || "", { emitEvent: false });
         const total = this.calculateTotal();
-        console.log("received total", total);
+
         this.form.get("total")?.setValue(total);
       });
 
     this.form.get("tax")?.valueChanges.subscribe((data) => {
-      const total = this.calculateTotal();
-      this.form.get("total")?.setValue(total);
-    });
-
-    this.form.get("discount")?.valueChanges.subscribe((data) => {
       const total = this.calculateTotal();
       this.form.get("total")?.setValue(total);
     });
@@ -397,22 +415,29 @@ export class InvoiceFormComponent {
   }
 
   clearForm() {
-    console.log("Called clear form");
     localStorage.removeItem("invoiceDraft");
     this.form.reset();
     this.form.patchValue({
       invoiceNumber: this.currentInvoiceNumber,
       type: "SERVICE",
       date: new Date(),
+      billTo: {
+        phoneNumber: {
+          code: "gb",
+        },
+        country: "United Kingdom",
+      },
+      hasWarranty: true,
     });
   }
 
   typeChanged() {
-    console.log("xxxxxxxxxxxxxx Type changed xxxxxxxxxxxxxx");
     this.form.get("services")?.reset();
   }
 
   showCarDetails() {
+    const aYearFromNow = DateTime.local().plus({ year: 1 }).toISODate();
+
     // If invoice type is services, show car details in the add form.
     if (this.form.get("type")?.value === "SERVICE") {
       const carInfo = this.fb.group({
@@ -427,10 +452,28 @@ export class InvoiceFormComponent {
         mileage: [""],
         color: [""],
         vin: [""],
-        nextServiceDate: ["", Validators.required],
+        nextServiceDate: [aYearFromNow, Validators.required],
       });
 
       this.form.addControl("carInfo", carInfo);
+
+      this.form.controls.carInfo
+        .get("nextServiceDate")
+        ?.patchValue(aYearFromNow);
+
+      carInfo.get("make")?.valueChanges.subscribe((value) => {
+        this.filteredMakes = this._filter(value as string);
+      });
+      carInfo.get("color")?.valueChanges.subscribe((value) => {
+        if (!value) {
+          this.filteredColors = [];
+          return;
+        }
+        const filterValue = value.toLowerCase();
+        this.filteredColors = this.colors.filter((color) =>
+          color.toLowerCase().includes(filterValue)
+        );
+      });
       return true;
     }
     //Else do not show.
@@ -455,11 +498,9 @@ export class InvoiceFormComponent {
   }
   // CustomerNames
   filterNames() {
-    console.log("received request to filter names", this.selectedName);
     this.filteredNames = this.contactList.filter((name) =>
       name.toLowerCase().includes(this.selectedName.toLowerCase())
     );
-    console.log("filtered names:", this.filteredNames, this.isDropdownOpened);
   }
 
   selectName(name: string) {
@@ -593,21 +634,10 @@ export class InvoiceFormComponent {
   calculateTotal(): number {
     const subtotal: number = this.form.get("subtotal")?.value;
     let taxAmount: number = parseInt(this.form.get("tax")?.get("value")?.value);
-    let discount: number = parseInt(
-      this.form.get("discount")?.get("value")?.value
-    );
 
     if (isNaN(taxAmount)) taxAmount = 0;
-    if (isNaN(discount)) discount = 0;
 
-    console.log(
-      "Values going into total calc",
-      subtotal,
-      typeof taxAmount,
-      typeof discount
-    );
-
-    const total = subtotal + taxAmount - discount;
+    const total = subtotal + taxAmount;
     return total;
   }
 
@@ -626,7 +656,10 @@ export class InvoiceFormComponent {
       const now = Date.now();
 
       let customerId: string = "";
-      if (!formData.billTo.id) {
+      if (
+        !formData.billTo.id &&
+        (formData.billTo.phoneNumber?.number || formData.billTo.addressLine1)
+      ) {
         // Save the contact
         // There will be no code in phone. Hardcode it to Great Britan.
 
@@ -658,7 +691,6 @@ export class InvoiceFormComponent {
 
       const carInfoFromForm = formData.carInfo;
       if (carInfoFromForm && !carInfoFromForm.id) {
-        console.log("Saving car block called", formData.carInfo);
         // Save the car
 
         const car: Omit<ICar, "id"> = {
@@ -683,19 +715,20 @@ export class InvoiceFormComponent {
       }
 
       // Format the date fields to remove the timestamp
-      formData.date = now;
+      formData.date = new Date(formData.date).getTime();
+
       if (formData.carInfo)
         formData.carInfo.nextServiceDate = new Date(
           formData.carInfo.nextServiceDate
         ).getTime();
 
-      console.log("Form data saved:", formData);
       const invoiceId = await this.invoiceService.createInvoice(formData);
 
       localStorage.removeItem("invoiceDraft");
       this.router.navigate([
         `/inventory-and-invoice/invoices/preview/${invoiceId}`,
       ]);
+      this.invoiceService.incrementTotalInvoicesCreated();
       return invoiceId;
     } else {
       alert("Please fill in all required fields before printing");
@@ -711,14 +744,11 @@ export class InvoiceFormComponent {
   }
 
   getServiceItemTotal(a: string, b: string) {
-    console.log("Called, ", a, b);
     let i = parseInt(a);
     let j = parseInt(b);
 
     i = isNaN(i) ? 0 : i;
     j = isNaN(j) ? 0 : j;
-
-    console.log("Returning", i * j);
     return i * j;
   }
 }

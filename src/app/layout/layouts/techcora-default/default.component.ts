@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
 import { User } from "@angular/fire/auth";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { FuseFullscreenComponent } from "@fuse/components/fullscreen";
 import { FuseLoadingBarComponent } from "@fuse/components/loading-bar";
@@ -18,7 +19,7 @@ import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "classy-layout",
-  templateUrl: "./classy.component.html",
+  templateUrl: "./default.component.html",
   encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [
@@ -29,6 +30,7 @@ import { Subject, takeUntil } from "rxjs";
     MatButtonModule,
     FuseFullscreenComponent,
     RouterOutlet,
+    MatTooltipModule,
   ],
 })
 export class ClassyLayoutComponent implements OnInit, OnDestroy {

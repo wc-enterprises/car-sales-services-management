@@ -15,12 +15,15 @@ import {
   TInvoiceTypeFilter,
 } from "./utils/invoices.types";
 import {
+  child,
   Database,
   get,
+  increment,
   onValue,
   ref,
   set,
   Unsubscribe,
+  update,
 } from "@angular/fire/database";
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
 import { Contact } from "../contacts/contacts.types";
@@ -50,7 +53,7 @@ export class InvoicesService {
    * Constructor
    */
   constructor(private db: Database) {
-    this.getInvoices("1m");
+    this.getInvoices("");
   }
   destructor() {
     this._unsubscribers.forEach((item) => {
@@ -121,7 +124,7 @@ export class InvoicesService {
         invoices.push(val);
       });
 
-      if (timeFilter) {
+      if (timeFilter && timeFilter != "all") {
         const { now, pastDate } = getNowAndPastDateBasedOnFilterVal(
           timeFilter,
           additionalData
@@ -132,10 +135,8 @@ export class InvoicesService {
         });
       }
 
-      if (typeFilter) {
-        if (typeFilter !== "ALL") {
-          invoices = invoices.filter((invoice) => invoice.type === typeFilter);
-        }
+      if (typeFilter && typeFilter !== "ALL") {
+        invoices = invoices.filter((invoice) => invoice.type === typeFilter);
       }
 
       // Sort invoices based on the created date (latest first)
@@ -338,7 +339,6 @@ export class InvoicesService {
   }
 
   async mapRegNo(regNo: string): Promise<ICar | null> {
-    console.log("Incoming regNo: ", regNo);
     const carsRef = ref(this.db, "cars");
 
     // Fetch the data once
@@ -348,15 +348,6 @@ export class InvoicesService {
     for (const key in data) {
       const val = data[key];
 
-      console.log(
-        "check",
-        val.regNo.replace(/[-\s]+/g, "").toLowerCase() ===
-          regNo.replace(/[-\s]+/g, "").toLowerCase(),
-        "dbCar",
-        val.regNo.replace(/[-\s]+/g, "").toLowerCase(),
-        "incoming car",
-        regNo.replace(/[-\s]+/g, "").toLowerCase()
-      );
       if (
         val.regNo.replace(/[-\s]+/g, "").toLowerCase() ===
         regNo.replace(/[-\s]+/g, "").toLowerCase()
@@ -381,52 +372,106 @@ export class InvoicesService {
     }
     return null;
   }
+
+  incrementTotalInvoicesCreated = async () => {
+    const totalInvoicesCreatedSoFarRef = ref(
+      this.db,
+      "totalInvoicesCreatedSoFar"
+    );
+    const snapshot = await get(totalInvoicesCreatedSoFarRef);
+    const data = snapshot.val();
+    const totalInvoicesCreatedSoFar = data ? +data + 1 : 0;
+    await update(ref(this.db), { totalInvoicesCreatedSoFar });
+  };
+
+  totalInvoicesCreatedSoFar = async (): Promise<number> => {
+    const totalInvoicesCreatedSoFarRef = ref(
+      this.db,
+      "totalInvoicesCreatedSoFar"
+    );
+    const snapshot = await get(totalInvoicesCreatedSoFarRef);
+    const data = snapshot.val();
+    return parseInt(data);
+  };
+
+  storeTotalInvoiceCreatedIfNotPresent = async () => {
+    const totalInvoicesCreatedSoFarRef = ref(
+      this.db,
+      "totalInvoicesCreatedSoFar"
+    );
+    const snapshot = await get(totalInvoicesCreatedSoFarRef);
+    const data = snapshot.val();
+
+    if (!data) {
+      const totalInvoicesCreatedSoFar: number = await this.countInvoices();
+
+      await update(ref(this.db), { totalInvoicesCreatedSoFar });
+    }
+  };
+
   searchInvoices(query: string) {
-    //TODO: Implement search invoices
+    console.log("Received query string", query);
+    const dbRef = ref(this.db);
 
-    //   const dbRef = ref(this.db);
+    return get(child(dbRef, "invoices"))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const dbInvoices = snapshot.val();
 
-    //   return get(child(dbRef, "cars"))
-    //     .then((snapshot) => {
-    //       if (snapshot.exists()) {
-    //         const dbCars = snapshot.val();
+          // Frame cars for component
+          let invoices: IInvoice[] = [];
+          Object.keys(dbInvoices).forEach((key) => {
+            const val = dbInvoices[key];
+            invoices.push(val);
+          });
 
-    //         // Frame cars for component
-    //         let cars: IInvoice[] = [];
-    //         Object.keys(dbCars).forEach((key) => {
-    //           const val = dbCars[key];
-    //           cars.push(val);
-    //         });
+          invoices = invoices.filter((invoice) => {
+            if (invoice.type === "SALE") {
+              if (
+                (invoice.services[0]?.total as unknown as string)
+                  ?.toLowerCase()
+                  .replace(/\s/g, "")
+                  .includes(query.toLowerCase().replace(/\s/g, "")) ||
+                invoice.services[0]?.id
+                  ?.toLowerCase()
+                  .includes(query.toLowerCase()) ||
+                invoice.services[0]?.item
+                  ?.toLowerCase()
+                  .includes(query.toLowerCase())
+              )
+                return true;
+            }
 
-    //         cars = cars.filter((car) => {
-    //           if (
-    //             (car.regNo &&
-    //               car.regNo
-    //                 .toLowerCase()
-    //                 .replace(/\s/g, "")
-    //                 .includes(query.toLowerCase().replace(/\s/g, ""))) ||
-    //             (car.make &&
-    //               car.make.toLowerCase().includes(query.toLowerCase())) ||
-    //             (car.model &&
-    //               car.model.toLowerCase().includes(query.toLowerCase())) ||
-    //             (car.customerId && car.customerId === query) ||
-    //             (car.id && car.id === query)
-    //           ) {
-    //             return true;
-    //           }
-    //           return false;
-    //         });
+            if (
+              invoice.carInfo?.regNo
+                ?.toLowerCase()
+                .replace(/\s/g, "")
+                .includes(query.toLowerCase().replace(/\s/g, "")) ||
+              invoice.carInfo?.make
+                ?.toLowerCase()
+                .includes(query.toLowerCase()) ||
+              invoice.carInfo?.model
+                ?.toLowerCase()
+                .includes(query.toLowerCase()) ||
+              invoice.billTo?.name
+                ?.toLowerCase()
+                .replace(/\s/g, "")
+                .includes(query.toLowerCase().replace(/\s/g, ""))
+            ) {
+              return true;
+            }
+            return false;
+          });
 
-    //         this._invoices.next(cars);
-    //         return true;
-    //       } else {
-    //         console.log("No data available");
-    //         return false;
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.error(error);
-    //     });
-    1;
+          this._invoices.next(invoices);
+          return true;
+        } else {
+          console.log("No data available");
+          return false;
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 }

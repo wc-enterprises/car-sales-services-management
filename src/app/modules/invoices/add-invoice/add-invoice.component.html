@@ -100,7 +100,7 @@
               />
             </mat-form-field>
 
-            <mat-form-field
+            <!-- <mat-form-field
               formGroupName="phoneNumber"
               class="w-full"
               [subscriptSizing]="'dynamic'"
@@ -115,6 +115,58 @@
                 [formControlName]="'number'"
                 placeholder="Phone"
               />
+            </mat-form-field> -->
+            <mat-form-field
+              formGroupName="phoneNumber"
+              class="w-full"
+              [subscriptSizing]="'dynamic'"
+            >
+              <mat-label class="text-gray-500">Phone</mat-label>
+              <input
+                matInput
+                [formControlName]="'number'"
+                [placeholder]="'Phone'"
+              />
+
+              <mat-select class="mr-1.5" [formControlName]="'code'" matPrefix>
+                <mat-select-trigger>
+                  <span class="flex items-center">
+                    <span
+                      class="hidden sm:flex w-6 h-4 mr-1 overflow-hidden"
+                      [style.background]="
+                        'url(\'/assets/images/apps/contacts/flags.png\') no-repeat 0 0'
+                      "
+                      [style.backgroundSize]="'24px 3876px'"
+                      [style.backgroundPosition]="
+                        getCountryByIso(
+                          form.get('billTo.phoneNumber.code')?.value
+                        )?.flagImagePos
+                      "
+                    ></span>
+                    <span class="sm:mx-0.5 font-medium text-default">{{
+                      getCountryByIso(
+                        form.get("billTo.phoneNumber.code")?.value
+                      )?.code
+                    }}</span>
+                  </span>
+                </mat-select-trigger>
+                <ng-container *ngFor="let country of countries">
+                  <mat-option [value]="country.iso">
+                    <span class="flex items-center">
+                      <span
+                        class="w-6 h-4 overflow-hidden"
+                        [style.background]="
+                          'url(\'/assets/images/apps/contacts/flags.png\') no-repeat 0 0'
+                        "
+                        [style.backgroundSize]="'24px 3876px'"
+                        [style.backgroundPosition]="country.flagImagePos"
+                      ></span>
+                      <span class="ml-2">{{ country.name }}</span>
+                      <span class="ml-2 font-medium">{{ country.code }}</span>
+                    </span>
+                  </mat-option>
+                </ng-container>
+              </mat-select>
             </mat-form-field>
 
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
@@ -230,26 +282,35 @@
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Make</mat-label>
               <input
+                type="text"
                 matInput
-                [(ngModel)]="selectedMakeName"
-                (input)="filterMakeName()"
-                (focus)="isDropdownOpenedMakeName = true"
-                (blur)="isDropdownOpenedMakeName = false"
+                placeholder="Enter make"
+                [matAutocomplete]="auto"
                 [formControlName]="'make'"
-                placeholder="Make"
               />
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let make of filteredMakes" [value]="make">{{
+                  make
+                }}</mat-option>
+              </mat-autocomplete>
             </mat-form-field>
+
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Model</mat-label>
               <input
+                type="text"
                 matInput
-                [(ngModel)]="selectedModelName"
-                (input)="filterModelName()"
-                (focus)="isDropdownOpenedModelName = true"
-                (blur)="isDropdownOpenedModelName = false"
+                placeholder="Enter model"
+                [matAutocomplete]="autox"
                 [formControlName]="'model'"
-                placeholder="Model"
               />
+              <mat-autocomplete #autox="matAutocomplete">
+                <mat-option
+                  *ngFor="let model of getModelsForAMakeWithoutParam()"
+                  [value]="model"
+                  >{{ model }}</mat-option
+                >
+              </mat-autocomplete>
             </mat-form-field>
           </div>
           <!-- regNo -->
@@ -266,48 +327,30 @@
               {{ regNoList }}
             </li>
           </ul>
-          <!-- makeName -->
-          <ul
-            *ngIf="isDropdownOpenedMakeName && filteredMakeName.length"
-            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[130px] mobile-small:mt-[220px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
-            (mousedown)="preventClose($event)"
-          >
-            <li
-              *ngFor="let makeNameList of filteredMakeName"
-              class="p-2 cursor-pointer hover:bg-gray-200"
-              (click)="selectMakeName(makeNameList)"
-            >
-              {{ makeNameList }}
-            </li>
-          </ul>
-          <!-- modelName -->
-          <ul
-            *ngIf="isDropdownOpenedModelName && filteredModelName.length"
-            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[130px] mobile-small:mt-[309px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
-            (mousedown)="preventClose($event)"
-          >
-            <li
-              *ngFor="let modelName of filteredModelName"
-              class="p-2 cursor-pointer hover:bg-gray-200"
-              (click)="selectModelName(modelName)"
-            >
-              {{ modelName }}
-            </li>
-          </ul>
 
           <!-- Row 2 -->
           <div
             class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0"
           >
+            <!-- Color -->
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Color</mat-label>
-
-              <mat-select [formControlName]="'color'" placeholder="Color">
-                <ng-container *ngFor="let val of colors">
-                  <mat-option [value]="val">{{ val }}</mat-option>
-                </ng-container>
-              </mat-select>
+              <input
+                type="text"
+                matInput
+                placeholder="Enter color"
+                [matAutocomplete]="autoc"
+                [formControlName]="'color'"
+              />
+              <mat-autocomplete #autoc="matAutocomplete">
+                <mat-option
+                  *ngFor="let color of filteredColors"
+                  [value]="color"
+                  >{{ color }}</mat-option
+                >
+              </mat-autocomplete>
             </mat-form-field>
+
             <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
               <mat-label class="text-gray-500">Fuel type</mat-label>
               <mat-select
@@ -403,7 +446,7 @@
             ITEM
           </div>
           <div
-            class="col-span-3 font-medium text-md text-left text-secondary"
+            class="col-span-3 ss:col-span-2 font-medium text-md text-left text-secondary"
             *ngIf="form.get('type')?.value === 'SALE'"
           >
             MAKE
@@ -417,7 +460,7 @@
             RATE
           </div>
           <div
-            class="col-span-3 font-medium text-left text-md text-secondary"
+            class="col-span-2 ss:col-span-3 font-medium text-left text-md text-secondary"
             *ngIf="form.get('type')?.value === 'SALE'"
           >
             MODEL
@@ -437,6 +480,14 @@
             REG NO
           </div>
 
+          <!-- Column 3.1 for SALE bill ;) -->
+          <div
+          class="col-span-2 font-medium text-left text-md text-secondary"
+          *ngIf="form.get('type')?.value === 'SALE'"
+        >
+          COLOR
+        </div>
+
           <!-- Column Four -->
           <div
             class="col-span-2 font-medium text-md text-right text-secondary"
@@ -445,7 +496,7 @@
             TOTAL
           </div>
           <div
-            class="col-span-4 font-medium text-md text-center text-secondary"
+            class="col-span-3 font-medium text-md text-center text-secondary"
             *ngIf="form.get('type')?.value === 'SALE'"
           >
             PRICE
@@ -485,18 +536,6 @@
               />
             </mat-form-field>
 
-            <mat-form-field
-              class="col-span-3 ss:col-span-12"
-              [subscriptSizing]="'dynamic'"
-              *ngIf="form.get('type')?.value === 'SALE'"
-            >
-              <mat-select [formControlName]="'id'" placeholder="Enter make">
-                <ng-container *ngFor="let make of makes">
-                  <mat-option [value]="make">{{ make }}</mat-option>
-                </ng-container>
-              </mat-select>
-            </mat-form-field>
-
             <!-- Dropdown with z-index -->
             <ul
               #dropdown
@@ -513,6 +552,27 @@
               </li>
             </ul>
 
+            <mat-form-field
+              class="col-span-3 ss:col-span-12"
+              [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SALE'"
+            >
+              <input
+                type="text"
+                matInput
+                placeholder="Enter make"
+                [matAutocomplete]="auto"
+                [formControlName]="'id'"
+              />
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option
+                  *ngFor="let make of filteredMakes$[i] | async"
+                  [value]="make"
+                  >{{ make }}</mat-option
+                >
+              </mat-autocomplete>
+            </mat-form-field>
+
             <!-- Column 2 Value -->
             <mat-form-field
               class="col-span-2 ss:col-span-7"
@@ -528,19 +588,27 @@
             </mat-form-field>
 
             <mat-form-field
-              class="col-span-2 ss:col-span-7"
+              class="col-span-2 ss:col-span-12"
               [subscriptSizing]="'dynamic'"
               *ngIf="form.get('type')?.value === 'SALE'"
             >
-              <mat-select [formControlName]="'item'" placeholder="Model">
-                <ng-container
+              <input
+                type="text"
+                matInput
+                placeholder="Enter model"
+                [matAutocomplete]="auto"
+                [formControlName]="'item'"
+              />
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option
                   *ngFor="
                     let model of getModelsForAMake(service.get('id')?.value)
                   "
+                  [value]="model"
                 >
-                  <mat-option [value]="model">{{ model }}</mat-option>
-                </ng-container>
-              </mat-select>
+                  {{ model }}</mat-option
+                >
+              </mat-autocomplete>
             </mat-form-field>
 
             <!-- Column 3 Value -->
@@ -558,11 +626,33 @@
               />
             </mat-form-field>
             <mat-form-field
-              class="col-span-3 self-center ss:col-span-5"
+              class="col-span-2 self-center ss:col-span-12"
               [subscriptSizing]="'dynamic'"
               *ngIf="form.get('type')?.value === 'SALE'"
             >
               <input matInput formControlName="total" placeholder="Reg No" />
+            </mat-form-field>
+
+            <!-- Column 3.1 Value for SALE bill alone ;) -->
+            <mat-form-field
+              class="col-span-2 self-center ss:col-span-12"
+              [subscriptSizing]="'dynamic'"
+              *ngIf="form.get('type')?.value === 'SALE'"
+            >
+              <input
+                type="text"
+                matInput
+                placeholder="Enter color"
+                [matAutocomplete]="autocx"
+                [formControlName]="'discount'"
+              />
+              <mat-autocomplete #autocx="matAutocomplete">
+                <mat-option
+                  *ngFor="let color of colors"
+                  [value]="color"
+                  >{{ color }}</mat-option
+                >
+              </mat-autocomplete>
             </mat-form-field>
 
             <!-- Column 4 Value -->
@@ -587,8 +677,8 @@
             </mat-form-field>
             <mat-form-field
               [ngClass]="{
-                'col-span-3 ss:col-span-12': services.length !== 1,
-                'col-span-4 ss:col-span-12': services.length === 1
+                'col-span-2 ss:col-span-12': services.length !== 1,
+                'col-span-3 ss:col-span-12': services.length === 1
               }"
               class="ss:col-span-10"
               [subscriptSizing]="'dynamic'"
@@ -643,6 +733,7 @@
           <!-- Spacer -->
           <div class="col-span-12 mt-16"></div>
         </div>
+
         <div class="grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-10 w-full">
           <!-- Subtotal -->
           <div
@@ -670,7 +761,7 @@
           <div
             class="col-span-7 self-center font-medium text-left tracking-tight text-secondary"
           >
-            TAX
+            VAT
           </div>
           <mat-form-field
             formGroupName="tax"
@@ -680,29 +771,7 @@
             <input
               matInput
               [formControlName]="'value'"
-              placeholder="Tax"
-              type="number"
-            />
-          </mat-form-field>
-
-          <!-- Divider -->
-          <div class="col-span-12 my-3 border-b"></div>
-
-          <!-- Discount -->
-          <div
-            class="col-span-7 self-center font-medium text-left tracking-tight text-secondary"
-          >
-            DISCOUNT
-          </div>
-          <mat-form-field
-            formGroupName="discount"
-            class="col-span-5 text-right text-lg"
-            [subscriptSizing]="'dynamic'"
-          >
-            <input
-              matInput
-              [formControlName]="'value'"
-              placeholder="Discount"
+              placeholder="Vat"
               type="number"
             />
           </mat-form-field>
@@ -727,6 +796,17 @@
               type="number"
             />
           </mat-form-field>
+        </div>
+
+        <!-- Engine and Gear box warranty toggle for sale bill -->
+
+        <div *ngIf="form.get('type')?.value === 'SALE'" class="w-full mt-10">
+          <mat-slide-toggle
+            [formControlName]="'hasWarranty'"
+            [color]="'primary'"
+          >
+            Include 3 months warranty for engine and gear box
+          </mat-slide-toggle>
         </div>
 
         <!-- Actions -->

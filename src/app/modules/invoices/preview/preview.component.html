@@ -28,6 +28,15 @@
       </mat-menu>
     </div> -->
 
+    <button
+      mat-button
+      [color]="'warn'"
+      [matTooltip]="'Delete'"
+      (click)="deleteInvoice()"
+    >
+      Delete
+    </button>
+
     <!-- Export -->
     <div class="flex items-center ml-6">
       <button
@@ -45,13 +54,15 @@
   </div>
 </div>
 
+<!-- Outer containter -->
 <div
-  class="minify absolute inset-0 min-w-0 mt-15 text-center print:overflow-visible lg:h-full md:h-full lg:overflow-hidden md:overflow-hidden print:scale-100"
+  id="emailable-area"
+  class="minify absolute inset-0 min-w-0 mt-15 print:p-0 print:m-0 print:w-full text-center print:overflow-visible lg:h-full md:h-full lg:overflow-hidden md:overflow-hidden print:scale-100"
   cdkScrollable
 >
   <!-- Main -->
   <div
-    class="inline-block p-6 mobile-small:pl-8 sm:p-10 text-left xl:overflow-y-scroll lg:overflow-y-scroll lg:h-full md:overflow-y-scroll md:h-full hide-scrollbar"
+    class="inline-block p-6 print:p-0 print:m-0 print:w-full mobile-small:pl-8 sm:p-10 text-left xl:overflow-y-scroll lg:overflow-y-scroll lg:h-full md:overflow-y-scroll md:h-full hide-scrollbar"
   >
     <!-- A4 -->
     <div class="rounded-2xl shadow print:rounded-none print:overflow-visible">
@@ -67,12 +78,12 @@
         alt="header"
       />
       <!-- Content -->
-      <div class="w-240 pl-16 pr-16 mt-8">
+      <div class="print:pr-0 w-240 pl-16 pr-16 mt-8">
         <!-- Head content -->
         <div class="flex items-center justify-between">
           <!-- Customer data -->
           <div
-            class="flex items-start p-5 gap-x-8 bg-[#1E5483] rounded-[10px] dark include-color"
+            class="flex items-start p-5 gap-x-8 bg-[#1E5483] border-b rounded-[10px] dark include-color min-w-[300px] min-h-[100px]"
           >
             <!-- Customer Info -->
             <div>
@@ -90,7 +101,10 @@
                   )
                 }}
               </div>
-              <div class="mt-5 font-light">
+              <div
+                *ngIf="invoiceData.billTo.phoneNumber?.number"
+                class="mt-5 font-light"
+              >
                 {{ formatNumber(invoiceData.billTo.phoneNumber) }}
               </div>
             </div>
@@ -100,8 +114,12 @@
               <div class="text-xl font-light">
                 {{ invoiceData.carInfo.regNo }}
               </div>
-              <div class="font-light">{{ invoiceData.carInfo.make }}</div>
-              <div class="font-light">{{ invoiceData.carInfo.model }}</div>
+              <div class="font-light">
+                {{ invoiceData.carInfo.make }} - {{ invoiceData.carInfo.model }}
+              </div>
+              <div *ngIf="invoiceData.carInfo.color" class="font-light">
+                {{ invoiceData.carInfo.color }}
+              </div>
             </div>
           </div>
 
@@ -164,7 +182,7 @@
             RATE
           </div>
           <div
-            class="col-span-5 font-medium text-md text-secondary text-white"
+            class="col-span-2 font-medium text-md text-secondary text-white"
             *ngIf="invoiceData.type === 'SALE'"
           >
             MODEL
@@ -178,10 +196,18 @@
             QTY
           </div>
           <div
-            class="col-span-2 font-medium text-md text-right text-secondary text-white"
+            class="col-span-2 font-medium text-md text-secondary text-white"
             *ngIf="invoiceData.type === 'SALE'"
           >
             REG NO
+          </div>
+
+          <!-- 3.1 Column for SALE bill to accomodate color ;) -->
+          <div
+            class="col-span-2 font-medium text-md text-secondary text-white"
+            *ngIf="invoiceData.type === 'SALE'"
+          >
+            COLOR
           </div>
 
           <!-- Fourth Column -->
@@ -192,7 +218,7 @@
             TOTAL
           </div>
           <div
-            class="col-span-2 font-medium text-md text-right text-secondary pr-4 text-white"
+            class="col-span-3 font-medium text-md text-right text-secondary pr-4 text-white"
             *ngIf="invoiceData.type === 'SALE'"
           >
             PRICE
@@ -200,7 +226,9 @@
         </div>
 
         <!-- Table Data-->
-        <div class="grid grid-cols-12 gap-x-1">
+        <div
+          class="grid grid-cols-12 gap-x-1 min-h-[268px] place-content-start"
+        >
           <ng-container
             *ngFor="let service of invoiceData.services; let i = index"
           >
@@ -231,7 +259,7 @@
               {{ service.price | currency : "GBP" }}
             </div>
             <div
-              class="col-span-5 self-center"
+              class="col-span-2 self-center"
               *ngIf="invoiceData.type === 'SALE'"
             >
               {{ service.item }}
@@ -245,10 +273,18 @@
               {{ service.quantity }}
             </div>
             <div
-              class="col-span-2 self-center text-right"
+              class="col-span-2 self-center"
               *ngIf="invoiceData.type === 'SALE'"
             >
               {{ service.total }}
+            </div>
+
+            <!-- Column 3.1 for SALE to accomodate color ;) -->
+            <div
+              class="col-span-2 self-center"
+              *ngIf="invoiceData.type === 'SALE'"
+            >
+              {{ service.discount }}
             </div>
 
             <!-- Column 4 Item -->
@@ -262,15 +298,20 @@
               }}
             </div>
             <div
-              class="col-span-2 self-center text-right pr-3"
+              class="col-span-3 self-center text-right pr-3"
               *ngIf="invoiceData.type === 'SALE'"
             >
               {{ service.price | currency : "GBP" }}
             </div>
           </ng-container>
+        </div>
 
+        <!-- Subtotal, Vat section -->
+        <div class="grid grid-cols-12 gap-x-1">
           <!-- Spacer -->
           <div class="col-span-12 mt-16"></div>
+          <!-- Divider -->
+          <div class="col-span-12 my-3 border-b"></div>
 
           <!-- Subtotal -->
           <div
@@ -289,23 +330,14 @@
           <div
             class="col-span-10 self-center font-medium tracking-tight text-secondary pl-3"
           >
-            TAX
+            VAT
           </div>
           <div class="col-span-2 text-right text-lg pr-3">
-            {{ invoiceData.tax?.value | currency : "GBP" }}
-          </div>
-
-          <!-- Divider -->
-          <div class="col-span-12 my-3 border-b"></div>
-
-          <!-- Discount -->
-          <div
-            class="col-span-10 self-center font-medium tracking-tight text-secondary pl-3"
-          >
-            DISCOUNT
-          </div>
-          <div class="col-span-2 text-right text-lg pr-3">
-            {{ invoiceData.discount?.value | currency : "GBP" }}
+            {{
+              invoiceData.tax?.value
+                ? (invoiceData.tax.value | currency : "GBP")
+                : "-"
+            }}
           </div>
 
           <!-- Divider -->
@@ -331,7 +363,20 @@
           </div>
         </div>
 
-        <div class="mt-16">
+        <div class="mt-16 flex flex-col gap-3">
+          <div
+            class="font-medium"
+            *ngIf="
+              invoiceData.type === 'SALE' && invoiceData.hasWarranty === true
+            "
+          >
+            This vehicle comes with a 3-month warranty covering the engine and
+            gearbox.
+          </div>
+          <div class="font-medium" *ngIf="invoiceData.type === 'SERVICE'">
+            Next service due on
+            {{ formatDate(invoiceData.carInfo?.nextServiceDate) }}
+          </div>
           <div class="font-medium">
             Please pay within 15 days. Thank you for your business.
           </div>

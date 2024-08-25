@@ -58,9 +58,19 @@ export interface IInvoice {
   };
   subtotal?: number;
   total: number;
+
+  hasWarranty?: boolean;
 }
 
-export type TInvoiceTimeFilter = "1m" | "3m" | "6m" | "cfy" | "lfy" | "dr" | "";
+export type TInvoiceTimeFilter =
+  | "1m"
+  | "3m"
+  | "6m"
+  | "cfy"
+  | "lfy"
+  | "dr"
+  | ""
+  | "all";
 export type TInvoiceTypeFilter = "ALL" | "SALE" | "SERVICE" | "";
 
 /** For a SALE bill, the data in the fields are different and mentioned in a comment on the side */

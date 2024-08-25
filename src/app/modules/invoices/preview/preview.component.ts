@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   ViewChild,
@@ -20,9 +21,14 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/invoices/invoices.service";
-import { formatDate } from "../../utils/util";
+import { countries, formatDate } from "../../utils/util";
 import { IInvoice } from "../utils/invoices.types";
 import { MatMenuModule } from "@angular/material/menu";
+import { sendMail } from "app/services";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import { FuseConfirmationService } from "@fuse/services/confirmation";
+
 @Component({
   selector: "modern",
   templateUrl: "./preview.component.html",
@@ -94,7 +100,7 @@ import { MatMenuModule } from "@angular/material/menu";
     FuseFindByKeyPipe,
     DatePipe,
     CurrencyPipe,
-    MatMenuModule
+    MatMenuModule,
   ],
 })
 export class PreviewComponent {
@@ -105,7 +111,9 @@ export class PreviewComponent {
   constructor(
     private invoiceService: InvoicesService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private _fuseConfirmationService: FuseConfirmationService,
+    private _changeDetectorRef: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -120,7 +128,62 @@ export class PreviewComponent {
         console.error("No invoice data available");
         return;
       }
+      // this.sendInvoiceAsEmail();
     });
+  }
+
+  sendInvoiceAsEmail() {
+    setTimeout(() => {
+      const emailableArea = document.getElementById(
+        "emailable-area"
+      ) as HTMLElement;
+
+      html2canvas(emailableArea, {
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: emailableArea.scrollWidth,
+        windowHeight: emailableArea.scrollHeight,
+      })
+        .then((canvas) => {
+          const pdf = new jsPDF("p", "pt", "a4");
+          const imgData = canvas.toDataURL("image/png");
+
+          // Calculate the number of PDF pages
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          const imageWidth = canvas.width;
+          const imageHeight = canvas.height;
+          const ratio = imageWidth / imageHeight;
+          const pdfImageHeight = pdfWidth / ratio;
+
+          // Add image to PDF, break into multiple pages if necessary
+          let position = 0;
+          while (position < imageHeight) {
+            pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfImageHeight);
+            position += pdfHeight;
+            if (position < imageHeight) pdf.addPage();
+          }
+
+          //Save the pdf as a blob
+          const pdfBlob = pdf.output("blob");
+          console.log("Blob generated", pdfBlob);
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(pdfBlob);
+          link.download = `Invoice_Report_.pdf`;
+          link.click();
+
+          // sendMail({
+          //   to: "abinpaul5598@gmail.com",
+          //   subject: "Invoice",
+          //   text: "Hello",
+          //   attachments: [pdfBlob],
+          // });
+        })
+        .catch((err) => {
+          console.log("Errored while sending invoice as email", err);
+          console.log(err.message);
+        });
+    }, 2000);
   }
 
   formatDate(timestamp: number) {
@@ -137,8 +200,9 @@ export class PreviewComponent {
     return [l1, l2, ci, c, p].filter(Boolean).join(", ");
   }
 
-  formatNumber(p: { number: string }) {
-    return `${p.number}`;
+  formatNumber(p: { code: string; number: string }) {
+    const code = countries.find((item) => item.iso === p.code)?.code;
+    return `${code} ${p.number}`;
   }
 
   getTotalPerItem(price: number, quantity: string) {
@@ -162,5 +226,49 @@ export class PreviewComponent {
 
   getTotalCostOfItem(price: number, quantity: string) {
     return price * parseInt(quantity);
+  }
+
+  /**
+   * Delete invoice
+   */
+  deleteInvoice(): void {
+    // Open the confirmation dialog
+    const confirmation = this._fuseConfirmationService.open({
+      title: "Delete invoice",
+      message:
+        "Are you sure you want to delete this invoice? This action cannot be undone!",
+      actions: {
+        confirm: {
+          label: "Delete",
+        },
+      },
+    });
+
+    // Subscribe to the confirmation dialog closed action
+    confirmation.afterClosed().subscribe((result) => {
+      // If the confirm button pressed...
+      if (result === "confirmed") {
+        console.log("Invoice to be deleted", this.invoiceData);
+        // Get the current contact's id
+        const id = this.invoiceData.id;
+
+        // Delete the contact
+        this.invoiceService.deleteInvoice(id).then((isDeleted) => {
+          // Return if the contact wasn't deleted...
+          if (!isDeleted) {
+            return;
+          }
+
+          // Otherwise, navigate to the parent
+
+          this.router.navigate(["../../"], {
+            relativeTo: this.route,
+          });
+        });
+
+        // Mark for check
+        this._changeDetectorRef.markForCheck();
+      }
+    });
   }
 }

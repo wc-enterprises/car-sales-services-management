@@ -14,15 +14,15 @@
     <div class="flex items-center w-full p-4 pl-6">
       <!-- Logo -->
       <div
-        class="flex items-center justify-center cursor-pointer mt-1"
+        class="flex items-center justify-center cursor-pointer"
         (click)="routeToDashboard()"
       >
         <img class="w-18" src="assets/images/logo/logo-text-on-dark-3.svg" />
       </div>
       <!-- Components -->
       <div class="flex items-center ml-auto mr-2 cursor-pointer">
-        <button mat-menu-item (click)="signOut()">
-          <img class="w-5" src="assets/icons/sign-out.svg" />
+        <button mat-icon-button [matTooltip]="'Sign Out'" (click)="signOut()">
+          <img class="w-4" src="assets/icons/sign-out.svg" />
         </button>
       </div>
     </div>
@@ -45,7 +45,11 @@
     class="relative flex flex-0 items-center w-full h-16 px-4 md:px-6 z-49 shadow dark:shadow-none dark:border-b bg-card dark:bg-transparent print:hidden"
   >
     <!-- Navigation toggle button -->
-    <button mat-icon-button (click)="toggleNavigation('mainNavigation')">
+    <button
+      mat-icon-button
+      [matTooltip]="'Toggle Navigation'"
+      (click)="toggleNavigation('mainNavigation')"
+    >
       <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
     </button>
     <!-- Components -->

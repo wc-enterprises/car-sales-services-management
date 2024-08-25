@@ -13,7 +13,7 @@ import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 import { FusePlatformService } from "@fuse/services/platform";
 import { FUSE_VERSION } from "@fuse/version";
 import { combineLatest, filter, map, Subject, takeUntil } from "rxjs";
-import { ClassyLayoutComponent } from "./layouts/vertical/classy/classy.component";
+import { ClassyLayoutComponent } from "./layouts/techcora-default/default.component";
 import { EmptyLayoutComponent } from "./layouts/empty/empty.component";
 
 @Component({
