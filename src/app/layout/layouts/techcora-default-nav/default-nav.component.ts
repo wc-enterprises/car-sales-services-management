@@ -19,7 +19,7 @@ import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "classy-layout",
-  templateUrl: "./default.component.html",
+  templateUrl: "./default-nav.component.html",
   encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [
