@@ -66,7 +66,6 @@ import { FuseConfirmationService } from "@fuse/services/confirmation";
     `
       .include-color {
         print-color-adjust: exact;
-        padding-top: 15px;
       }
     `,
     `

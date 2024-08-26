@@ -2,6 +2,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  OnDestroy,
+  OnInit,
   ViewEncapsulation,
 } from "@angular/core";
 import { TextFieldModule } from "@angular/cdk/text-field";
@@ -28,7 +30,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/invoices/invoices.service";
-import { map, Observable, startWith } from "rxjs";
+import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
 import { Contact, Country } from "../../contacts/contacts.types";
 import { ContactsService } from "../../contacts/contacts.service";
 import { ICar } from "../../cars/cars.types";
@@ -77,7 +79,7 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
     MatSlideToggleModule,
   ],
 })
-export class InvoiceFormComponent {
+export class InvoiceFormComponent implements OnInit, OnDestroy {
   countries = countries;
   form: FormGroup;
   invoiceData: any;
@@ -147,6 +149,8 @@ export class InvoiceFormComponent {
   /** Service names */
   filteredServices: InventoryProduct[] = [];
 
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
+
   constructor(
     private fb: FormBuilder,
     private invoiceService: InvoicesService,
@@ -185,6 +189,8 @@ export class InvoiceFormComponent {
       }),
       total: [""],
       hasWarranty: [true],
+      advance: [0],
+      balance: [0],
     });
 
     this.form.controls.billTo.get("phoneNumber.code")?.patchValue("gb");
@@ -396,6 +402,15 @@ export class InvoiceFormComponent {
       this.form.get("total")?.setValue(total);
     });
 
+    this.form
+      .get("advance")
+      ?.valueChanges.pipe(takeUntil(this._unsubscribeAll))
+      .subscribe((advance) => {
+        const total = this.form.get("total")?.value;
+        const balance = total - advance;
+        this.form.get("balance")?.setValue(balance);
+      });
+
     this.colors = COLOR;
     this.fuelTypes = FUEL_TYPE;
     this.transmissionTypes = TRANSMISSION;
@@ -412,6 +427,12 @@ export class InvoiceFormComponent {
         );
         this.allServices = [];
       });
+  }
+
+  ngOnDestroy(): void {
+    /** Unsubscribe from all subscriptions */
+    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.complete();
   }
 
   clearForm() {

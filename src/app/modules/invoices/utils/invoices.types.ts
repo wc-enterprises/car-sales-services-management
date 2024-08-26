@@ -58,6 +58,8 @@ export interface IInvoice {
   };
   subtotal?: number;
   total: number;
+  advance?: number;
+  balance?: number;
 
   hasWarranty?: boolean;
 }

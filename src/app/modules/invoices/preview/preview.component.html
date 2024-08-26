@@ -44,10 +44,12 @@
     </button>
 
     <!-- Close Preview -->
-    <button mat-icon-button [matTooltip]="'Close Preview'" [routerLink]="['../../']">
-      <mat-icon
-        [svgIcon]="'heroicons_outline:x-mark'"
-      ></mat-icon>
+    <button
+      mat-icon-button
+      [matTooltip]="'Close Preview'"
+      [routerLink]="['../../']"
+    >
+      <mat-icon [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
     </button>
   </div>
 </div>
@@ -342,21 +344,39 @@
           <div class="col-span-12 my-3 border-b"></div>
         </div>
 
-        <div class="grid grid-cols-12 h-[50px] pt-4">
-          <!-- Total -->
-          <div class="col-span-8 self-center"></div>
+        <div class="flex justify-end mt-4 print:w-[300px] print:ml-auto print:mr-0">
+          <!-- Total, Advance, and Balance Box -->
           <div
-            class="col-span-4 bg-[#1E5482] flex justify-between include-color rounded-[10px]"
+            class="bg-[#1E5482] text-white rounded-[10px] p-4 w-full md:w-[40%] include-color"
           >
-            <div
-              class="self-center text-xl font-medium tracking-tight text-secondary h-[35px] text-white pl-4"
-            >
-              TOTAL
+            <!-- Total -->
+            <div class="flex justify-between items-center">
+              <span class="text-xl font-medium tracking-tight">TOTAL</span>
+              <span class="text-xl font-medium">{{
+                invoiceData.total | currency : "GBP"
+              }}</span>
             </div>
+
+            <!-- Advance (Conditional) -->
             <div
-              class="text-right text-xl font-medium text-white h-[35px] pr-4"
+              *ngIf="invoiceData.advance"
+              class="flex justify-between items-center mt-2"
             >
-              {{ invoiceData.total | currency : "GBP" }}
+              <span class="text-xl font-medium tracking-tight">ADVANCE</span>
+              <span class="text-xl font-medium">{{
+                invoiceData.advance | currency : "GBP"
+              }}</span>
+            </div>
+
+            <!-- Balance (Conditional) -->
+            <div
+              *ngIf="invoiceData.balance"
+              class="flex justify-between items-center mt-2"
+            >
+              <span class="text-xl font-medium tracking-tight">BALANCE</span>
+              <span class="text-xl font-medium">{{
+                invoiceData.balance | currency : "GBP"
+              }}</span>
             </div>
           </div>
         </div>

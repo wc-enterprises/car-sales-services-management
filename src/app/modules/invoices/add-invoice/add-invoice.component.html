@@ -796,6 +796,55 @@
               [formControlName]="'total'"
               placeholder="Total"
               type="number"
+              [readonly]="true"
+            />
+          </mat-form-field>
+        </div>
+
+        <div
+          class="grid grid-cols-12 gap-x-2 ss:gap-y-2 w-full"
+          *ngIf="form.get('type')?.value === 'SALE'"
+        >
+          <!-- Divider -->
+          <div class="col-span-12 my-3 border-b"></div>
+
+          <!-- Advance -->
+          <div
+            class="col-span-7 self-center text-2xl text-left font-medium tracking-tight text-secondary"
+          >
+            ADVANCE
+          </div>
+          <mat-form-field
+            class="col-span-5 text-right text-2xl font-medium"
+            [subscriptSizing]="'dynamic'"
+          >
+            <input
+              matInput
+              [formControlName]="'advance'"
+              placeholder="Advance"
+              type="number"
+            />
+          </mat-form-field>
+
+          <!-- Divider -->
+          <div class="col-span-12 my-3 border-b"></div>
+
+          <!-- Balance -->
+          <div
+            class="col-span-7 self-center text-2xl text-left font-medium tracking-tight text-secondary"
+          >
+            BALANCE
+          </div>
+          <mat-form-field
+            class="col-span-5 text-right text-2xl font-medium"
+            [subscriptSizing]="'dynamic'"
+          >
+            <input
+              matInput
+              [formControlName]="'balance'"
+              placeholder="Balance"
+              type="number"
+              [readonly]="true"
             />
           </mat-form-field>
         </div>
