@@ -28,29 +28,27 @@
       </mat-menu>
     </div> -->
 
+    <!-- Delete -->
     <button
-      mat-button
+      mat-icon-button
       [color]="'warn'"
       [matTooltip]="'Delete'"
       (click)="deleteInvoice()"
     >
-      Delete
+      <mat-icon [svgIcon]="'heroicons_outline:trash'"> </mat-icon>
     </button>
 
     <!-- Export -->
-    <div class="flex items-center ml-6">
-      <button
-        class="sm:inline-flex ml-3 bg-[#f8d269]"
-        mat-flat-button
-        (click)="exportInvoice()"
-      >
-        <mat-icon
-          class="icon-size-5 mobile-small:icon-size-4"
-          [svgIcon]="'heroicons_solid:arrow-up-tray'"
-        ></mat-icon>
-        <span class="ml-2 mobile-small:text-sm">Export</span>
-      </button>
-    </div>
+    <button mat-icon-button [matTooltip]="'Export'" (click)="exportInvoice()">
+      <mat-icon [svgIcon]="'heroicons_solid:arrow-up-tray'"></mat-icon>
+    </button>
+
+    <!-- Close Preview -->
+    <button mat-icon-button [matTooltip]="'Close Preview'" [routerLink]="['../../']">
+      <mat-icon
+        [svgIcon]="'heroicons_outline:x-mark'"
+      ></mat-icon>
+    </button>
   </div>
 </div>
 

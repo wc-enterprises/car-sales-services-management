@@ -101,6 +101,7 @@ import { FuseConfirmationService } from "@fuse/services/confirmation";
     DatePipe,
     CurrencyPipe,
     MatMenuModule,
+    MatTooltipModule,
   ],
 })
 export class PreviewComponent {
