@@ -1158,6 +1158,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     /** Check if default countries list present in db, else populate */
     this._contactService.addCountriesIfNotAlreadyPresent();
     this._carsService.addMakesIfNotPresent();
+    this._carsService.addSecondMakesListIfNotPresent();
     this._invoiceService.storeTotalInvoiceCreatedIfNotPresent();
   }
 

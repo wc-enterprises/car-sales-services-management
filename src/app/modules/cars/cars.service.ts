@@ -21,7 +21,7 @@ import {
   update,
 } from "@angular/fire/database";
 import { FuseMockApiUtils } from "@fuse/lib/mock-api";
-import { Makes } from "../utils/util";
+import { Makes, MakesList2 } from "../utils/util";
 
 @Injectable({ providedIn: "root" })
 export class CarsService {
@@ -264,6 +264,23 @@ export class CarsService {
       const updates: Record<string, string[]> = {};
       Object.keys(Makes).forEach((item) => {
         updates[`Makes/${item}`] = Makes[item];
+      });
+
+      await update(ref(this.db), updates);
+    }
+  };
+
+  addSecondMakesListIfNotPresent = async () => {
+    const makesRef = ref(this.db, "Makes/Toyota");
+    const snapshot = await get(makesRef);
+    const data = snapshot.val();
+    console.log("DAta fecthed to check if Toyota present", data);
+
+    // If data is null, add the second makes list to db
+    if (data === null) {
+      const updates: Record<string, string[]> = {};
+      Object.keys(MakesList2).forEach((item) => {
+        updates[`Makes/${item}`] = MakesList2[item];
       });
 
       await update(ref(this.db), updates);
