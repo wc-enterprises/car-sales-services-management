@@ -119,9 +119,9 @@ export class PreviewComponent {
   async ngOnInit() {
     this.route.params.subscribe(async (params) => {
       this.invoiceId = params["id"];
-      this.invoiceData = await this.invoiceService.getInvoiceByIdOnce(
+      this.invoiceData = (await this.invoiceService.getInvoiceByIdOnce(
         this.invoiceId
-      );
+      )) as IInvoice;
 
       if (!this.invoiceData) {
         // Handle the case where invoiceData is not available

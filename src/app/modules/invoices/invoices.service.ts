@@ -18,7 +18,6 @@ import {
   child,
   Database,
   get,
-  increment,
   onValue,
   ref,
   set,
@@ -32,16 +31,35 @@ import { getNowAndPastDateBasedOnFilterVal } from "./utils/util";
 
 @Injectable({ providedIn: "root" })
 export class InvoicesService {
-  //   private _pagination: BehaviorSubject<InventoryPagination | null> =
-  //     new BehaviorSubject(null);
-  private _invoice: BehaviorSubject<IInvoice | null> =
-    new BehaviorSubject<IInvoice | null>(null);
-  private _invoices: BehaviorSubject<IInvoice[] | null> = new BehaviorSubject<
-    IInvoice[] | null
-  >(null);
-
+  private _invoice = new BehaviorSubject<IInvoice | null>(null);
+  private _invoices = new BehaviorSubject<IInvoice[] | null>(null);
   private _unsubscribers: Unsubscribe[] = [];
+
   private invoiceData: any;
+  private nameOfContact: string[] = [];
+  private nameOfMake: string[] = [];
+
+  constructor(private db: Database) {
+    this.getInvoices("");
+  }
+
+  destructor(): void {
+    this._unsubscribers.forEach((unsubscribe) => unsubscribe());
+  }
+
+  // Accessors
+  get invoice$(): Observable<IInvoice> {
+    return this._invoice
+      .asObservable()
+      .pipe(filter((invoice): invoice is IInvoice => invoice !== null));
+  }
+
+  get invoices$(): Observable<IInvoice[]> {
+    return this._invoices
+      .asObservable()
+      .pipe(filter((invoices): invoices is IInvoice[] => invoices !== null));
+  }
+
   getInvoiceData(): any {
     return this.invoiceData;
   }
@@ -49,429 +67,241 @@ export class InvoicesService {
   setInvoiceData(data: any): void {
     this.invoiceData = data;
   }
-  /**
-   * Constructor
-   */
-  constructor(private db: Database) {
-    this.getInvoices("");
-  }
-  destructor() {
-    this._unsubscribers.forEach((item) => {
-      item();
-    });
-  }
 
-  // -----------------------------------------------------------------------------------------------------
-  // @ Accessors
-  // -----------------------------------------------------------------------------------------------------
+  // Public Methods
 
   /**
-   * Getter for pagination
-   */
-  //   get pagination$(): Observable<InventoryPagination> {
-  //     return this._pagination.asObservable();
-  //   }
-
-  /**
-   * Getter for product
-   */
-  get invoice$(): Observable<IInvoice> {
-    return this._invoice
-      .asObservable()
-      .pipe(filter((invoices): invoices is IInvoice => invoices !== null));
-  }
-
-  /**
-   * Getter for products
-   */
-  get invoices$(): Observable<IInvoice[]> {
-    return this._invoices
-      .asObservable()
-      .pipe(filter((v): v is IInvoice[] => v !== null));
-  }
-
-  // -----------------------------------------------------------------------------------------------------
-  // @ Public methods
-  // -----------------------------------------------------------------------------------------------------
-
-  /**
-   * Get invoices
+   * Fetch and filter invoices
    */
   getInvoices(
-    timeFilter?: TInvoiceTimeFilter,
-    typeFilter?: TInvoiceTypeFilter,
-    additionalData?: {
-      dateRange?: {
-        startDate: number;
-        endDate: number;
-      };
-    }
-  ) {
-    // TODO: Include pagination to this function.
-
+    timeFilter: TInvoiceTimeFilter = "all",
+    typeFilter: TInvoiceTypeFilter = "ALL",
+    additionalData?: { dateRange?: { startDate: number; endDate: number } }
+  ): void {
     const invoicesRef = ref(this.db, "invoices");
     const unsubsriber = onValue(invoicesRef, (snapshot) => {
       const data = snapshot.val();
+      let invoices: IInvoice[] = data ? Object.values(data) : [];
 
-      let invoices: IInvoice[] = [];
-      if (!data) {
-        this._invoices.next(invoices);
-        return invoices;
-      }
-
-      Object.keys(data).forEach((key) => {
-        const val = data[key];
-        invoices.push(val);
-      });
-
-      if (timeFilter && timeFilter != "all") {
+      if (timeFilter !== "all") {
         const { now, pastDate } = getNowAndPastDateBasedOnFilterVal(
           timeFilter,
           additionalData
         );
-
-        invoices = invoices.filter((invoice) => {
-          return invoice.date >= pastDate && invoice.date <= now;
-        });
+        invoices = invoices.filter(
+          (invoice) => invoice.date >= pastDate && invoice.date <= now
+        );
       }
 
-      if (typeFilter && typeFilter !== "ALL") {
+      if (typeFilter !== "ALL") {
         invoices = invoices.filter((invoice) => invoice.type === typeFilter);
       }
 
-      // Sort invoices based on the created date (latest first)
-      invoices = invoices.sort((a, b) => b.date - a.date);
-
+      invoices.sort((a, b) => b.date - a.date);
       this._invoices.next(invoices);
     });
 
     this._unsubscribers.push(unsubsriber);
   }
 
+  /**
+   * Count total number of invoices
+   */
   async countInvoices(): Promise<number> {
     try {
-      const invoicesRef = await ref(this.db, "invoices");
+      const invoicesRef = ref(this.db, "invoices");
       const snapshot = await get(invoicesRef);
       const data = snapshot.val();
-
-      let count = 0;
-      if (data) {
-        for (const key in data) {
-          if (data.hasOwnProperty(key)) {
-            count++;
-          }
-        }
-      }
-
-      return count;
+      return data ? Object.keys(data).length : 0;
     } catch (err) {
-      console.log(err, "errored in count invoices");
+      console.error("Error counting invoices", err);
       return 0;
     }
   }
 
-  async getInvoiceByIdOnce(id: string) {
-    const invoicesRef = ref(this.db, `invoices/${id}`);
-    const snapshot = await get(invoicesRef);
+  /**
+   * Fetch invoice by ID
+   */
+  async getInvoiceByIdOnce(id: string): Promise<IInvoice | null> {
+    const invoiceRef = ref(this.db, `invoices/${id}`);
+    const snapshot = await get(invoiceRef);
     return snapshot.val();
   }
 
-  /**
-   * Get product by id
-   */
   getInvoiceById(id: string): Observable<IInvoice> {
     return this._invoices.pipe(
       take(1),
-      map((invoices) => {
-        // Find the product
-        const invoice = invoices
-          ? invoices.find((item) => item.id === id) || null
-          : null;
-
-        // Update the product
-        this._invoice.next(invoice);
-
-        // Return the product
-        return invoice;
-      }),
-      switchMap((invoice) => {
-        if (!invoice) {
-          return throwError("Could not found invoice with id of " + id + "!");
-        }
-
-        return of(invoice);
-      })
+      map((invoices) => invoices?.find((item) => item.id === id) || null),
+      switchMap((invoice) =>
+        invoice ? of(invoice) : throwError(`Invoice with ID ${id} not found!`)
+      )
     );
   }
 
   /**
-   * Create invoice
+   * Create a new invoice
    */
   async createInvoice(invoiceData: Omit<IInvoice, "id">): Promise<string> {
     const id = FuseMockApiUtils.guid();
-    await set(ref(this.db, "invoices/" + id), { id, ...invoiceData });
+    await set(ref(this.db, `invoices/${id}`), { id, ...invoiceData });
     return id;
   }
 
   /**
-   * Update invoice
-   *
-   * @param id
-   * @param invoice
+   * Update an existing invoice
    */
   async updateInvoice(id: string, updatedInvoice: IInvoice): Promise<IInvoice> {
-    await set(ref(this.db, "invoices/" + id), updatedInvoice);
-
+    await set(ref(this.db, `invoices/${id}`), updatedInvoice);
     this._invoice.next(updatedInvoice);
-
     return updatedInvoice;
   }
 
   /**
-   * Delete the invoice
-   *
-   * @param id
+   * Delete an invoice by ID
    */
   async deleteInvoice(id: string): Promise<boolean> {
     try {
-      await set(ref(this.db, "invoices/" + id), null);
+      await set(ref(this.db, `invoices/${id}`), null);
       return true;
-    } catch (err: any) {
-      console.log("An error occured while deleting the invoice", err.message);
+    } catch (err) {
+      console.error("Error deleting invoice", err);
       return false;
     }
   }
-  private invoiceDataSubject = new BehaviorSubject<any>(null);
 
-  nameOfContact: string[] = [];
-  numberOfConcatact: string[] = [];
-  nameOfMake: string[] = [];
-  async getNameOfContacts() {
+  /**
+   * Retrieve contacts and make name data
+   */
+  async getNameOfContacts(): Promise<string[]> {
     const contactsRef = ref(this.db, "contacts");
-    // Fetch the data once
     const snapshot = await get(contactsRef);
-    const data = snapshot.val();
-
-    // Clear the existing nameOfContact array
-    this.nameOfContact = [];
-
-    // Iterate through the data and push names to nameOfContact array
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        const val = data[key];
-        this.nameOfContact.push(val.name);
-      }
-    }
+    const data: Record<string, Contact> = snapshot.val();
+    this.nameOfContact = data
+      ? Object.values(data).map((contact: Contact) => contact.name)
+      : [];
     return this.nameOfContact;
   }
 
   async getNumberOfContacts(): Promise<string[]> {
     const contactsRef = ref(this.db, "contacts");
-
-    // Fetch the data once
     const snapshot = await get(contactsRef);
-    const data = snapshot.val();
-
-    if (!data) return [];
-
-    // Clear the existing nameContact array
-    const contacts: Contact[] = [];
-
-    // Iterate through the data and push contacts to nameContact array
-    Object.keys(data).forEach((key) => {
-      const val = data[key];
-      contacts.push(val);
-    });
-
-    return contacts
-      .map((contact) => {
-        if (contact.phoneNumbers && contact.phoneNumbers.length) {
-          return contact.phoneNumbers.map((item) => item.phoneNumber);
-        }
-        return [];
-      })
-      .flat()
-      .filter(Boolean);
+    const data: Record<string, Contact> = snapshot.val();
+    return data
+      ? Object.values(data).flatMap(
+          (contact) =>
+            contact.phoneNumbers?.map((phone) => phone.phoneNumber) ?? []
+        )
+      : [];
   }
 
-  async getRegNo() {
+  async getRegNo(): Promise<string[]> {
     const carsRef = ref(this.db, "cars");
-    // Fetch the data once
     const snapshot = await get(carsRef);
-    const data = snapshot.val();
-    // Clear the existing nameOfContact array
-    let regNo = [];
-    // Iterate through the data and push regNo to regNo array
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        const val = data[key];
-        regNo.push(val.regNo);
-      }
-    }
-    return regNo;
+    const data: Record<string, ICar> = snapshot.val();
+    return data ? Object.values(data).map((car) => car.regNo) : [];
   }
 
-  async makeName() {
+  async makeName(): Promise<string[]> {
     const makeRef = ref(this.db, "Makes");
-    // Fetch the data once
     const snapshot = await get(makeRef);
     const data = snapshot.val();
-    // Clear the existing nameOfContact array
-    this.nameOfMake = [];
-
-    // Iterate through the data and push names to nameOfContact array
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        this.nameOfMake.push(key);
-      }
-    }
-
+    this.nameOfMake = data ? Object.keys(data) : [];
     return this.nameOfMake;
   }
 
-  async makeMap() {
+  async makeMap(): Promise<any> {
     const makeRef = ref(this.db, "Makes");
-    // Fetch the data once
     const snapshot = await get(makeRef);
-    const data = snapshot.val();
-
-    return data;
+    return snapshot.val();
   }
 
   async mapRegNo(regNo: string): Promise<ICar | null> {
     const carsRef = ref(this.db, "cars");
-
-    // Fetch the data once
     const snapshot = await get(carsRef);
-    const data = snapshot.val();
-
-    for (const key in data) {
-      const val = data[key];
-
-      if (
-        val.regNo.replace(/[-\s]+/g, "").toLowerCase() ===
-        regNo.replace(/[-\s]+/g, "").toLowerCase()
-      )
-        return val;
-    }
-    return null;
+    const data: Record<string, ICar> = snapshot.val();
+    return data
+      ? Object.values(data).find(
+          (car) =>
+            car.regNo.replace(/[-\s]+/g, "").toLowerCase() ===
+            regNo.replace(/[-\s]+/g, "").toLowerCase()
+        ) || null
+      : null;
   }
 
   async mapName(name: string): Promise<Contact | null> {
     if (!name) return null;
-
     const contactsRef = ref(this.db, "contacts");
-
-    // Fetch the data once
     const snapshot = await get(contactsRef);
-    const data = snapshot.val();
-
-    for (const key in data) {
-      const val = data[key];
-      if (val.name.toLowerCase() === name.toLowerCase()) return val;
-    }
-    return null;
+    const data: Record<string, Contact> = snapshot.val();
+    return data
+      ? Object.values(data).find(
+          (contact) => contact.name.toLowerCase() === name.toLowerCase()
+        ) || null
+      : null;
   }
 
-  incrementTotalInvoicesCreated = async () => {
-    const totalInvoicesCreatedSoFarRef = ref(
-      this.db,
-      "totalInvoicesCreatedSoFar"
-    );
-    const snapshot = await get(totalInvoicesCreatedSoFarRef);
-    const data = snapshot.val();
-    const totalInvoicesCreatedSoFar = data ? +data + 1 : 0;
-    await update(ref(this.db), { totalInvoicesCreatedSoFar });
-  };
+  async incrementTotalInvoicesCreated(): Promise<void> {
+    const totalRef = ref(this.db, "totalInvoicesCreatedSoFar");
+    const snapshot = await get(totalRef);
+    const total = snapshot.val() ? +snapshot.val() + 1 : 1;
+    await update(ref(this.db), { totalInvoicesCreatedSoFar: total });
+  }
 
-  totalInvoicesCreatedSoFar = async (): Promise<number> => {
-    const totalInvoicesCreatedSoFarRef = ref(
-      this.db,
-      "totalInvoicesCreatedSoFar"
-    );
-    const snapshot = await get(totalInvoicesCreatedSoFarRef);
-    const data = snapshot.val();
-    return parseInt(data);
-  };
+  async totalInvoicesCreatedSoFar(): Promise<number> {
+    const totalRef = ref(this.db, "totalInvoicesCreatedSoFar");
+    const snapshot = await get(totalRef);
+    return parseInt(snapshot.val() || "0", 10);
+  }
 
-  storeTotalInvoiceCreatedIfNotPresent = async () => {
-    const totalInvoicesCreatedSoFarRef = ref(
-      this.db,
-      "totalInvoicesCreatedSoFar"
-    );
-    const snapshot = await get(totalInvoicesCreatedSoFarRef);
-    const data = snapshot.val();
-
-    if (!data) {
-      const totalInvoicesCreatedSoFar: number = await this.countInvoices();
-
-      await update(ref(this.db), { totalInvoicesCreatedSoFar });
+  async storeTotalInvoiceCreatedIfNotPresent(): Promise<void> {
+    const totalRef = ref(this.db, "totalInvoicesCreatedSoFar");
+    const snapshot = await get(totalRef);
+    if (!snapshot.val()) {
+      const count = await this.countInvoices();
+      await update(ref(this.db), { totalInvoicesCreatedSoFar: count });
     }
-  };
+  }
 
-  searchInvoices(query: string) {
-    console.log("Received query string", query);
+  /**
+   * Search invoices based on query string
+   */
+  async searchInvoices(query: string): Promise<boolean> {
     const dbRef = ref(this.db);
-
-    return get(child(dbRef, "invoices"))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const dbInvoices = snapshot.val();
-
-          // Frame cars for component
-          let invoices: IInvoice[] = [];
-          Object.keys(dbInvoices).forEach((key) => {
-            const val = dbInvoices[key];
-            invoices.push(val);
-          });
-
-          invoices = invoices.filter((invoice) => {
-            if (invoice.type === "SALE") {
-              if (
-                (invoice.services[0]?.total as unknown as string)
-                  ?.toLowerCase()
-                  .replace(/\s/g, "")
-                  .includes(query.toLowerCase().replace(/\s/g, "")) ||
-                invoice.services[0]?.id
-                  ?.toLowerCase()
-                  .includes(query.toLowerCase()) ||
-                invoice.services[0]?.item
-                  ?.toLowerCase()
-                  .includes(query.toLowerCase())
-              )
-                return true;
-            }
-
-            if (
-              invoice.carInfo?.regNo
-                ?.toLowerCase()
-                .replace(/\s/g, "")
-                .includes(query.toLowerCase().replace(/\s/g, "")) ||
-              invoice.carInfo?.make
+    const snapshot = await get(child(dbRef, "invoices"));
+    if (snapshot.exists()) {
+      const invoices = Object.values(
+        snapshot.val() as Record<string, IInvoice>
+      ).filter((invoice: IInvoice) => {
+        return (
+          (invoice.type === "SALE" &&
+            (invoice.services[0]?.total
+              ?.toString()
+              .toLowerCase()
+              .includes(query.toLowerCase()) ||
+              invoice.services[0]?.id
                 ?.toLowerCase()
                 .includes(query.toLowerCase()) ||
-              invoice.carInfo?.model
+              invoice.services[0]?.item
                 ?.toLowerCase()
-                .includes(query.toLowerCase()) ||
-              invoice.billTo?.name
-                ?.toLowerCase()
-                .replace(/\s/g, "")
-                .includes(query.toLowerCase().replace(/\s/g, ""))
-            ) {
-              return true;
-            }
-            return false;
-          });
-
-          this._invoices.next(invoices);
-          return true;
-        } else {
-          console.log("No data available");
-          return false;
-        }
-      })
-      .catch((error) => {
-        console.error(error);
+                .includes(query.toLowerCase()))) ||
+          invoice.carInfo?.regNo
+            ?.replace(/\s/g, "")
+            .toLowerCase()
+            .includes(query.replace(/\s/g, "").toLowerCase()) ||
+          invoice.carInfo?.make?.toLowerCase().includes(query.toLowerCase()) ||
+          invoice.carInfo?.model?.toLowerCase().includes(query.toLowerCase()) ||
+          invoice.billTo?.name
+            ?.replace(/\s/g, "")
+            .toLowerCase()
+            .includes(query.replace(/\s/g, "").toLowerCase())
+        );
       });
+
+      this._invoices.next(invoices);
+      return true;
+    } else {
+      console.error("No data found");
+      return false;
+    }
   }
 }

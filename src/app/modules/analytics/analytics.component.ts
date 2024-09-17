@@ -982,7 +982,11 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     let returningCustomers = 0;
 
     serviceInvoices.forEach((invoice) => {
-      if (invoice.date === invoice.billTo.createdDate) newCustomers++;
+      if (
+        !invoice.billTo.createdDate ||
+        invoice.date === invoice.billTo.createdDate
+      )
+        newCustomers++;
       else returningCustomers++;
     });
 
