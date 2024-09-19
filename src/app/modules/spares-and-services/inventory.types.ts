@@ -17,7 +17,7 @@ export interface InventoryProduct {
   sellingPrice: number | null;
 
   weight: number | null;
-  thumbnail: string;
+  thumbnail?: string;
   images: string[];
   active: boolean;
   date: number;

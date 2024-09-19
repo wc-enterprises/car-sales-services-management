@@ -231,8 +231,10 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
 
   createServiceGroup(suggestion?: IService): FormGroup {
     const price = suggestion?.price ?? "";
-    const quantity = suggestion?.quantity ?? "";
-    const total = suggestion?.total || +price * +quantity;
+    const quantity = suggestion?.quantity ?? 1;
+    const total = suggestion?.total
+      ? +suggestion?.total
+      : null || +price * +quantity;
 
     const control = this.fb.control(suggestion?.id ?? "");
 
@@ -246,7 +248,7 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     return this.fb.group({
       id: control,
       item: [suggestion?.item ?? "", Validators.required],
-      price: [price],
+      price: [price, Validators.required],
       quantity: [quantity],
       total: [total || 0],
       discount: [""],
@@ -286,6 +288,7 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     serviceGroup.get("item")?.setValue(item.name);
     const price = item.sellingPrice ?? "";
 
+    serviceGroup.get("id")?.setValue(item.id);
     serviceGroup.get("price")?.setValue(price);
     serviceGroup.get("quantity")?.setValue("1");
 
@@ -435,12 +438,12 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     this._unsubscribeAll.complete();
   }
 
-  clearForm() {
+  clearForm(resetToType?: "SERVICE" | "SALE") {
     localStorage.removeItem("invoiceDraft");
     this.form.reset();
     this.form.patchValue({
       invoiceNumber: this.currentInvoiceNumber,
-      type: "SERVICE",
+      type: resetToType ?? "SERVICE",
       date: new Date(),
       billTo: {
         phoneNumber: {
@@ -452,7 +455,8 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  typeChanged() {
+  typeChanged(type: "SERVICE" | "SALE") {
+    this.clearForm(type);
     this.form.get("services")?.reset();
   }
 
@@ -733,6 +737,54 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
         };
 
         await this.carService.createCar(car);
+      }
+
+      /**
+       * Save new services to inventory
+       */
+      const services = formData.services;
+      for (let service of services) {
+        if (formData.type === "SERVICES")
+          if (!service.id)
+            this._inventoryService.createProduct({
+              name: service.item,
+              vendor: null,
+              stock: null,
+              basePrice: service.price,
+              taxAmount: 0,
+              discount: 0,
+              sellingPrice: service.price,
+              weight: null,
+              images: [],
+              active: true,
+              date: new Date().getTime(),
+            });
+          else
+            this._inventoryService.updateProduct(service.id, {
+              name: service.item,
+              sellingPrice: service.price,
+            });
+        else if (formData.type === "SALE")
+          /**
+           * {
+	id: 'AlfaRomeo',
+	item: 'Giulietta',
+	price: 90000,
+	quantity: null,
+	total: 'io99009',
+}
+           */
+          this.carService.addCarIfNotPresent(
+            {
+              make: service.id,
+              model: service.item,
+              regNo: service.total,
+              price: service.price,
+              color: service.discount,
+            },
+            customerId
+          );
+        console.log("services stored at sale bill", service);
       }
 
       // Format the date fields to remove the timestamp

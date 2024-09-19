@@ -319,7 +319,13 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------------------------------------
 
   getTotalRevenueOfMonth() {
-    return this.totalSalesRevenueForMonth + this.totalServicesRevenueForMonth;
+    console.log(
+      "SAles revenue: ",
+      this.totalSalesRevenueForMonth,
+      "Service revenue: ",
+      this.totalServicesRevenueForMonth
+    );
+    return +this.totalSalesRevenueForMonth + +this.totalServicesRevenueForMonth;
   }
 
   routeToInvoiceListPage() {

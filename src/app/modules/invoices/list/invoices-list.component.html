@@ -221,7 +221,7 @@
                 Next Service Date
               </div>
 
-              <div class="ml-9" [mat-sort-header]="'preview'">Preview</div>
+              <div class="ml-4" [mat-sort-header]="'preview'">Action</div>
               <!-- <div class="hidden sm:hidden md:hidden lg:block truncate">
                 Action
               </div> -->
@@ -305,13 +305,33 @@
                     >
                       Preview
                     </button> -->
-                    <button
+                    <!-- <button
                       class="ml-4"
                       mat-flat-button
                       [color]="'primary'"
                       (click)="previewInvoice(invoice.id)"
                     >
                       <span class="ml-2 mr-1">Preview</span>
+                    </button> -->
+
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Preview'"
+                      (click)="previewInvoice(invoice.id)"
+                    >
+                      <mat-icon
+                        [svgIcon]="'heroicons_outline:document-text'"
+                      ></mat-icon>
+                    </button>
+
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Delete'"
+                      (click)="deleteInvoice(invoice.id)"
+                    >
+                      <mat-icon
+                        [svgIcon]="'heroicons_outline:trash'"
+                      ></mat-icon>
                     </button>
                   </div>
                 </div>

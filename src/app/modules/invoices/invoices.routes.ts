@@ -5,6 +5,7 @@ import { PreviewComponent } from "./preview/preview.component";
 import { InvoiceFormComponent } from "./add-invoice/add-invoice.component";
 import { inject } from "@angular/core";
 import { InventoryService } from "../spares-and-services/inventory.service";
+import { InvoicesService } from "./invoices.service";
 
 export default [
   {
@@ -14,7 +15,9 @@ export default [
       {
         path: "",
         component: InvoicesListComponent,
-        resolve: {},
+        resolve: {
+          products: () => inject(InvoicesService).getInvoices(),
+        },
       },
       {
         path: "preview/:id",
@@ -25,6 +28,7 @@ export default [
         path: "add",
         component: InvoiceFormComponent,
         resolve: {
+          invoices: () => inject(InvoicesService).getInvoices(),
           products: () => inject(InventoryService).getProducts(),
         },
       },

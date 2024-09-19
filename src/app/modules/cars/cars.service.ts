@@ -145,6 +145,12 @@ export class CarsService {
     );
   }
 
+  async getCarByIdOnce(id: string): Promise<ICar | null> {
+    const carsRef = ref(this.db, `cars/${id}`);
+    const snapshot = await get(carsRef);
+    return snapshot.val();
+  }
+
   /**
    * Create car
    */
@@ -175,12 +181,15 @@ export class CarsService {
    * @param id
    * @param car
    */
-  async updateCar(id: string, updatedCar: ICar): Promise<ICar> {
-    await set(ref(this.db, "cars/" + id), updatedCar);
+  async updateCar(id: string, updatedCar: Partial<ICar>): Promise<ICar> {
+    const previousCarVersion: ICar = (await this.getCarByIdOnce(id)) as ICar;
+    const updatedVersion = { ...previousCarVersion, ...updatedCar };
 
-    this._car.next(updatedCar);
+    await set(ref(this.db, "cars/" + id), updatedVersion);
 
-    return updatedCar;
+    this._car.next(updatedVersion);
+
+    return updatedVersion;
   }
 
   async createCar(car: Omit<ICar, "id">) {
@@ -191,6 +200,46 @@ export class CarsService {
     await this.updateCar(id, { id, ...car });
     console.log("Car created successfully", { id, ...car });
     return id;
+  }
+
+  addCarIfNotPresent(
+    car: {
+      make: string;
+      model: string;
+      regNo: string;
+      price: string;
+      color: string;
+    },
+    customerId: string
+  ) {
+    // Subscribe to the $cars Observable to get the list of cars
+    this.cars$.pipe(take(1)).subscribe(async (cars: ICar[]) => {
+      // Normalize the registration number for comparison (e.g., converting to lowercase)
+      const normalizedRegNo = car.regNo
+        .trim()
+        .replace(/\s+/g, "")
+        .toLowerCase();
+
+      // Check if the car with the same registration number exists
+      const existingCar = cars.find(
+        (existingCar) =>
+          existingCar.regNo.trim().replace(/\s+/g, "").toLowerCase() ===
+          normalizedRegNo
+      );
+
+      if (existingCar) {
+        // If the car is found, update the existing car
+        console.log(`Car with regNo: ${car.regNo} already exists, updating...`);
+        const updatedCar = { ...existingCar, ...car };
+        await this.updateCar(existingCar.id, updatedCar);
+      } else {
+        // If the car is not found, add the new car
+        console.log(
+          `Car with regNo: ${car.regNo} not found, adding new car...`
+        );
+        await this.createCar({ ...car, customerId });
+      }
+    });
   }
 
   /**

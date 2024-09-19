@@ -195,13 +195,16 @@ export class InventoryService {
    */
   async updateProduct(
     id: string,
-    product: InventoryProduct
+    product: Partial<InventoryProduct>
   ): Promise<InventoryProduct> {
-    await set(ref(this.db, "products/" + id), product);
+    const existingVersion: InventoryProduct = await this.getProductByIdOnce(id);
+    const newVersion: InventoryProduct = { ...existingVersion, ...product };
 
-    this._product.next(product);
+    await set(ref(this.db, "products/" + id), newVersion);
 
-    return product;
+    this._product.next(newVersion);
+
+    return newVersion;
   }
 
   /**

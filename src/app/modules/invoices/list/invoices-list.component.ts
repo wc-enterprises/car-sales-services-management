@@ -56,6 +56,7 @@ import { drawTable, DrawTableOptions } from "pdf-lib-draw-table-beta";
 import { TableOptionsDeepPartial } from "pdf-lib-draw-table-beta/build/types";
 import { DateRangeDialogComponent } from "../utils/date-range-dialog.component";
 import { getNowAndPastDateBasedOnFilterVal } from "../utils/util";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "inventory-list",
@@ -113,6 +114,7 @@ import { getNowAndPastDateBasedOnFilterVal } from "../utils/util";
     MatDatepickerModule,
     MatDialogModule,
     DatePipe,
+    MatTooltipModule,
   ],
 })
 export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -352,12 +354,12 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Delete the selected product using the form data
    */
-  deleteSelectedProduct(): void {
+  deleteInvoice(id: string): void {
     // Open the confirmation dialog
     const confirmation = this._fuseConfirmationService.open({
       title: "Delete details",
       message:
-        "Are you sure you want to remove this details? This action cannot be undone!",
+        "Are you sure you want to delete this invoice? This action cannot be undone!",
       actions: {
         confirm: {
           label: "Delete",
@@ -370,10 +372,9 @@ export class InvoicesListComponent implements OnInit, AfterViewInit, OnDestroy {
       // If the confirm button pressed...
       if (result === "confirmed") {
         // Get the product object
-        const product = this.selectedProductForm.getRawValue();
 
         // Delete the product on the server
-        this._invoicesService.deleteInvoice(product.id).then(() => {
+        this._invoicesService.deleteInvoice(id).then(() => {
           // Close the details
           this.closeDetails();
         });
