@@ -744,7 +744,7 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
        */
       const services = formData.services;
       for (let service of services) {
-        if (formData.type === "SERVICES")
+        if (formData.type === "SERVICE")
           if (!service.id)
             this._inventoryService.createProduct({
               name: service.item,
@@ -765,15 +765,6 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
               sellingPrice: service.price,
             });
         else if (formData.type === "SALE")
-          /**
-           * {
-	id: 'AlfaRomeo',
-	item: 'Giulietta',
-	price: 90000,
-	quantity: null,
-	total: 'io99009',
-}
-           */
           this.carService.addCarIfNotPresent(
             {
               make: service.id,
