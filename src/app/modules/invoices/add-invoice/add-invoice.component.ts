@@ -675,128 +675,293 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     return `${year}-${month}-${day}`;
   }
 
+  // async onSave() {
+  //   if (this.form.valid) {
+  //     const formData = this.form.value;
+  //     const now = Date.now();
+
+  //     let customerId: string = "";
+  //     if (
+  //       !formData.billTo.id &&
+  //       (formData.billTo.phoneNumber?.number || formData.billTo.addressLine1)
+  //     ) {
+  //       // Save the contact
+  //       // There will be no code in phone. Hardcode it to Great Britan.
+
+  //       const billToCustomer = formData.billTo as IInvoice["billTo"];
+  //       const contact: Omit<Contact, "id"> = {
+  //         name: billToCustomer.name,
+  //         address: {
+  //           addressLine1: billToCustomer.addressLine1,
+  //           addressLine2: billToCustomer.addressLine2,
+  //           city: billToCustomer.city,
+  //           country: billToCustomer.country,
+  //           postalCode: billToCustomer.postalCode,
+  //         },
+  //         phoneNumbers: [
+  //           {
+  //             country: "gb",
+  //             label: "",
+  //             phoneNumber: billToCustomer.phoneNumber?.number,
+  //           },
+  //         ],
+  //         createdDate: now,
+  //       };
+
+  //       customerId = await this.contactService.createContact(contact);
+
+  //       formData.billTo.id = customerId;
+  //       formData.billTo.createdDate = now;
+  //     }
+
+  //     const carInfoFromForm = formData.carInfo;
+  //     if (carInfoFromForm && !carInfoFromForm.id) {
+  //       // Save the car
+
+  //       const car: Omit<ICar, "id"> = {
+  //         regNo: carInfoFromForm.regNo,
+  //         make: carInfoFromForm.make,
+  //         model: carInfoFromForm.model,
+  //         color: carInfoFromForm.color,
+  //         fuelType: carInfoFromForm.fuelType,
+  //         mileage: carInfoFromForm.mileage
+  //           ? parseInt(carInfoFromForm.mileage)
+  //           : null,
+  //         nextServiceDate: carInfoFromForm.nextServiceDate
+  //           ? new Date(carInfoFromForm.nextServiceDate).getTime()
+  //           : null,
+  //         regYear: carInfoFromForm.regYear,
+  //         transmission: carInfoFromForm.transmission,
+  //         vinNumber: carInfoFromForm.vin,
+  //         customerId: customerId ?? null,
+  //       };
+
+  //       await this.carService.createCar(car);
+  //     }
+
+  //     /**
+  //      * Save new services to inventory
+  //      */
+  //     const services = formData.services;
+  //     for (let service of services) {
+  //       if (formData.type === "SERVICE") {
+  //         if (!service.id)
+  //           this._inventoryService.createProduct({
+  //             name: service.item,
+  //             vendor: null,
+  //             stock: null,
+  //             basePrice: service.price,
+  //             taxAmount: 0,
+  //             discount: 0,
+  //             sellingPrice: service.price,
+  //             weight: null,
+  //             images: [],
+  //             active: true,
+  //             date: new Date().getTime(),
+  //           });
+  //         else
+  //           this._inventoryService.updateProduct(service.id, {
+  //             name: service.item,
+  //             sellingPrice: service.price,
+  //           });
+  //       } else if (formData.type === "SALE") {
+  //         this.carService.addCarIfNotPresent(
+  //           {
+  //             make: service.id,
+  //             model: service.item,
+  //             regNo: service.total,
+  //             price: service.price,
+  //             color: service.discount,
+  //           },
+  //           customerId
+  //         );
+  //       }
+  //     }
+
+  //     // Format the date fields to remove the timestamp
+  //     formData.date = new Date(formData.date).getTime();
+
+  //     if (formData.carInfo)
+  //       formData.carInfo.nextServiceDate = new Date(
+  //         formData.carInfo.nextServiceDate
+  //       ).getTime();
+
+  //     const invoiceId = await this.invoiceService.createInvoice(formData);
+
+  //     localStorage.removeItem("invoiceDraft");
+  //     this.router.navigate([
+  //       `/inventory-and-invoice/invoices/preview/${invoiceId}`,
+  //     ]);
+  //     this.invoiceService.incrementTotalInvoicesCreated();
+  //     return invoiceId;
+  //   } else {
+  //     alert("Please fill in all required fields before printing");
+  //   }
+  // }
+
   async onSave() {
-    if (this.form.valid) {
-      const formData = this.form.value;
-      const now = Date.now();
-
-      let customerId: string = "";
-      if (
-        !formData.billTo.id &&
-        (formData.billTo.phoneNumber?.number || formData.billTo.addressLine1)
-      ) {
-        // Save the contact
-        // There will be no code in phone. Hardcode it to Great Britan.
-
-        const billToCustomer = formData.billTo as IInvoice["billTo"];
-        const contact: Omit<Contact, "id"> = {
-          name: billToCustomer.name,
-          address: {
-            addressLine1: billToCustomer.addressLine1,
-            addressLine2: billToCustomer.addressLine2,
-            city: billToCustomer.city,
-            country: billToCustomer.country,
-            postalCode: billToCustomer.postalCode,
-          },
-          phoneNumbers: [
-            {
-              country: "gb",
-              label: "",
-              phoneNumber: billToCustomer.phoneNumber?.number,
-            },
-          ],
-          createdDate: now,
-        };
-
-        customerId = await this.contactService.createContact(contact);
-
-        formData.billTo.id = customerId;
-        formData.billTo.createdDate = now;
-      }
-
-      const carInfoFromForm = formData.carInfo;
-      if (carInfoFromForm && !carInfoFromForm.id) {
-        // Save the car
-
-        const car: Omit<ICar, "id"> = {
-          regNo: carInfoFromForm.regNo,
-          make: carInfoFromForm.make,
-          model: carInfoFromForm.model,
-          color: carInfoFromForm.color,
-          fuelType: carInfoFromForm.fuelType,
-          mileage: carInfoFromForm.mileage
-            ? parseInt(carInfoFromForm.mileage)
-            : null,
-          nextServiceDate: carInfoFromForm.nextServiceDate
-            ? new Date(carInfoFromForm.nextServiceDate).getTime()
-            : null,
-          regYear: carInfoFromForm.regYear,
-          transmission: carInfoFromForm.transmission,
-          vinNumber: carInfoFromForm.vin,
-          customerId: customerId ?? null,
-        };
-
-        await this.carService.createCar(car);
-      }
-
-      /**
-       * Save new services to inventory
-       */
-      const services = formData.services;
-      for (let service of services) {
-        if (formData.type === "SERVICE")
-          if (!service.id)
-            this._inventoryService.createProduct({
-              name: service.item,
-              vendor: null,
-              stock: null,
-              basePrice: service.price,
-              taxAmount: 0,
-              discount: 0,
-              sellingPrice: service.price,
-              weight: null,
-              images: [],
-              active: true,
-              date: new Date().getTime(),
-            });
-          else
-            this._inventoryService.updateProduct(service.id, {
-              name: service.item,
-              sellingPrice: service.price,
-            });
-        else if (formData.type === "SALE")
-          this.carService.addCarIfNotPresent(
-            {
-              make: service.id,
-              model: service.item,
-              regNo: service.total,
-              price: service.price,
-              color: service.discount,
-            },
-            customerId
-          );
-        console.log("services stored at sale bill", service);
-      }
-
-      // Format the date fields to remove the timestamp
-      formData.date = new Date(formData.date).getTime();
-
-      if (formData.carInfo)
-        formData.carInfo.nextServiceDate = new Date(
-          formData.carInfo.nextServiceDate
-        ).getTime();
-
-      const invoiceId = await this.invoiceService.createInvoice(formData);
-
-      localStorage.removeItem("invoiceDraft");
-      this.router.navigate([
-        `/inventory-and-invoice/invoices/preview/${invoiceId}`,
-      ]);
-      this.invoiceService.incrementTotalInvoicesCreated();
-      return invoiceId;
-    } else {
-      alert("Please fill in all required fields before printing");
+    if (!this.form.valid) {
+      alert("Please fill in all required fields before saving");
+      return;
     }
+  
+    const formData = this.form.value;
+    const now = Date.now();
+  
+    const customerId = await this.saveCustomerIfNeeded(formData, now);
+    await this.saveCarIfNeeded(formData, customerId);
+    await this.saveServicesToInventory(formData, customerId);
+  
+    this.formatDateFields(formData);
+  
+    const invoiceId = await this.saveInvoice(formData);
+    this.finalizeInvoice(invoiceId);
+    return invoiceId;
+  }
+  
+  /**
+   * Save the customer if the `billTo` contact is new.
+   */
+  private async saveCustomerIfNeeded(formData: any, now: number): Promise<string> {
+    if (formData.billTo.id || !this.isBillToValid(formData.billTo)) {
+      return formData.billTo.id || "";
+    }
+  
+    const billToCustomer = formData.billTo as IInvoice["billTo"];
+    const contact: Omit<Contact, "id"> = {
+      name: billToCustomer.name,
+      address: {
+        addressLine1: billToCustomer.addressLine1,
+        addressLine2: billToCustomer.addressLine2,
+        city: billToCustomer.city,
+        country: billToCustomer.country,
+        postalCode: billToCustomer.postalCode,
+      },
+      phoneNumbers: [
+        {
+          country: "gb",
+          label: "",
+          phoneNumber: billToCustomer.phoneNumber?.number,
+        },
+      ],
+      createdDate: now,
+    };
+  
+    const customerId = await this.contactService.createContact(contact);
+    formData.billTo.id = customerId;
+    formData.billTo.createdDate = now;
+    return customerId;
+  }
+  
+  /**
+   * Validate the `billTo` contact details.
+   */
+  private isBillToValid(billTo: any): boolean {
+    return !!(billTo.phoneNumber?.number || billTo.addressLine1);
+  }
+  
+  /**
+   * Save the car if the car info is new.
+   */
+  private async saveCarIfNeeded(formData: any, customerId: string) {
+    const carInfo = formData.carInfo;
+    if (carInfo && !carInfo.id) {
+      const car: Omit<ICar, "id"> = {
+        regNo: carInfo.regNo,
+        make: carInfo.make,
+        model: carInfo.model,
+        color: carInfo.color,
+        fuelType: carInfo.fuelType,
+        mileage: carInfo.mileage ? parseInt(carInfo.mileage) : null,
+        nextServiceDate: carInfo.nextServiceDate
+          ? new Date(carInfo.nextServiceDate).getTime()
+          : null,
+        regYear: carInfo.regYear,
+        transmission: carInfo.transmission,
+        vinNumber: carInfo.vin,
+        customerId: customerId,
+      };
+  
+      await this.carService.createCar(car);
+    }
+  }
+  
+  /**
+   * Save new services to inventory or update existing services.
+   */
+  private async saveServicesToInventory(formData: any, customerId: string) {
+    const services = formData.services || [];
+    for (const service of services) {
+      if (formData.type === "SERVICE") {
+        await this.saveOrUpdateProduct(service);
+      } else if (formData.type === "SALE") {
+        this.carService.addCarIfNotPresent(
+          {
+            make: service.id,
+            model: service.item,
+            regNo: service.total,
+            price: service.price,
+            color: service.discount,
+          },
+          customerId
+        );
+      }
+    }
+  }
+  
+  /**
+   * Save or update a service in the inventory.
+   */
+  private async saveOrUpdateProduct(service: any) {
+    if (!service.id) {
+      await this._inventoryService.createProduct({
+        name: service.item,
+        vendor: null,
+        stock: null,
+        basePrice: service.price,
+        taxAmount: 0,
+        discount: 0,
+        sellingPrice: service.price,
+        weight: null,
+        images: [],
+        active: true,
+        date: new Date().getTime(),
+      });
+    } else {
+      await this._inventoryService.updateProduct(service.id, {
+        name: service.item,
+        sellingPrice: service.price,
+      });
+    }
+  }
+  
+  /**
+   * Format the date fields in the form data.
+   */
+  private formatDateFields(formData: any) {
+    formData.date = new Date(formData.date).getTime();
+  
+    if (formData.carInfo) {
+      formData.carInfo.nextServiceDate = new Date(
+        formData.carInfo.nextServiceDate
+      ).getTime();
+    }
+  }
+  
+  /**
+   * Save the invoice and return the invoice ID.
+   */
+  private async saveInvoice(formData: any): Promise<string> {
+    return await this.invoiceService.createInvoice(formData);
+  }
+  
+  /**
+   * Finalize the invoice creation by navigating and updating the local state.
+   */
+  private finalizeInvoice(invoiceId: string) {
+    localStorage.removeItem("invoiceDraft");
+    this.router.navigate([`/inventory-and-invoice/invoices/preview/${invoiceId}`]);
+    this.invoiceService.incrementTotalInvoicesCreated();
   }
 
   backToInvoices() {
