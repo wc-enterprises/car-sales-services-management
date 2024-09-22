@@ -17,6 +17,18 @@
 
       <!-- Alert -->
       <fuse-alert
+        *ngIf="env==='local'"
+        class="mt-8"
+        [appearance]="'outline'"
+        [showIcon]="false"
+        [type]="'info'"
+      >
+        You are browsing a<strong> Demo App</strong>. Use email <strong> abinpaul5598&#64;gmail.com</strong>
+        and password <strong> newToughPassword </strong> to sign in.
+      </fuse-alert>
+
+      <!-- Alert -->
+      <fuse-alert
         class="mt-8"
         *ngIf="showAlert"
         [appearance]="'outline'"

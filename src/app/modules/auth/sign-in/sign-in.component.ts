@@ -18,6 +18,7 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { AuthService } from "app/core/auth/auth.service";
+import { environment } from "app/environments/environment";
 
 @Component({
   selector: "auth-sign-in",
@@ -48,6 +49,7 @@ export class AuthSignInComponent implements OnInit {
   };
   signInForm: UntypedFormGroup;
   showAlert: boolean = false;
+  env: "local" | "demo" | "prod";
 
   /**
    * Constructor
@@ -57,7 +59,9 @@ export class AuthSignInComponent implements OnInit {
     private _authService: AuthService,
     private _formBuilder: UntypedFormBuilder,
     private _router: Router
-  ) {}
+  ) {
+    this.env = environment.environment;
+  }
 
   // -----------------------------------------------------------------------------------------------------
   // @ Lifecycle hooks
