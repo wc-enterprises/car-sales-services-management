@@ -897,7 +897,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     // Format data for "this-month"
     const thisMonthData = Object.keys(salesData).map((date) => ({
       x: DateTime.fromISO(date).toJSDate(),
-      y: salesData[date],
+      y: isNaN(salesData[date]) ? 0 : salesData[date],
     }));
 
     this.dailySalesData.series["this-month"][0].data = thisMonthData;
@@ -932,7 +932,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
     const thisWeekData = Object.keys(weeklySalesData).map((date) => ({
       x: DateTime.fromISO(date).toJSDate(),
-      y: weeklySalesData[date],
+      y: isNaN(weeklySalesData[date]) ? 0 : weeklySalesData[date],
     }));
 
     this.dailySalesData.series["this-week"][0].data = thisWeekData;
