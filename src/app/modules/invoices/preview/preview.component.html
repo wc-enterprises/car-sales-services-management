@@ -368,6 +368,17 @@
               }}</span>
             </div>
 
+            <!-- Part Exchange (Conditional) -->
+            <div
+              *ngIf="invoiceData.partExchange"
+              class="flex justify-between items-center mt-2"
+            >
+              <span class="text-xl font-medium tracking-tight">PART EXCHANGE</span>
+              <span class="text-xl font-medium">{{
+                invoiceData.partExchange | currency : "GBP"
+              }}</span>
+            </div>
+
             <!-- Balance (Conditional) -->
             <div
               *ngIf="invoiceData.balance"

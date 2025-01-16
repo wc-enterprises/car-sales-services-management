@@ -1,3 +1,5 @@
+import { TextFieldModule } from "@angular/cdk/text-field";
+import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -6,8 +8,6 @@ import {
   OnInit,
   ViewEncapsulation,
 } from "@angular/core";
-import { TextFieldModule } from "@angular/cdk/text-field";
-import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from "@angular/common";
 import {
   FormArray,
   FormBuilder,
@@ -17,24 +17,26 @@ import {
   UntypedFormArray,
   Validators,
 } from "@angular/forms";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatOptionModule, MatRippleModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router, RouterLink } from "@angular/router";
 import { FuseFindByKeyPipe } from "@fuse/pipes/find-by-key/find-by-key.pipe";
 import { InvoicesService } from "app/modules/invoices/invoices.service";
-import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
-import { Contact, Country } from "../../contacts/contacts.types";
-import { ContactsService } from "../../contacts/contacts.service";
-import { ICar } from "../../cars/cars.types";
+import { DateTime } from "luxon";
+import { EMPTY, merge, map, Observable, startWith, Subject, takeUntil } from "rxjs";
 import { CarsService } from "../../cars/cars.service";
+import { ICar } from "../../cars/cars.types";
+import { ContactsService } from "../../contacts/contacts.service";
+import { Contact, Country } from "../../contacts/contacts.types";
 import { InventoryService } from "../../spares-and-services/inventory.service";
 import { InventoryProduct } from "../../spares-and-services/inventory.types";
 import {
@@ -45,8 +47,6 @@ import {
   TRANSMISSION,
 } from "../../utils/util";
 import { IInvoice, IService } from "../utils/invoices.types";
-import { DateTime } from "luxon";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 
 @Component({
   selector: "invoice",
@@ -191,6 +191,7 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
       hasWarranty: [true],
       advance: [0],
       balance: [0],
+      partExchange: [0],
     });
 
     this.form.controls.billTo.get("phoneNumber.code")?.patchValue("gb");
@@ -405,12 +406,16 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
       this.form.get("total")?.setValue(total);
     });
 
-    this.form
-      .get("advance")
-      ?.valueChanges.pipe(takeUntil(this._unsubscribeAll))
-      .subscribe((advance) => {
-        const total = this.form.get("total")?.value;
-        const balance = total - advance;
+    merge(
+      this.form.get("advance")?.valueChanges || EMPTY,
+      this.form.get("partExchange")?.valueChanges || EMPTY
+    )
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(() => {
+        const total = this.form.get("total")?.value || 0;
+        const advance = this.form.get("advance")?.value || 0;
+        const partExchange = this.form.get("partExchange")?.value || 0;
+        const balance = total - advance - partExchange;
         this.form.get("balance")?.setValue(balance);
       });
 
