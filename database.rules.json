@@ -1,6 +1,6 @@
 {
     "rules": {
-        ".read": "auth != null",
-        ".write": "auth != null"
+        ".read": "auth != null && (auth.uid === 'FIRST_USER_UID' || auth.uid === 'SECOND_USER_UID')",
+        ".write": "auth != null && (auth.uid === 'FIRST_USER_UID' || auth.uid === 'SECOND_USER_UID')"
     }
 }
