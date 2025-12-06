@@ -1,0 +1,322 @@
+<!-- Title and action buttons -->
+<div class="absolute pl-10 mobile-small:pl-7 pr-7 pt-2 pb-2 flex items-center justify-between w-full bg-gray-200 print:hidden"
+    *ngIf="estimateData">
+    <div>
+        <div class="text-3xl mobile-small:text-base font-semibold tracking-tight leading-8">
+            Estimate Bill {{ estimateData.estimateNumber }}
+        </div>
+    </div>
+
+    <div class="flex items-center">
+        <!-- Models -->
+        <!-- <div>
+      <button
+        class="sm:inline-flex ml-3 bg-[#f8d269]"
+        mat-button
+        [matMenuTriggerFor]="differentModels"
+      >
+        <span class="font-medium text-sm">{{ "Model 1" }}</span>
+      </button>
+      <mat-menu #differentModels="matMenu">
+        <button mat-menu-item>Model 1</button>
+        <button mat-menu-item>Model 2</button>
+        <button mat-menu-item>Model 3</button>
+      </mat-menu>
+    </div> -->
+
+        <!-- Delete -->
+        <button mat-icon-button [color]="'warn'" [matTooltip]="'Delete'" (click)="deleteEstimate()">
+            <mat-icon [svgIcon]="'heroicons_outline:trash'"> </mat-icon>
+        </button>
+
+        <!-- Export -->
+        <button mat-icon-button [matTooltip]="'Export'" (click)="exportEstimate()">
+            <mat-icon [svgIcon]="'heroicons_solid:arrow-up-tray'"></mat-icon>
+        </button>
+
+        <!-- Close Preview -->
+        <button mat-icon-button [matTooltip]="'Close Preview'" [routerLink]="['../../']">
+            <mat-icon [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+        </button>
+    </div>
+</div>
+
+<!-- Outer containter -->
+<div id="emailable-area"
+    class="minify absolute inset-0 min-w-0 mt-15 print:p-0 print:m-0 print:w-full text-center print:overflow-visible lg:h-full md:h-full lg:overflow-hidden md:overflow-hidden print:scale-100"
+    cdkScrollable>
+    <!-- Main -->
+    <div
+        class="inline-block p-6 print:p-0 print:m-0 print:w-full mobile-small:pl-8 sm:p-10 text-left xl:overflow-y-scroll lg:overflow-y-scroll lg:h-full md:overflow-y-scroll md:h-full hide-scrollbar">
+        <!-- A4 -->
+        <div class="rounded-2xl shadow print:rounded-none print:overflow-visible">
+            <!-- Header -->
+            <img *ngIf="estimateData.type === 'SERVICE'" src="assets/images/invoice/invoice-header.svg" alt="header" />
+            <img *ngIf="estimateData.type === 'SALE'" src="assets/images/invoice/grace-cars-ltd-header.svg"
+                alt="header" />
+            <!-- Content -->
+            <div class="print:pr-0 w-240 pl-16 pr-16 mt-8">
+                <!-- Head content -->
+                <div class="flex items-center justify-between">
+                    <!-- Customer data -->
+                    <div
+                        class="flex items-start p-5 gap-x-8 bg-[#1E5483] border-b rounded-[10px] dark include-color min-w-[300px] min-h-[100px]">
+                        <!-- Customer Info -->
+                        <div>
+                            <div class="text-xl font-light">
+                                {{ estimateData.billTo.name }}
+                            </div>
+                            <div class="max-w-60 font-light">
+                                {{
+                                formatAddress(
+                                estimateData.billTo.addressLine1,
+                                estimateData.billTo.addressLine2,
+                                estimateData.billTo.city,
+                                estimateData.billTo.country,
+                                estimateData.billTo.postalCode
+                                )
+                                }}
+                            </div>
+                            <div *ngIf="estimateData.billTo.phoneNumber?.number" class="mt-5 font-light">
+                                {{ formatNumber(estimateData.billTo.phoneNumber) }}
+                            </div>
+                        </div>
+
+                        <!-- Car Info for Service Bill -->
+                        <div *ngIf="estimateData.carInfo">
+                            <div class="text-xl font-light">
+                                {{ estimateData.carInfo.regNo }}
+                            </div>
+                            <div class="font-light">
+                                {{ estimateData.carInfo.make }} - {{ estimateData.carInfo.model }}
+                            </div>
+                            <div *ngIf="estimateData.carInfo.color" class="font-light">
+                                {{ estimateData.carInfo.color }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estimate Data -->
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div class="text-right text-slate-500 text-xl font-light">
+                            Estimate Bill
+                        </div>
+                        <div class="text-lg font-medium">
+                            {{ estimateData.estimateNumber }}
+                        </div>
+
+                        <div class="text-right text-slate-500 text-lg font-light">
+                            Estimate Date
+                        </div>
+                        <div class="text-lg font-medium">
+                            {{ formatDate(estimateData.date) }}
+                        </div>
+
+                        <div class="text-right text-slate-500 text-xl mt-3 font-light">
+                            Payment
+                        </div>
+                        <div class="mt-3 text-lg font-medium">Grace Cars Ltd</div>
+
+                        <div class="text-right text-slate-500 text-lg font-light">
+                            Account
+                        </div>
+                        <div class="text-lg font-medium">381-04-660</div>
+
+                        <div class="text-right text-slate-500 text-lg font-light">
+                            Sort Code
+                        </div>
+                        <div class="text-lg font-medium">52-30-42</div>
+                    </div>
+                </div>
+
+                <!-- Table Columns -->
+                <div class="grid grid-cols-12 gap-x-1 mt-20 bg-[#1E5482] h-[50px] include-color-head rounded-[10px]">
+                    <!-- First Column -->
+                    <div class="col-span-8 font-medium text-md text-secondary text-white pl-4"
+                        *ngIf="estimateData.type === 'SERVICE'">
+                        SERVICE
+                    </div>
+                    <div class="col-span-3 font-medium text-md text-secondary text-white pl-4"
+                        *ngIf="estimateData.type === 'SALE'">
+                        MAKE
+                    </div>
+
+                    <!-- Second Column -->
+                    <div class="font-medium text-md text-right text-secondary text-white"
+                        *ngIf="estimateData.type === 'SERVICE'">
+                        RATE
+                    </div>
+                    <div class="col-span-2 font-medium text-md text-secondary text-white"
+                        *ngIf="estimateData.type === 'SALE'">
+                        MODEL
+                    </div>
+
+                    <!-- Third Column -->
+                    <div class="font-medium text-md text-right text-secondary text-white"
+                        *ngIf="estimateData.type === 'SERVICE'">
+                        QTY
+                    </div>
+                    <div class="col-span-2 font-medium text-md text-secondary text-white"
+                        *ngIf="estimateData.type === 'SALE'">
+                        REG NO
+                    </div>
+
+                    <!-- 3.1 Column for SALE bill to accomodate color ;) -->
+                    <div class="col-span-2 font-medium text-md text-secondary text-white"
+                        *ngIf="estimateData.type === 'SALE'">
+                        COLOR
+                    </div>
+
+                    <!-- Fourth Column -->
+                    <div class="col-span-2 font-medium text-md text-right text-secondary pr-4 text-white"
+                        *ngIf="estimateData.type === 'SERVICE'">
+                        TOTAL
+                    </div>
+                    <div class="col-span-3 font-medium text-md text-right text-secondary pr-4 text-white"
+                        *ngIf="estimateData.type === 'SALE'">
+                        PRICE
+                    </div>
+                </div>
+
+                <!-- Table Data-->
+                <div class="grid grid-cols-12 gap-x-1 min-h-[268px] place-content-start">
+                    <ng-container *ngFor="let service of estimateData.services; let i = index">
+                        <!-- Spacer if above first row -->
+                        <div class="col-span-12 my-4" *ngIf="i === 0"></div>
+                        <!-- Divider -->
+                        <div class="col-span-12 my-4 border-b" *ngIf="i !== 0"></div>
+
+                        <!-- Column 1 Item -->
+                        <div class="col-span-8 text-lg font-medium pl-3" *ngIf="estimateData.type === 'SERVICE'">
+                            {{ service.item }}
+                        </div>
+                        <div class="col-span-3 text-lg font-medium pl-3" *ngIf="estimateData.type === 'SALE'">
+                            {{ service.id }}
+                        </div>
+
+                        <!-- Column 2 Item -->
+                        <div class="self-center text-right" *ngIf="estimateData.type === 'SERVICE'">
+                            {{ service.price | currency : "GBP" }}
+                        </div>
+                        <div class="col-span-2 self-center" *ngIf="estimateData.type === 'SALE'">
+                            {{ service.item }}
+                        </div>
+
+                        <!-- Column 3 Item -->
+                        <div class="self-center text-right" *ngIf="estimateData.type === 'SERVICE'">
+                            {{ service.quantity }}
+                        </div>
+                        <div class="col-span-2 self-center" *ngIf="estimateData.type === 'SALE'">
+                            {{ service.total }}
+                        </div>
+
+                        <!-- Column 3.1 for SALE to accomodate color ;) -->
+                        <div class="col-span-2 self-center" *ngIf="estimateData.type === 'SALE'">
+                            {{ service.discount }}
+                        </div>
+
+                        <!-- Column 4 Item -->
+                        <div class="col-span-2 self-center text-right pr-3" *ngIf="estimateData.type === 'SERVICE'">
+                            {{
+                            getTotalPerItem(service.price, service.quantity)
+                            | currency : "GBP"
+                            }}
+                        </div>
+                        <div class="col-span-3 self-center text-right pr-3" *ngIf="estimateData.type === 'SALE'">
+                            {{ service.price | currency : "GBP" }}
+                        </div>
+                    </ng-container>
+                </div>
+
+                <!-- Subtotal, Vat section -->
+                <div class="grid grid-cols-12 gap-x-1">
+                    <!-- Spacer -->
+                    <div class="col-span-12 mt-16"></div>
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+
+                    <!-- Subtotal -->
+                    <div class="col-span-10 self-center font-medium tracking-tight text-secondary pl-3">
+                        SUBTOTAL
+                    </div>
+                    <div class="col-span-2 text-right text-lg pr-3">
+                        {{ estimateData.subtotal | currency : "GBP" }}
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+
+                    <!-- Tax -->
+                    <div class="col-span-10 self-center font-medium tracking-tight text-secondary pl-3">
+                        VAT
+                    </div>
+                    <div class="col-span-2 text-right text-lg pr-3">
+                        {{
+                        estimateData.tax?.value
+                        ? (estimateData.tax.value | currency : "GBP")
+                        : "-"
+                        }}
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+                </div>
+
+                <div class="flex justify-end mt-4 print:w-[300px] print:ml-auto print:mr-0">
+                    <!-- Total, Advance, and Balance Box -->
+                    <div class="bg-[#1E5482] text-white rounded-[10px] p-4 w-full md:w-[40%] include-color">
+                        <!-- Total -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-medium tracking-tight">TOTAL</span>
+                            <span class="text-xl font-medium">{{
+                                estimateData.total | currency : "GBP"
+                                }}</span>
+                        </div>
+
+                        <!-- Advance (Conditional) -->
+                        <div *ngIf="estimateData.advance" class="flex justify-between items-center mt-2">
+                            <span class="text-xl font-medium tracking-tight">ADVANCE</span>
+                            <span class="text-xl font-medium">{{
+                                estimateData.advance | currency : "GBP"
+                                }}</span>
+                        </div>
+
+                        <!-- Part Exchange (Conditional) -->
+                        <div *ngIf="estimateData.partExchange" class="flex justify-between items-center mt-2">
+                            <span class="text-xl font-medium tracking-tight">PART EXCHANGE</span>
+                            <span class="text-xl font-medium">{{
+                                estimateData.partExchange | currency : "GBP"
+                                }}</span>
+                        </div>
+
+                        <!-- Balance (Conditional) -->
+                        <div *ngIf="estimateData.balance" class="flex justify-between items-center mt-2">
+                            <span class="text-xl font-medium tracking-tight">BALANCE</span>
+                            <span class="text-xl font-medium">{{
+                                estimateData.balance | currency : "GBP"
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-16 flex flex-col gap-3">
+                    <div class="font-medium" *ngIf="
+              estimateData.type === 'SALE' && estimateData.hasWarranty === true
+            ">
+                        This vehicle comes with a 3-month warranty covering the engine and
+                        gearbox.
+                    </div>
+                    <div class="font-medium" *ngIf="estimateData.type === 'SERVICE'">
+                        Next service due on
+                        {{ formatDate(estimateData.carInfo?.nextServiceDate) }}
+                    </div>
+                    <div class="font-medium">
+                        Please pay within 15 days. Thank you for your business.
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <img src="assets/images/invoice/grace-footer.svg" alt="footer" />
+        </div>
+    </div>
+</div>

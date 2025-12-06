@@ -1,0 +1,248 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div
+        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+
+        <!-- Title -->
+        <div class="flex justify-between">
+            <div class="text-4xl font-extrabold tracking-tight">Estimate Bills</div>
+            <!-- Actions menu (visible on xs) -->
+            <div class="sm:hidden mt-1">
+                <button [matMenuTriggerFor]="actionsMenu" mat-icon-button>
+                    <mat-icon [svgIcon]="'heroicons_mini:ellipsis-vertical'"></mat-icon>
+                </button>
+                <mat-menu #actionsMenu="matMenu">
+                    <button (click)="navigateToForm()" mat-menu-item>Add</button>
+                    <button (click)="generateEstimatesReport()" mat-menu-item>
+                        Export
+                    </button>
+                </mat-menu>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <div class="flex ss:flex-col ss:gap-4 sm:flex-col sm:gap-4 ss:w-120 xl:flex-row">
+                <!-- Search -->
+                <mat-form-field class="ml-2 fuse-mat-dense fuse-mat-rounded w-50 ss:w-full rounded-full bg-hober"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:magnifying-glass'"></mat-icon>
+                    <input type="text" matInput [formControl]="searchInputControl" [placeholder]="'Search'"
+                        [autocomplete]="'off'" />
+                </mat-form-field>
+
+                <!-- Filter by days -->
+                <div class="ml-2">
+                    <button class="h-30 w-50 ss:w-full min-h-6 rounded-full bg-hover" mat-button
+                        [matMenuTriggerFor]="conversionMenu">
+                        <span class="font-medium text-base text-secondary">{{
+                            getDisplayValueOfSelectedFilter(
+                            selectedTimePeriodFilter,
+                            "TIME_PERIOD"
+                            )
+                            }}</span>
+                    </button>
+                    <mat-menu #conversionMenu="matMenu">
+                        <button mat-menu-item (click)="setFilterValue('1m', 'TIME_PERIOD')">
+                            Last 30 days
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('3m', 'TIME_PERIOD')">
+                            Last 3 months
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('6m', 'TIME_PERIOD')">
+                            Last 6 months
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('cfy', 'TIME_PERIOD')">
+                            Current Financial Year
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('lfy', 'TIME_PERIOD')">
+                            Last Financial Year
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('dr', 'TIME_PERIOD')">
+                            Select Date Range
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('all', 'TIME_PERIOD')">
+                            All
+                        </button>
+                    </mat-menu>
+                </div>
+
+                <!-- Filter by type -->
+                <div class="ml-2">
+                    <button class="h-30 w-50 ss:w-full min-h-6 px-2 rounded-full bg-hover" mat-button
+                        [matMenuTriggerFor]="estimateTypeList">
+                        <span class="font-medium text-base text-secondary">{{
+                            getDisplayValueOfSelectedFilter(
+                            selectedEstimateTypeFilter,
+                            "ESTIMATE_TYPE"
+                            )
+                            }}</span>
+                    </button>
+                    <mat-menu #estimateTypeList="matMenu">
+                        <button mat-menu-item (click)="setFilterValue('ALL', 'ESTIMATE_TYPE')">
+                            All
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('SERVICE', 'ESTIMATE_TYPE')">
+                            Services
+                        </button>
+                        <button mat-menu-item (click)="setFilterValue('SALE', 'ESTIMATE_TYPE')">
+                            Sales
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+
+            <div class="flex items-center ml-6">
+                <!-- Add product button -->
+                <button class="ml-4 hidden sm:inline-flex ml-3" mat-flat-button [color]="'primary'"
+                    (click)="navigateToForm()">
+                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    <span class="ml-2 mr-1">Add</span>
+                </button>
+                <!-- Export button -->
+                <button class="hidden sm:inline-flex ml-3" mat-flat-button [color]="'primary'"
+                    (click)="generateEstimatesReport()">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:arrow-up-tray'"></mat-icon>
+                    <span class="ml-2">Export</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto">
+            <ng-container *ngIf="estimates$ | async as products">
+                <ng-container *ngIf="products.length > 0; else noProducts">
+                    <div class="grid">
+                        <!-- Header -->
+                        <div class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+                            matSort matSortDisableClear>
+                            <div>S.No</div>
+                            <div class="truncate" [mat-sort-header]="'estimateId'">
+                                Estimate No.
+                            </div>
+                            <div class="hidden sm:hidden md:hidden lg:block truncate"
+                                [mat-sort-header]="'customerName'">
+                                Customer Name
+                            </div>
+                            <div class="hidden sm:hidden md:block truncate" [mat-sort-header]="'carName'">
+                                Car Name
+                            </div>
+                            <div class="hidden sm:hidden md:hidden lg:block truncate" [mat-sort-header]="'regNo'">
+                                Reg No
+                            </div>
+                            <div class="hidden sm:block md:block lg:block truncate" [mat-sort-header]="'amount'">
+                                Amount
+                            </div>
+
+                            <div class="hidden sm:block md:block lg:block truncate" [mat-sort-header]="'type'">
+                                Type
+                            </div>
+                            <div class="hidden sm:hidden md:hidden lg:block truncate"
+                                [mat-sort-header]="'nextServiceDate'">
+                                Next Service Date
+                            </div>
+
+                            <div class="ml-4" [mat-sort-header]="'preview'">Action</div>
+                            <!-- <div class="hidden sm:hidden md:hidden lg:block truncate">
+                Action
+              </div> -->
+                        </div>
+
+                        <!-- Rows -->
+                        <ng-container *ngIf="estimates$ | async as estimates">
+                            <ng-container *ngFor="
+                  let estimate of estimates;
+                  let i = index;
+                  trackBy: trackByFn
+                ">
+                                <div class="inventory-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
+                                    <!-- S.No -->
+                                    <div class="flex items-center">
+                                        <div
+                                            class="relative flex flex-0 items-center justify-center w-12 h-12 mr-6 overflow-hidden">
+                                            <div
+                                                class="flex items-center justify-center w-full h-full text-xs font-semibold leading-none text-center uppercase">
+                                                {{ i + 1 }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estimate Id -->
+                                    <div class="truncate">
+                                        {{ estimate.estimateNumber }}
+                                    </div>
+
+                                    <!-- Customer name -->
+                                    <div class="hidden sm:hidden md:hidden lg:block truncate">
+                                        {{ estimate.billTo.name }}
+                                    </div>
+
+                                    <!-- Car name -->
+                                    <div class="truncate hidden sm:hidden md:block">
+                                        {{
+                                        estimate.type === "SERVICE"
+                                        ? estimate.carInfo?.make + "-" + estimate.carInfo?.model
+                                        : estimate.services[0].id +
+                                        "-" +
+                                        estimate.services[0].item
+                                        }}
+                                    </div>
+
+                                    <!-- Reg No -->
+                                    <div class="hidden sm:hidden md:hidden lg:block truncate">
+                                        {{
+                                        estimate.type === "SERVICE"
+                                        ? estimate.carInfo?.regNo
+                                        : estimate.services[0].total
+                                        }}
+                                    </div>
+
+                                    <!-- Cost -->
+                                    <div class="hidden sm:block md:block lg:block truncate">
+                                        {{ estimate.total }}
+                                    </div>
+
+                                    <!-- Type -->
+                                    <div class="hidden sm:block md:block lg:block truncate">
+                                        {{ estimate.type }}
+                                    </div>
+
+                                    <!-- Next Service Date -->
+                                    <div class="hidden sm:hidden md:hidden lg:block truncate">
+                                        {{ estimate.carInfo?.nextServiceDate | date : "shortDate" }}
+                                    </div>
+
+                                    <!-- Action -->
+                                    <div>
+                                        <button mat-icon-button [matTooltip]="'Preview'"
+                                            (click)="previewEstimate(estimate.id)">
+                                            <mat-icon [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+                                        </button>
+
+                                        <button mat-icon-button [matTooltip]="'Delete'"
+                                            (click)="deleteEstimate(estimate.id)">
+                                            <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </ng-container>
+            </ng-container>
+
+            <ng-template #noProducts>
+                <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">
+                    There are no items!
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</div>

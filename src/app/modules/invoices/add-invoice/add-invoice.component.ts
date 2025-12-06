@@ -128,15 +128,15 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     value: string;
     viewValue: string;
   }[] = [
-    {
-      value: "SERVICE",
-      viewValue: "Service",
-    },
-    {
-      value: "SALE",
-      viewValue: "Sale",
-    },
-  ];
+      {
+        value: "SERVICE",
+        viewValue: "Service",
+      },
+      {
+        value: "SALE",
+        viewValue: "Sale",
+      },
+    ];
 
   eRef: any;
   invoiceForm: any;
@@ -235,7 +235,7 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     const quantity = suggestion?.quantity ?? 1;
     const total = suggestion?.total
       ? +suggestion?.total
-      : null || +price * +quantity;
+      : +price * +quantity;
 
     const control = this.fb.control(suggestion?.id ?? "");
 
@@ -809,21 +809,21 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
       alert("Please fill in all required fields before saving");
       return;
     }
-  
+
     const formData = this.form.value;
     const now = Date.now();
-  
+
     const customerId = await this.saveCustomerIfNeeded(formData, now);
     await this.saveCarIfNeeded(formData, customerId);
     await this.saveServicesToInventory(formData, customerId);
-  
+
     this.formatDateFields(formData);
-  
+
     const invoiceId = await this.saveInvoice(formData);
     this.finalizeInvoice(invoiceId);
     return invoiceId;
   }
-  
+
   /**
    * Save the customer if the `billTo` contact is new.
    */
@@ -831,7 +831,7 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
     if (formData.billTo.id || !this.isBillToValid(formData.billTo)) {
       return formData.billTo.id || "";
     }
-  
+
     const billToCustomer = formData.billTo as IInvoice["billTo"];
     const contact: Omit<Contact, "id"> = {
       name: billToCustomer.name,
@@ -851,20 +851,20 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
       ],
       createdDate: now,
     };
-  
+
     const customerId = await this.contactService.createContact(contact);
     formData.billTo.id = customerId;
     formData.billTo.createdDate = now;
     return customerId;
   }
-  
+
   /**
    * Validate the `billTo` contact details.
    */
   private isBillToValid(billTo: any): boolean {
     return !!(billTo.phoneNumber?.number || billTo.addressLine1);
   }
-  
+
   /**
    * Save the car if the car info is new.
    */
@@ -886,11 +886,11 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
         vinNumber: carInfo.vin,
         customerId: customerId,
       };
-  
+
       await this.carService.createCar(car);
     }
   }
-  
+
   /**
    * Save new services to inventory or update existing services.
    */
@@ -913,7 +913,7 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
       }
     }
   }
-  
+
   /**
    * Save or update a service in the inventory.
    */
@@ -939,27 +939,27 @@ export class InvoiceFormComponent implements OnInit, OnDestroy {
       });
     }
   }
-  
+
   /**
    * Format the date fields in the form data.
    */
   private formatDateFields(formData: any) {
     formData.date = new Date(formData.date).getTime();
-  
+
     if (formData.carInfo) {
       formData.carInfo.nextServiceDate = new Date(
         formData.carInfo.nextServiceDate
       ).getTime();
     }
   }
-  
+
   /**
    * Save the invoice and return the invoice ID.
    */
   private async saveInvoice(formData: any): Promise<string> {
     return await this.invoiceService.createInvoice(formData);
   }
-  
+
   /**
    * Finalize the invoice creation by navigating and updating the local state.
    */

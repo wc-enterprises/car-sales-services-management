@@ -1,0 +1,555 @@
+<div class="absolute inset-0 min-w-0 text-center flex flex-col items-center overflow-auto print:overflow-visible"
+    cdkScrollable>
+    <!-- Contact form -->
+    <div class="relative inline-block gap-0 mb-10 px-5 sm:px-5 ss:px-3 text-left flex flex-col flex-auto items-start">
+        <!-- Header -->
+        <div class="relative w-full flex flex-row flex-0 items-center justify-between py-8 px-0 md:px-0">
+            <!-- Title -->
+            <div class="text-4xl ss:text-[26px] font-extrabold tracking-tight">
+                Estimate-form
+            </div>
+            <!-- Actions -->
+            <div class="flex gap-2 shrink-0 items-center mt-2 sm:mt-0 sm:ml-4">
+                <button mat-icon-button [matTooltip]="'Clear form'" (click)="clearForm()">
+                    <mat-icon class="text-black" [svgIcon]="'heroicons_outline:paint-brush'"></mat-icon>
+                </button>
+                <button mat-icon-button [matTooltip]="'Close'" [routerLink]="['../']">
+                    <mat-icon class="text-black" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+                </button>
+            </div>
+        </div>
+        <div
+            class="w-full max-w-4xl relative inline-block sm:p-10 flex flex-col flex-auto items-center p-6 rounded-2xl shadow bg-card">
+            <form [formGroup]="form" class="flex items-center flex-col">
+                <div class="flex flex-col w-full">
+                    <span class="text-gray-600 text-2xl font-regular w-full text-left">
+                        ESTIMATE {{ form.get("estimateNumber")?.value }}
+                    </span>
+
+                    <div class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0">
+                        <!-- Estimate Type -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Estimate Type</mat-label>
+                            <mat-select [formControlName]="'type'">
+                                <ng-container *ngFor="let type of estimateTypes">
+                                    <mat-option [value]="type.value" (click)="typeChanged(type.value)">{{ type.viewValue
+                                        }}</mat-option>
+                                </ng-container>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- Date -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Date</mat-label>
+                            <input matInput [matDatepicker]="datepicker" [formControlName]="'date'"
+                                placeholder="Date" />
+                            <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+                            <mat-datepicker #datepicker></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Bill section -->
+
+                <div formGroupName="billTo" class="flex flex-col mt-8 w-full">
+                    <span class="text-gray-600 text-2xl font-regular w-full text-left">
+                        BILL TO
+                    </span>
+
+                    <!-- Row 1 -->
+                    <div class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0">
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Name</mat-label>
+                            <input matInput [formControlName]="'name'" [(ngModel)]="selectedName"
+                                (input)="filterNames()" (focus)="isDropdownOpened = true" placeholder="Name"
+                                (blur)="isDropdownOpened = false" />
+                        </mat-form-field>
+
+                        <mat-form-field formGroupName="phoneNumber" class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Phone</mat-label>
+                            <input matInput [formControlName]="'number'" [placeholder]="'Phone'" />
+
+                            <mat-select class="mr-1.5" [formControlName]="'code'" matPrefix>
+                                <mat-select-trigger>
+                                    <span class="flex items-center">
+                                        <span class="hidden sm:flex w-6 h-4 mr-1 overflow-hidden" [style.background]="
+                        'url(\'/assets/images/apps/contacts/flags.png\') no-repeat 0 0'
+                      " [style.backgroundSize]="'24px 3876px'" [style.backgroundPosition]="
+                        getCountryByIso(
+                          form.get('billTo.phoneNumber.code')?.value
+                        )?.flagImagePos
+                      "></span>
+                                        <span class="sm:mx-0.5 font-medium text-default">{{
+                                            getCountryByIso(
+                                            form.get("billTo.phoneNumber.code")?.value
+                                            )?.code
+                                            }}</span>
+                                    </span>
+                                </mat-select-trigger>
+                                <ng-container *ngFor="let country of countries">
+                                    <mat-option [value]="country.iso">
+                                        <span class="flex items-center">
+                                            <span class="w-6 h-4 overflow-hidden" [style.background]="
+                          'url(\'/assets/images/apps/contacts/flags.png\') no-repeat 0 0'
+                        " [style.backgroundSize]="'24px 3876px'"
+                                                [style.backgroundPosition]="country.flagImagePos"></span>
+                                            <span class="ml-2">{{ country.name }}</span>
+                                            <span class="ml-2 font-medium">{{ country.code }}</span>
+                                        </span>
+                                    </mat-option>
+                                </ng-container>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Address line1</mat-label>
+                            <input matInput [formControlName]="'addressLine1'" placeholder="Address line1" />
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0">
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Address line2</mat-label>
+                            <input matInput [formControlName]="'addressLine2'" placeholder="Address line2" />
+                        </mat-form-field>
+
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Town/city</mat-label>
+                            <input matInput [formControlName]="'city'" placeholder="Town/city" />
+                        </mat-form-field>
+
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Country</mat-label>
+                            <input matInput [formControlName]="'country'" placeholder="Country" />
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="flex flex-col mt-5">
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Postal code</mat-label>
+                            <input matInput [formControlName]="'postalCode'" placeholder="Postal code" />
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <ul #dropdowned *ngIf="isDropdownOpened && filteredNames.length"
+                    class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[292px] mobile-small:mt-[382px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+                    (mousedown)="preventClose($event)">
+                    <li *ngFor="let contactList of filteredNames" class="p-2 cursor-pointer hover:bg-gray-200"
+                        (click)="selectName(contactList)">
+                        {{ contactList }}
+                    </li>
+                </ul>
+
+                <ul *ngIf="isDropdownOpenedNumber && filteredPhoneNumber.length"
+                    class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-[292px] mobile-small:mt-[472px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+                    (mousedown)="preventClose($event)">
+                    <li *ngFor="let numberList of filteredPhoneNumber" class="p-2 cursor-pointer hover:bg-gray-200"
+                        (click)="selectPhoneNumber(numberList)">
+                        {{ numberList }}
+                    </li>
+                </ul>
+
+                <div formGroupName="carInfo" class="flex flex-col mt-8 w-full" *ngIf="showCarDetails()">
+                    <span class="text-gray-600 text-2xl font-regular w-full text-left">
+                        CAR DETAILS
+                    </span>
+
+                    <!-- Row 1 -->
+                    <div class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0">
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Reg no</mat-label>
+                            <input matInput [(ngModel)]="selectedRegNo" (input)="filterRegNo()"
+                                (focus)="isDropdownOpenedRegNo = true" (blur)="isDropdownOpenedRegNo = false"
+                                [formControlName]="'regNo'" placeholder="Reg no" />
+                        </mat-form-field>
+
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Make</mat-label>
+                            <input type="text" matInput placeholder="Enter make" [matAutocomplete]="auto"
+                                [formControlName]="'make'" />
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let make of filteredMakes" [value]="make">{{
+                                    make
+                                    }}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Model</mat-label>
+                            <input type="text" matInput placeholder="Enter model" [matAutocomplete]="autox"
+                                [formControlName]="'model'" />
+                            <mat-autocomplete #autox="matAutocomplete">
+                                <mat-option *ngFor="let model of getModelsForAMakeWithoutParam()" [value]="model">{{
+                                    model
+                                    }}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <!-- regNo -->
+                    <ul *ngIf="isDropdownOpenedRegNo && filteredRegNo.length"
+                        class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 md:mt-29 mobile-small:mt-[130px] z-10 p-2 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+                        (mousedown)="preventClose($event)">
+                        <li *ngFor="let regNoList of filteredRegNo" class="p-2 cursor-pointer hover:bg-gray-200"
+                            (click)="selectRegNo(regNoList)">
+                            {{ regNoList }}
+                        </li>
+                    </ul>
+
+                    <!-- Row 2 -->
+                    <div class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0">
+                        <!-- Color -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Color</mat-label>
+                            <input type="text" matInput placeholder="Enter color" [matAutocomplete]="autoc"
+                                [formControlName]="'color'" />
+                            <mat-autocomplete #autoc="matAutocomplete">
+                                <mat-option *ngFor="let color of filteredColors" [value]="color">{{ color
+                                    }}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Fuel type</mat-label>
+                            <mat-select [formControlName]="'fuelType'" placeholder="Fuel type">
+                                <ng-container *ngFor="let val of fuelTypes">
+                                    <mat-option [value]="val">{{ val }}</mat-option>
+                                </ng-container>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">VIN number</mat-label>
+                            <input matInput [formControlName]="'vin'" placeholder="VIN number" />
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0">
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Reg year</mat-label>
+
+                            <mat-select [formControlName]="'regYear'">
+                                <ng-container *ngFor="let val of regYearList">
+                                    <mat-option [value]="val">{{ val }}</mat-option>
+                                </ng-container>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Transmission</mat-label>
+                            <mat-select [formControlName]="'transmission'">
+                                <ng-container *ngFor="let val of transmissionTypes">
+                                    <mat-option [value]="val">{{ val }}</mat-option>
+                                </ng-container>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Row 4 -->
+                    <div class="flex flex-col md:flex-row md:space-x-4 mt-5 space-y-4 md:space-y-0">
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Mileage</mat-label>
+                            <input matInput [formControlName]="'mileage'" placeholder="Mileage" />
+                        </mat-form-field>
+
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label class="text-gray-500">Next service date</mat-label>
+                            <input matInput [matDatepicker]="nextServiceDatepicker"
+                                (click)="nextServiceDatepicker.open()" [formControlName]="'nextServiceDate'"
+                                placeholder="Next service date" (keydown)="(false)" />
+                            <mat-datepicker-toggle matSuffix [for]="nextServiceDatepicker"></mat-datepicker-toggle>
+                            <mat-datepicker #nextServiceDatepicker></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <span class="text-gray-600 text-2xl font-regular w-full text-left mt-10">
+                    ITEMS
+                </span>
+                <div formArrayName="services" class="grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-5">
+                    <!-- Column Headers -->
+
+                    <!-- Column One -->
+                    <div class="col-span-5 font-medium text-md text-left text-secondary"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        ITEM
+                    </div>
+                    <div class="col-span-3 ss:col-span-2 font-medium text-md text-left text-secondary"
+                        *ngIf="form.get('type')?.value === 'SALE'">
+                        MAKE
+                    </div>
+
+                    <!-- Column Two -->
+                    <div class="col-span-2 font-medium text-md text-right text-secondary"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        RATE
+                    </div>
+                    <div class="col-span-2 ss:col-span-3 font-medium text-left text-md text-secondary"
+                        *ngIf="form.get('type')?.value === 'SALE'">
+                        MODEL
+                    </div>
+
+                    <!-- Column Three -->
+                    <div class="col-span-2 font-medium text-md text-right text-secondary"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        QTY
+                    </div>
+                    <div class="col-span-2 font-medium text-left text-md text-secondary"
+                        *ngIf="form.get('type')?.value === 'SALE'">
+                        REG NO
+                    </div>
+
+                    <!-- Column 3.1 for SALE bill ;) -->
+                    <div class="col-span-2 font-medium text-left text-md text-secondary"
+                        *ngIf="form.get('type')?.value === 'SALE'">
+                        COLOR
+                    </div>
+
+                    <!-- Column Four -->
+                    <div class="col-span-2 font-medium text-md text-right text-secondary"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        TOTAL
+                    </div>
+                    <div class="col-span-3 font-medium text-md text-center text-secondary"
+                        *ngIf="form.get('type')?.value === 'SALE'">
+                        PRICE
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-4 border-b"></div>
+
+                    <!-- Item Row -->
+                    <div *ngFor="
+              let service of services.controls;
+              let i = index;
+              let first = first;
+              let last = last
+            " [formGroupName]="i" class="col-span-12 grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-4">
+                        <!-- Column 1 Value -->
+                        <mat-form-field [ngClass]="{
+                'col-span-5 ss:col-span-12': services.length !== 1,
+                'col-span-6 ss:col-span-12': services.length === 1
+              }" [subscriptSizing]="'dynamic'" *ngIf="form.get('type')?.value === 'SERVICE'">
+                            <input matInput formControlName="item" placeholder="Enter item"
+                                class="w-full p-2 border rounded" (input)="filterItems($event.target.value, i)"
+                                (focus)="openDropdown(i)" (blur)="closeDropdown(i)" />
+                        </mat-form-field>
+
+                        <!-- Dropdown with z-index -->
+                        <ul #dropdown *ngIf="filteredServices.length > 0 && isDropdownOpen[i]"
+                            class="left-0 absolute w-[calc(100%-2rem)] ml-4 mr-2 mt-13 z-10 bg-white border border-gray-300 rounded max-h-40 overflow-y-auto"
+                            (mousedown)="preventClose($event)">
+                            <li *ngFor="let item of filteredServices" (click)="selectSuggestion(item, i)"
+                                class="p-2 cursor-pointer hover:bg-gray-200">
+                                {{ item.name }}
+                            </li>
+                        </ul>
+
+                        <mat-form-field class="col-span-3 ss:col-span-12" [subscriptSizing]="'dynamic'"
+                            *ngIf="form.get('type')?.value === 'SALE'">
+                            <input type="text" matInput placeholder="Enter make" [matAutocomplete]="auto"
+                                [formControlName]="'id'" />
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let make of filteredMakes$[i] | async" [value]="make">{{ make
+                                    }}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+
+                        <!-- Column 2 Value -->
+                        <mat-form-field class="col-span-2 ss:col-span-7" [subscriptSizing]="'dynamic'"
+                            *ngIf="form.get('type')?.value === 'SERVICE'">
+                            <input matInput formControlName="price" placeholder="Price" type="number" />
+                        </mat-form-field>
+
+                        <mat-form-field class="col-span-2 ss:col-span-12" [subscriptSizing]="'dynamic'"
+                            *ngIf="form.get('type')?.value === 'SALE'">
+                            <input type="text" matInput placeholder="Enter model" [matAutocomplete]="auto"
+                                [formControlName]="'item'" />
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="
+                    let model of getModelsForAMake(service.get('id')?.value)
+                  " [value]="model">
+                                    {{ model }}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+
+                        <!-- Column 3 Value -->
+                        <mat-form-field class="col-span-2 self-center ss:col-span-5" [subscriptSizing]="'dynamic'"
+                            *ngIf="form.get('type')?.value === 'SERVICE'">
+                            <input matInput formControlName="quantity" placeholder="Qty" type="number" min="1" />
+                        </mat-form-field>
+                        <mat-form-field class="col-span-2 self-center ss:col-span-12" [subscriptSizing]="'dynamic'"
+                            *ngIf="form.get('type')?.value === 'SALE'">
+                            <input matInput formControlName="total" placeholder="Reg No" />
+                        </mat-form-field>
+
+                        <!-- Column 3.1 Value for SALE bill alone ;) -->
+                        <mat-form-field class="col-span-2 self-center ss:col-span-12" [subscriptSizing]="'dynamic'"
+                            *ngIf="form.get('type')?.value === 'SALE'">
+                            <input type="text" matInput placeholder="Enter color" [matAutocomplete]="autocx"
+                                [formControlName]="'discount'" />
+                            <mat-autocomplete #autocx="matAutocomplete">
+                                <mat-option *ngFor="let color of colors" [value]="color">{{
+                                    color
+                                    }}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+
+                        <!-- Column 4 Value -->
+                        <mat-form-field class="col-span-2 self-center ss:col-span-11" [subscriptSizing]="'dynamic'"
+                            *ngIf="form.get('type')?.value === 'SERVICE'">
+                            <input matInput formControlName="total" placeholder="Total" [value]="
+                  getServiceItemTotal(
+                    service.get('price')?.value,
+                    service.get('quantity')?.value
+                  )
+                " type="number" [readonly]="true" />
+                        </mat-form-field>
+                        <mat-form-field [ngClass]="{
+                'col-span-2 ss:col-span-12': services.length !== 1,
+                'col-span-3 ss:col-span-12': services.length === 1
+              }" class="ss:col-span-10" [subscriptSizing]="'dynamic'" *ngIf="form.get('type')?.value === 'SALE'">
+                            <input matInput formControlName="price" placeholder="Price" type="number" />
+                        </mat-form-field>
+
+                        <!-- Remove button -->
+                        <ng-container *ngIf="!(first && last)">
+                            <div class="flex items-center w-10 pl-2" [ngClass]="{ 'mt-6': first }">
+                                <button class="w-8 h-8 min-h-8" mat-icon-button (click)="removeService(i)"
+                                    matTooltip="Remove">
+                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                                </button>
+                            </div>
+                        </ng-container>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-4 border-b"></div>
+
+                    <!-- Add Item Button -->
+                    <div class="group w-50 inline-flex items-center mt-2 -ml-4 py-2 px-4 rounded cursor-pointer"
+                        (click)="addService()">
+                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                        <span class="ml-2 font-medium text-secondary group-hover:underline">Add an item</span>
+                    </div>
+
+                    <!-- Spacer -->
+                    <div class="col-span-12 mt-16"></div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-x-2 ss:gap-y-2 mt-10 w-full">
+                    <!-- Subtotal -->
+                    <div class="col-span-7 self-center font-medium text-left tracking-tight text-secondary">
+                        SUBTOTAL
+                    </div>
+                    <mat-form-field class="col-span-5 text-right text-lg" [subscriptSizing]="'dynamic'">
+                        <input matInput [formControlName]="'subtotal'" placeholder="SubTotal" type="number"
+                            [readonly]="true" />
+                    </mat-form-field>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+
+                    <!-- Tax -->
+                    <div class="col-span-7 self-center font-medium text-left tracking-tight text-secondary">
+                        VAT
+                    </div>
+                    <mat-form-field formGroupName="tax" class="col-span-5 text-right text-lg"
+                        [subscriptSizing]="'dynamic'">
+                        <input matInput [formControlName]="'value'" placeholder="Vat" type="number" />
+                    </mat-form-field>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+
+                    <!-- Advance for SERVICE invoices -->
+                    <div class="col-span-7 self-center text-2xl text-left font-medium tracking-tight text-secondary"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        ADVANCE
+                    </div>
+                    <mat-form-field class="col-span-5 text-right text-2xl font-medium" [subscriptSizing]="'dynamic'"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        <input matInput [formControlName]="'advance'" placeholder="Advance" type="number" />
+                    </mat-form-field>
+
+                    <!-- Divider for SERVICE -->
+                    <div class="col-span-12 my-3 border-b" *ngIf="form.get('type')?.value === 'SERVICE'"></div>
+
+                    <!-- Balance for SERVICE invoices -->
+                    <div class="col-span-7 self-center text-2xl text-left font-medium tracking-tight text-secondary"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        BALANCE
+                    </div>
+                    <mat-form-field class="col-span-5 text-right text-2xl font-medium" [subscriptSizing]="'dynamic'"
+                        *ngIf="form.get('type')?.value === 'SERVICE'">
+                        <input matInput [formControlName]="'balance'" placeholder="Balance" type="number"
+                            [readonly]="true" />
+                    </mat-form-field>
+                </div>
+
+                <div class="grid grid-cols-12 gap-x-2 ss:gap-y-2 w-full" *ngIf="form.get('type')?.value === 'SALE'">
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+
+                    <!-- Advance -->
+                    <div class="col-span-7 self-center text-2xl text-left font-medium tracking-tight text-secondary">
+                        ADVANCE
+                    </div>
+                    <mat-form-field class="col-span-5 text-right text-2xl font-medium" [subscriptSizing]="'dynamic'">
+                        <input matInput [formControlName]="'advance'" placeholder="Advance" type="number" />
+                    </mat-form-field>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+
+                    <!-- Part Exchange -->
+                    <div class="col-span-7 self-center text-2xl text-left font-medium tracking-tight text-secondary">
+                        PART EXCHANGE
+                    </div>
+                    <mat-form-field class="col-span-5 text-right text-2xl font-medium" [subscriptSizing]="'dynamic'">
+                        <input matInput [formControlName]="'partExchange'" placeholder="Part Exchange" type="number" />
+                    </mat-form-field>
+
+                    <!-- Divider -->
+                    <div class="col-span-12 my-3 border-b"></div>
+
+                    <!-- Balance -->
+                    <div class="col-span-7 self-center text-2xl text-left font-medium tracking-tight text-secondary">
+                        BALANCE
+                    </div>
+                    <mat-form-field class="col-span-5 text-right text-2xl font-medium" [subscriptSizing]="'dynamic'">
+                        <input matInput [formControlName]="'balance'" placeholder="Balance" type="number"
+                            [readonly]="true" />
+                    </mat-form-field>
+                </div>
+
+                <!-- Engine and Gear box warranty toggle for sale bill -->
+
+                <div *ngIf="form.get('type')?.value === 'SALE'" class="w-full mt-10">
+                    <mat-slide-toggle [formControlName]="'hasWarranty'" [color]="'primary'">
+                        Include 3 months warranty for engine and gear box
+                    </mat-slide-toggle>
+                </div>
+
+                <!-- Actions -->
+                <div
+                    class="flex items-center justify-between w-full mt-10 -mx-6 sm:-mx-12 py-4 pr-4 pl-1 sm:pr-12 sm:pl-7 border-t bg-gray-50 dark:bg-transparent">
+                    <!-- Cancel -->
+                    <button mat-button [color]="'warn'" (click)="onCancel()" [matTooltip]="'Cancel'">
+                        Cancel
+                    </button>
+                    <!-- Save -->
+                    <!-- <button type="submit" class="ml-auto" mat-button [matTooltip]="'Save'">
+            Save   
+             </button> -->
+                    <!-- Print -->
+                    <button type="submit" class="ml-2" mat-flat-button [color]="'primary'" [matTooltip]="'Print'"
+                        (click)="onSave()">
+                        Save & Print
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
