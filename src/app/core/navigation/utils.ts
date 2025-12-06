@@ -61,6 +61,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: "heroicons_outline:calculator",
         link: "/inventory-and-invoice/invoices",
       },
+      {
+        id: "apps.estimate-billing",
+        title: "Estimate Bills",
+        type: "basic",
+        icon: "heroicons_outline:document-text",
+        link: "/inventory-and-invoice/estimate-billing",
+      },
     ],
   },
   {

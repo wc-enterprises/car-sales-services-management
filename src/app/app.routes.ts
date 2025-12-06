@@ -123,6 +123,11 @@ export const appRoutes: Route[] = [
             path: "invoices",
             loadChildren: () => import("app/modules/invoices/invoices.routes"),
           },
+          {
+            path: "estimate-billing",
+            loadChildren: () =>
+              import("app/modules/estimate-billing/estimate-billing.routes"),
+          },
         ],
       },
       // 404 & Catch all
